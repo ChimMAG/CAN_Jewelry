@@ -512,7 +512,7 @@ namespace canjewelry.src.be
                         OnCleanHorizontal(voxelPos, BlockFacing.NORTH.FaceWhenRotatedBy(0, yaw - GameMath.PIHALF, 0));
                         break;
                     case 2:
-                        OnCleanVertical(voxelPos, BlockFacing.NORTH.FaceWhenRotatedBy(0, yaw - GameMath.PIHALF, 0));
+                        OnCleanVertical(voxelPos, BlockFacing.EAST.FaceWhenRotatedBy(0, yaw - GameMath.PIHALF, 0));
                         break;
                         // case 0: OnHit(voxelPos); break;
                         /*case 1: OnUpset(voxelPos, BlockFacing.NORTH.FaceWhenRotatedBy(0, yaw - GameMath.PIHALF, 0)); break;

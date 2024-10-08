@@ -245,7 +245,7 @@ namespace canjewelry.src.jewelry
                     tree.ToBytes(stream);
                     array = output.ToArray();
                 }
-         ((ICoreServerAPI)this.Api).Network.SendBlockEntityPacket((IServerPlayer)byPlayer, this.Pos.X, this.Pos.Y, this.Pos.Z, 5000, array);
+         ((ICoreServerAPI)this.Api).Network.SendBlockEntityPacket((IServerPlayer)byPlayer, this.Pos, 5000, array);
                 byPlayer.InventoryManager.OpenInventory((IInventory)this.inventory);
             }
             return true;

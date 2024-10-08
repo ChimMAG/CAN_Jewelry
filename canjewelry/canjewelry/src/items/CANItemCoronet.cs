@@ -101,15 +101,14 @@ namespace canjewelry.src.items
             return jsonItemStack;
         }
 
-        public Shape GetShape(ItemStack stack, EntityAgent forEntity, string texturePrefixCode)
+        public Shape GetShape(ItemStack stack, Entity forEntity, string texturePrefixCode)
         {
             Shape gearShape = null;
             CompositeShape compGearShape = null;
             JsonObject attrObj = stack.Collectible.Attributes;
-            float damageEffect = 0f;
             compGearShape = ((!attrObj["attachShape"].Exists) ? ((stack.Class == EnumItemClass.Item) ? stack.Item.Shape : stack.Block.Shape) : attrObj["attachShape"].AsObject<CompositeShape>(null, stack.Collectible.Code.Domain));
             AssetLocation shapePath = compGearShape.Base.CopyWithPath("shapes/" + compGearShape.Base.Path + ".json");
-            gearShape = Vintagestory.API.Common.Shape.TryGet(api, shapePath);
+            gearShape = Vintagestory.API.Common.Shape.TryGet(api, shapePath);          
             if (gearShape == null)
             {
                 api.World.Logger.Warning("Entity armor shape {0} defined in {1} {2} not found or errored, was supposed to be at {3}. Armor piece will be invisible.", new object[]
@@ -121,73 +120,33 @@ namespace canjewelry.src.items
                 });
                 return null;
             }
+            return gearShape;
+        }
+        public bool IsAttachable(ItemStack itemStack)
+        {
+            return true;
+        }
 
-            //gearShape.SubclassForStepParenting(texturePrefixCode, damageEffect);
-            HashSet<string> textureCodes = new HashSet<string>();
-            ShapeElement[] elements = gearShape.Elements;
-            for (int i = 0; i < elements.Length; i++)
+        public void CollectTextures(ItemStack stack, Shape shape, string texturePrefixCode, Dictionary<string, CompositeTexture> intoDict)
+        {
+            if (this.api.Side is EnumAppSide.Server)
             {
-                elements[i].WalkRecursive(delegate (ShapeElement el)
-                {
-                    el.DamageEffect = damageEffect;
-                    ShapeElementFace[] facesResolved = el.FacesResolved;
-                    foreach (ShapeElementFace shapeElementFace in facesResolved)
-                    {
-                        if (shapeElementFace != null && shapeElementFace.Enabled && !shapeElementFace.Texture.Contains("gems"))
-                        {
-                            textureCodes.Add(shapeElementFace.Texture);
-                            shapeElementFace.Texture = texturePrefixCode + "-" + shapeElementFace.Texture;
-                        }
-                    }
-                });
+                return;
             }
 
-            if (gearShape.Textures != null)
+            FillTextureDict(tmpTextures, stack);
+
+            foreach (var texture in tmpTextures)
             {
-                KeyValuePair<string, int[]>[] array = gearShape.TextureSizes.ToArray();
-                gearShape.TextureSizes.Clear();
-                KeyValuePair<string, int[]>[] array2 = array;
-                for (int i = 0; i < array2.Length; i++)
-                {
-                    KeyValuePair<string, int[]> keyValuePair = array2[i];
-                    gearShape.TextureSizes[texturePrefixCode + "-" + keyValuePair.Key] = keyValuePair.Value;
-                    textureCodes.Remove(keyValuePair.Key);
-                }
-
-                foreach (string item in textureCodes)
-                {
-                    gearShape.TextureSizes[texturePrefixCode + "-" + item] = new int[2] { gearShape.TextureWidth, gearShape.TextureHeight };
-                }
-            }
+                CompositeTexture ctex = new CompositeTexture() { Base = texture.Value };
 
 
-            canjewelry.gems_textures.TryGetValue("diamond", out string assetPath);
-            string maskMetal = stack.Attributes.GetString("metal", null);
-            gearShape.Textures["canjewelry:cancoronet-tinbronze-gems"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-            
-            gearShape.Textures["gems"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-
-
-            FillTextureDict(gearShape.Textures, stack);
-
-
-            Dictionary<string, AssetLocation> newdict = new Dictionary<string, AssetLocation>();
-            FillTextureDict(newdict, stack);
-            newdict["canjewelry:cancoronet-tinbronze-gems"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-
-            newdict["gems"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-            foreach (var val in newdict)
-            {
-                CompositeTexture ctex = new CompositeTexture() { Base = val.Value };
-
-                ICoreClientAPI capi = this.capi as ICoreClientAPI;
-
-                AssetLocation armorTexLoc = val.Value;
+                AssetLocation armorTexLoc = texture.Value;
 
                 int textureSubId = 0;
                 TextureAtlasPosition texpos;
 
-                capi.EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
+                (this.api as ICoreClientAPI).EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
                 {
                     IAsset texAsset = this.capi.Assets.TryGet(armorTexLoc.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
                     if (texAsset != null)
@@ -197,15 +156,34 @@ namespace canjewelry.src.items
                     return null;
                 });
 
-                if (val.Key == null)
-                    continue;
                 ctex.Baked = new BakedCompositeTexture() { BakedName = armorTexLoc, TextureSubId = textureSubId };
-
-                ((EntityClientProperties)forEntity.SidedProperties).Textures[val.Key] = ctex;
+                intoDict[texture.Key] = ctex;
             }
+        }
 
+        public string GetCategoryCode(ItemStack stack)
+        {
+            return "cancoronet";
+        }
 
-            return gearShape;
+        public CompositeShape GetAttachedShape(ItemStack stack, string slotCode)
+        {
+            return null;
+        }
+
+        public string[] GetDisableElements(ItemStack stack)
+        {
+            return null;
+        }
+
+        public string[] GetKeepElements(ItemStack stack)
+        {
+            return null;
+        }
+
+        public string GetTexturePrefixCode(ItemStack stack)
+        {
+            return this.GetMeshCacheKey(stack);
         }
         public override string GetMeshCacheKey(ItemStack itemstack)
         {

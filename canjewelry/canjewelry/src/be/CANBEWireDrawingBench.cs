@@ -204,7 +204,7 @@ namespace canjewelry.src.be
             }
             else
             {
-                (this.Api as ICoreServerAPI).Network.BroadcastBlockEntityPacket(this.Pos.X, this.Pos.Y, this.Pos.Z, 1010, null);
+                (this.Api as ICoreServerAPI).Network.BroadcastBlockEntityPacket(this.Pos, 1010, null);
             }
             this.Api.World.PlaySoundAt(new AssetLocation("game:sounds/block/creak/woodcreak_2.ogg"), (double)this.Pos.X + 0.5, (double)this.Pos.Y + 0.5, (double)this.Pos.Z + 0.5, byPlayer, false, 32f, 3f);
             this.listenerId = this.Api.World.RegisterGameTickListener(new Action<float>(this.onSqueezing), 20, 0);

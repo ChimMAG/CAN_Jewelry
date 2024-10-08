@@ -9,9 +9,7 @@
 		"pendants1": [16,16]
 	},
 	"textures": {
-		"silk": "/Users/koeni/Desktop/tex/silk",
-		"metal": "/Users/koeni/Desktop/tex/metal",
-		"gem": "/Users/koeni/Desktop/tex/gem"
+
 	},
 	"elements": [
 		{
