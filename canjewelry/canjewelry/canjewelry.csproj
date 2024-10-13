@@ -7,44 +7,40 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="cairo-sharp">
       <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\cairo-sharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="System.Collections.Immutable">
-      <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\System.Collections.Immutable.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\protobuf-net.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="SkiaSharp">
+      <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\SkiaSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="VintagestoryAPI">
-      <HintPath>$(VINTAGE_STORY)/VintagestoryAPI.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="VSSurvivalMod">
-      <HintPath>$(VINTAGE_STORY)/Mods/VSSurvivalMod.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="VSEssentials">
-      <HintPath>$(VINTAGE_STORY)/Mods/VSEssentials.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="VSCreativeMod">
-      <HintPath>$(VINTAGE_STORY)/Mods/VSCreativeMod.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>$(VINTAGE_STORY)/Lib/Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>$(VINTAGE_STORY)/Lib/0Harmony.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="VintagestoryLib">
-      <HintPath>$(VINTAGE_STORY)/VintagestoryLib.dll</HintPath>
-      <Private>false</Private>
+      <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryLib.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="protobuf-net">
-      <HintPath>$(VINTAGE_STORY)/Lib/protobuf-net.dll</HintPath>
+    <Reference Include="VSEssentials">
+      <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\Mods\VSEssentials.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="VSSurvivalMod">
+      <HintPath>..\..\..\..\..\..\AppData\Roaming\Vintagestory\Mods\VSSurvivalMod.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -66,10 +62,6 @@
   <Content Remove="..\resources\assets\canjewelry\shapes\item\bronze-gem-necklace - kopie.json" />
   <Content Remove="..\resources\assets\canjewelry\shapes\item\__rottenkingmask.json" />
   <Content Remove="..\resources\assets\game\patches\CB\can-add-cb.json" />
-</ItemGroup>
-
-<ItemGroup>
-  <PackageReference Include="SkiaSharp" Version="2.88.6" />
 </ItemGroup>
 
 </Project>

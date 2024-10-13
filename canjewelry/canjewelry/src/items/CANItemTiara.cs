@@ -533,7 +533,7 @@ namespace canjewelry.src.items
 
         public string GetCategoryCode(ItemStack stack)
         {
-            return "cansimplenecklace";
+            return "cantiara";
         }
 
         public CompositeShape GetAttachedShape(ItemStack stack, string slotCode)
