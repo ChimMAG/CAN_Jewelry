@@ -420,5 +420,9 @@ namespace canjewelry.src.items
         {
             return Lang.Get("game:material-" + itemStack.Attributes.GetString("metal", "default")) + Lang.Get("canjewelry:item-canrottenkingmask");
         }
+        public bool IsAttachable(Entity toEntity, ItemStack itemStack)
+        {
+            return true;
+        }
     }
 }

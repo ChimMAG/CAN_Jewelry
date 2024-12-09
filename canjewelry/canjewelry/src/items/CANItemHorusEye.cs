@@ -502,5 +502,10 @@ namespace canjewelry.src.items
         {
             return this.GetMeshCacheKey(stack);
         }
+
+        public bool IsAttachable(Entity toEntity, ItemStack itemStack)
+        {
+            return true;
+        }
     }
 }

@@ -15,6 +15,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.Util;
+using static canjewelry.src.Config;
 
 namespace canjewelry.src.CB
 {
@@ -303,7 +304,6 @@ namespace canjewelry.src.CB
             }
             return false;
         }
-
         public static int GetMaxAmountSockets(ItemStack itemstack)
         {
             if (itemstack != null)
@@ -362,6 +362,76 @@ namespace canjewelry.src.CB
                 }
             }
             return new int[0];
+        }
+        public static void ApplyCuttingBuff(ItemStack outstack)
+        {
+            if (outstack.Attributes.HasAttribute(CANJWConstants.CUT_GEM_TREE))
+            {
+                ITreeAttribute isTree = outstack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
+
+                string gemType = outstack.Collectible.Variant["gemtype"];
+                string cuttingType = isTree.GetString(CANJWConstants.CUTTING_TYPE);
+                ITreeAttribute tree = new TreeAttribute();
+                tree.SetString(CANJWConstants.CUTTING_TYPE, cuttingType);
+                if (!canjewelry.config.PossibleGemBuffs.TryGetValue(gemType, out var possibleBuffs))
+                {
+                    tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(new string[] { });
+                    tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(new float[] { });
+                    outstack.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
+                    return;
+                }
+                string selectedBuffName = possibleBuffs.ToArray()[Config.rand.Next(possibleBuffs.Count())];
+                if (!canjewelry.config.BuffAttributesDict.TryGetValue(selectedBuffName, out BuffAttributes buffAttributes))
+                {
+                    tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(new string[] { });
+                    tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(new float[] { });
+                    outstack.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
+                    return;
+                }
+                //Main stat buff
+                if (cuttingType == "round")
+                {
+                    canjewelry.config.CuttingAttributesDict.TryGetValue(cuttingType, out var cuttingAttributes);
+                    float buffValue = buffAttributes.GetRandomMainValue(outstack.Collectible.Attributes["canGemType"].AsInt());
+                    buffValue = (float)Math.Round(buffValue, 3) * cuttingAttributes.GrindingBuffIncreaseMultipliers[0];
+                    tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(new string[] { selectedBuffName });
+                    tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(new float[] { buffValue });
+                    outstack.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
+                }
+                else if (cuttingType == "baguette")
+                {
+                    canjewelry.config.CuttingAttributesDict.TryGetValue(cuttingType, out var cuttingAttributes);
+                    float buffValue = buffAttributes.GetRandomMainValue(outstack.Collectible.Attributes["canGemType"].AsInt());
+                    buffValue = (float)Math.Round(buffValue, 3) * cuttingAttributes.GrindingBuffIncreaseMultipliers[0];
+                    string secondaryBuffName = buffAttributes.PossibleSecondaryStats.ToArray()[Config.rand.Next(buffAttributes.PossibleSecondaryStats.Count())];
+
+                    float secondaryBuffValue = buffAttributes.GetRandomSecondaryValue(outstack.Collectible.Attributes["canGemType"].AsInt());
+                    secondaryBuffValue = (float)Math.Round(secondaryBuffValue, 3);// * cuttingAttributes.GrindingBuffIncreaseMultipliers[0];
+
+                    if (secondaryBuffValue == 0)
+                    {
+                        tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(new string[] { selectedBuffName });
+                        tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(new float[] { buffValue });
+                    }
+                    else
+                    {
+                        tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(new string[] { selectedBuffName, secondaryBuffName });
+                        tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(new float[] { buffValue, secondaryBuffValue });
+                    }
+
+                    outstack.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
+                }
+                else if (cuttingType == "pear")
+                {
+                    canjewelry.config.CuttingAttributesDict.TryGetValue(cuttingType, out var cuttingAttributes);
+                    float buffValue = buffAttributes.GetRandomMainValue(outstack.Collectible.Attributes["canGemType"].AsInt());
+                    buffValue = (float)Math.Round(buffValue, 3) * cuttingAttributes.GrindingBuffIncreaseMultipliers[0];
+                    tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(new string[] { selectedBuffName });
+                    tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(new float[] { buffValue });
+                    outstack.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
+                }
+                outstack.Attributes.RemoveAttribute(CANJWConstants.CUTTING_TYPE);
+            }
         }
     }
 }

@@ -595,5 +595,9 @@ namespace canjewelry.src.items
             base.OnCreatedByCrafting(allInputslots, outputSlot, byRecipe);
 
         }
+        public bool IsAttachable(Entity toEntity, ItemStack itemStack)
+        {
+            return true;
+        }
     }
 }

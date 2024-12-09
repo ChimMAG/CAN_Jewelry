@@ -9,7 +9,8 @@
 		"pendants1": [16,16]
 	},
 	"textures": {
-
+		"pendants1": "game:block/metal/plate/steel",
+		"metal": "game:block/metal/plate/steel"
 	},
 	"elements": [
 		{

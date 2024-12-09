@@ -11,7 +11,10 @@
 		"gold1": [16,16]
 	},
 	"textures": {
-
+		"gems_1": "game:block/metal/plate/steel",
+		"gems_2": "game:block/metal/plate/steel",
+		"gems_3": "game:block/metal/plate/steel",
+		"gems_4": "game:block/metal/plate/steel"
 	},
 	"elements": [
 		{

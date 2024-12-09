@@ -202,6 +202,7 @@ namespace canjewelry.src
                     block.Drops = block.Drops.Append(blockDropsToAdd.ToArray());
                 }
             }
+            //var c = api.ModLoader.GetModSystem<Timeswitch>();
         }
         public void OnPlayerNowPlaying(IServerPlayer byPlayer)
         {

@@ -8,7 +8,8 @@
 	"textureSizes": {
 	},
 	"textures": {
-
+		"brass": "game:block/metal/plate/steel",
+		"quartzglass": "game:block/metal/plate/steel"
 	},
 	"elements": [
 		{
