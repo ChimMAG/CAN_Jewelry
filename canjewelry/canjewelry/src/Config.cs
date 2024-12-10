@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.Intrinsics.X86;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -33,7 +34,9 @@ namespace canjewelry.src
         public Dictionary<string, CuttingAttributes> CuttingAttributesDict = new Dictionary<string, CuttingAttributes>();
         public static Random rand = new Random();
         public int wirehank_per_strap = 4;
-        
+        public string[] socketTiersColorsWords = new string[0];
+        public string[] socketTiersColors = new string[0];
+
         public void FillDefaultValues(bool onlyEmptyStructs = false)
         {
             if (buffNameToPossibleItem.Count == 0)
@@ -218,7 +221,7 @@ namespace canjewelry.src
             if (items_codes_with_socket_count_and_tiers.Count == 0)
             {
                 items_codes_with_socket_count_and_tiers = new Dictionary<string, int[]>()
-        {           
+        {
             { "canjewelry:cancoronet-*", new int[1] {3} },
             { "*knife-generic-gold", new int[1] {3} },
             { "*knife-generic-silver", new int[1] {3} },
@@ -622,7 +625,7 @@ namespace canjewelry.src
                 "armorDurabilityLoss", "oreDropRate",  "healingeffectivness", "rangedWeaponsDamage", "animalLootDropRate", "vesselContentsDropRate", "bowDrawingStrength", "animalSeekingRange",
                 "armorWalkSpeedAffectedness", "rangedWeaponsSpeed", "mechanicalsDamage", "rangedWeaponsAcc"};
             }
-            
+
             if (custom_variants_sockets_tiers.Count == 0)
             {
                 custom_variants_sockets_tiers.Add(
@@ -985,7 +988,7 @@ namespace canjewelry.src
 
             CuttingAttributesDict = new Dictionary<string, CuttingAttributes>
             {
-                { "round", 
+                { "round",
                      new CuttingAttributes(new float[] { 1, 1.33f, 1.65f })
                 },
                 { "baguette",
@@ -995,6 +998,18 @@ namespace canjewelry.src
                      new CuttingAttributes(new float[] { 1.7f, 1.05f, 1.05f })
                 },
 
+            };
+
+            socketTiersColorsWords = new string[] {
+                "green",
+                 "blue",
+                "purple"
+            };
+
+            socketTiersColors = new string[] {
+                "2FE147",
+                "2B3FF7",
+                "9214C9" 
             };
         }
         public class DropInfo
@@ -1080,6 +1095,19 @@ namespace canjewelry.src
             {
                 GrindingBuffIncreaseMultipliers = grindingBuffIncreaseMultipliers;
             }
+        }
+        public void InitColors()
+        {
+            List<string> tmpList = new List<string>();
+            foreach (var it in socketTiersColorsWords)
+            {
+                utils.CommonFunctions.tryFindColor(it, out var colorInt);
+                if (colorInt != 0)
+                {
+                    tmpList.Add(colorInt.ToString());
+                }
+            }
+            socketTiersColors = tmpList.ToArray();
         }
     }
 }

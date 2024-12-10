@@ -148,6 +148,7 @@ namespace canjewelry.src
             harmonyInstance = new Harmony(harmonyID);
             sapi = api;
             loadConfig(sapi);
+            config.InitColors();
             api.RegisterEntityBehaviorClass("cangembuffaffected", typeof(CANGemBuffAffected));
 
             harmonyInstance.Patch(typeof(Vintagestory.Server.CoreServerEventManager).GetMethod("TriggerAfterActiveSlotChanged"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_TriggerAfterActiveSlotChanged")));

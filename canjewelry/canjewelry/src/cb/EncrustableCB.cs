@@ -84,6 +84,14 @@ namespace canjewelry.src.CB
                             }
                         }
 
+                        int[] socketsTiersList = GetSocketsTiers(encrustable.Itemstack);
+
+                        if (socketsTiersList[socketNumber] < socketSlot.Itemstack.Collectible.Attributes[CANJWConstants.LEVEL_OF_SOSCKET_STRING].AsInt())
+                        {
+                            inventory.TakeLocked = false;
+                            return false;
+                        }
+
                         tree.SetInt(CANJWConstants.SOCKET_ADDED_NUMBER, tree.GetInt(CANJWConstants.SOCKET_ADDED_NUMBER) + 1);
                         ITreeAttribute socketSlotTree = new TreeAttribute();
                         socketSlotTree.SetInt(CANJWConstants.ENCRUSTED_GEM_SIZE, 0);
@@ -120,6 +128,14 @@ namespace canjewelry.src.CB
                             inventory.TakeLocked = false;
                             return false;
                         }
+                    }
+
+                    int[] socketsTiersList = GetSocketsTiers(encrustable.Itemstack);
+
+                    if (socketsTiersList[socketNumber] < socketSlot.Itemstack.Collectible.Attributes[CANJWConstants.LEVEL_OF_SOSCKET_STRING].AsInt())
+                    {
+                        inventory.TakeLocked = false;
+                        return false;
                     }
 
                     ITreeAttribute socketSlotTree = new TreeAttribute();
@@ -269,7 +285,8 @@ namespace canjewelry.src.CB
                         (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value = newBuffNames;
                         (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value = newBuffValues;
                     }
-                    
+                    treeSocket.SetString(CANJWConstants.CUTTING_TYPE, cutGemTree.GetString(CANJWConstants.CUTTING_TYPE, "round"));
+
                     if (encrustable.Itemstack.Item is CANItemSimpleNecklace || encrustable.Itemstack.Item is CANItemHorusEye)
                     {
                         encrustable.Itemstack.Attributes.SetString("gem", gem_slot.Itemstack.Collectible.Code.Path.Split('-').Last());

@@ -310,8 +310,9 @@ namespace canjewelry.src
                     if(treeSlot == null)
                     {
                         continue;
-                    } 
-                    dsc.Append("<icon name=wpStar1></icon>" +  Lang.Get("canjewelry:item-socket-tier", treeSlot.GetAsInt("sockettype")));
+                    }
+                    dsc.Append("<font color=\"#").Append(canjewelry.config.socketTiersColors[treeSlot.GetAsInt("sockettype") - 1]).Append("\"><icon name=wpCircle></icon></font>").Append(Lang.Get("canjewelry:item-socket-tier", treeSlot.GetAsInt("sockettype")));
+                   // dsc.Append("<font color=\"" + canjewelry.config.socketTiersColors[2] + "\"><icon name=wpCircle></icon></font>" +  Lang.Get("canjewelry:item-socket-tier", treeSlot.GetAsInt("sockettype")));
                     dsc.Append("\n");
                     if(treeSlot.GetString("gemtype") != "")
                     {
@@ -326,8 +327,8 @@ namespace canjewelry.src
                             else
                             {
                                 dsc.Append(Lang.Get("canjewelry:socket-has-attribute-percent", i, treeSlot.GetFloat("attributeBuffValue") * 100)).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString("attributeBuff")));
-                            }                        
-                            dsc.Append('\n');
+                            }
+                            dsc.AppendLine();
                         }
                         else
                         {
@@ -339,6 +340,7 @@ namespace canjewelry.src
                                 if (buffNames[j].Equals("maxhealthExtraPoints"))
                                 {
                                     dsc.Append(Lang.Get("canjewelry:buff-name-" + buffNames[j])).Append(" +" + buffValues[j].ToString());
+                                    dsc.AppendLine();
                                 }
                                 else
                                 {
