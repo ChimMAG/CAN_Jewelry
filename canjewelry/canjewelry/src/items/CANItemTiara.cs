@@ -253,7 +253,7 @@ namespace canjewelry.src.items
                 Elements = loadedShape.CloneElements(),
                 Animations = loadedShape.Animations,
                 AnimationsByCrc32 = loadedShape.AnimationsByCrc32,
-                AttachmentPointsByCode = loadedShape.AttachmentPointsByCode,
+               // AttachmentPointsByCode = loadedShape.AttachmentPointsByCode,
                 JointsById = loadedShape.JointsById,
                 TextureWidth = loadedShape.TextureWidth,
                 TextureHeight = loadedShape.TextureHeight,
@@ -480,7 +480,7 @@ namespace canjewelry.src.items
                 }
             }
         }
-        public Shape GetShape(ItemStack stack, EntityAgent forEntity, string texturePrefixCode)
+        public Shape GetShape(ItemStack stack, Entity forEntity, string texturePrefixCode)
         {
 
             JsonObject attributes = stack.Collectible.Attributes;
@@ -492,7 +492,7 @@ namespace canjewelry.src.items
                 Elements = loadedShape.CloneElements(),
                 Animations = loadedShape.Animations,
                 AnimationsByCrc32 = loadedShape.AnimationsByCrc32,
-                AttachmentPointsByCode = loadedShape.AttachmentPointsByCode,
+                //AttachmentPointsByCode = loadedShape.AttachmentPointsByCode,
                 JointsById = loadedShape.JointsById,
                 TextureWidth = loadedShape.TextureWidth,
                 TextureHeight = loadedShape.TextureHeight,

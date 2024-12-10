@@ -125,7 +125,7 @@ namespace canjewelry.src.items
             jsonItemStack.Resolve(this.api.World, "canarmband type", true);
             return jsonItemStack;
         }
-        public Shape GetShape(ItemStack stack, EntityAgent forEntity, string texturePrefixCode)
+        public Shape GetShape(ItemStack stack, Entity forEntity, string texturePrefixCode)
         {
             Shape gearShape = null;
             CompositeShape compGearShape = null;
@@ -301,7 +301,7 @@ namespace canjewelry.src.items
                 Elements = loadedShape.CloneElements(),
                 Animations = loadedShape.Animations,
                 AnimationsByCrc32 = loadedShape.AnimationsByCrc32,
-                AttachmentPointsByCode = loadedShape.AttachmentPointsByCode,
+                //AttachmentPointsByCode = loadedShape.AttachmentPointsByCode,
                 JointsById = loadedShape.JointsById,
                 TextureWidth = loadedShape.TextureWidth,
                 TextureHeight = loadedShape.TextureHeight,
