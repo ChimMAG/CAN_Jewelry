@@ -53,7 +53,66 @@ namespace canjewelry.src.jewelry
             this.inventory.Pos = this.Pos;
 
             this.inventory.OnInventoryClosed += new OnInventoryClosedDelegate(this.OnInventoryClosed);
-            this.inventory.OnInventoryOpened += new OnInventoryOpenedDelegate(this.OnInvOpened);        
+            this.inventory.OnInventoryOpened += new OnInventoryOpenedDelegate(this.OnInvOpened);
+            this.inventory.SlotModified +=
+            (int slotId) => {
+
+                if (this.inventory.Slots[slotId].Empty)
+                {
+                    return;
+                }
+                ItemStack workStack = this.inventory.Slots[(int)slotId].Itemstack;
+                if (workStack.Attributes == null)
+                {
+                    return;
+                }
+                if (workStack.Attributes.HasAttribute(CANJWConstants.CUT_GEM_TREE))
+                {
+                    return;
+                }
+
+                if (slotId > 0 && slotId < 4)
+                {
+                    if (workStack.Item is not CANCutGemItem)
+                    {
+                        return;
+                    }
+                    string newCuttingType = canjewelry.config.CuttingAttributesDict.Keys.ToArray().Shuffle(Config.rand).FirstOrDefault("round");
+                    ITreeAttribute tree = new TreeAttribute();
+                    tree.SetString(CANJWConstants.CUTTING_TYPE, newCuttingType);
+                    workStack.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
+                    EncrustableCB.ApplyCuttingBuff(workStack);
+                    return;
+                }
+                else if (slotId == 0)
+                {
+                    ITreeAttribute tree = workStack.Attributes.GetTreeAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING);
+                    if (tree == null)
+                    {
+                        return;
+                    }
+                    for (int i = 0; i < EncrustableCB.GetMaxAmountSockets(workStack); i++)
+                    {
+                        ITreeAttribute socketSlot = tree.GetTreeAttribute("slot" + i.ToString());
+                        if (socketSlot == null)
+                        {
+                            continue;
+                        }
+                        if (!socketSlot.HasAttribute("attributeBuffValue") || !socketSlot.HasAttribute("attributeBuffValue"))
+                        {
+                            return;
+                        }
+                        float currValue = socketSlot.GetFloat("attributeBuffValue");
+                        string currBuffName = socketSlot.GetString("attributeBuff");
+
+                        socketSlot[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(new string[] { currBuffName });
+                        socketSlot[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(new float[] { currValue });
+                        socketSlot.RemoveAttribute("attributeBuffValue");
+                        socketSlot.RemoveAttribute("attributeBuff");
+                        //this.inventory.Slots[slotId].MarkDirty();
+                    }
+                }
+            };
         }
         public override void Initialize(ICoreAPI api)
         {

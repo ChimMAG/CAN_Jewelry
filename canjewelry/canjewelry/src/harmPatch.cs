@@ -339,6 +339,7 @@ namespace canjewelry.src
                                 if (buffNames[j].Equals("maxhealthExtraPoints"))
                                 {
                                     dsc.Append(Lang.Get("canjewelry:buff-name-" + buffNames[j])).Append(" +" + buffValues[j].ToString());
+                                    dsc.Append('\n');
                                 }
                                 else
                                 {

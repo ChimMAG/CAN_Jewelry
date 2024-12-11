@@ -101,7 +101,7 @@ namespace canjewelry.src.items
             return jsonItemStack;
         }
 
-        public Shape GetShape(ItemStack stack, Entity forEntity, string texturePrefixCode)
+        public Shape GetShape(ItemStack stack, EntityAgent forEntity, string texturePrefixCode)
         {
             Shape gearShape = null;
             CompositeShape compGearShape = null;

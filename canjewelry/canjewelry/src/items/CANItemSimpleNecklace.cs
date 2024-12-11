@@ -444,7 +444,7 @@ namespace canjewelry.src.items
             });
         }
 
-        public Shape GetShape(ItemStack stack, Entity forEntity, string texturePrefixCode)
+        public Shape GetShape(ItemStack stack, EntityAgent forEntity, string texturePrefixCode)
         {
             
             JsonObject attributes = stack.Collectible.Attributes;

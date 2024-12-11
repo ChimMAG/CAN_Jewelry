@@ -480,11 +480,11 @@ namespace canjewelry.src.items
                 }
             }
         }
-        public Shape GetShape(ItemStack stack, Entity forEntity, string texturePrefixCode)
+        public Shape GetShape(ItemStack stack, EntityAgent forEntity, string texturePrefixCode)
         {
 
             JsonObject attributes = stack.Collectible.Attributes;
-            EntityProperties entityType = capi.World.GetEntityType(new AssetLocation("player"));
+           /* EntityProperties entityType = capi.World.GetEntityType(new AssetLocation("player"));
             Shape loadedShape = entityType.Client.LoadedShape;
             AssetLocation @base = entityType.Client.Shape.Base;
             Shape shape = new Shape
@@ -497,11 +497,11 @@ namespace canjewelry.src.items
                 TextureWidth = loadedShape.TextureWidth,
                 TextureHeight = loadedShape.TextureHeight,
                 Textures = null
-            };
+            };*/
             CompositeShape compositeShape = (attributes["attachShape"].Exists ? attributes["attachShape"].AsObject<CompositeShape>(null, stack.Collectible.Code.Domain) : ((stack.Class == EnumItemClass.Item) ? stack.Item.Shape : stack.Block.Shape));
 
             AssetLocation assetLocation = compositeShape.Base.CopyWithPath("shapes/" + compositeShape.Base.Path + ".json");
-            Shape shape2 = Vintagestory.API.Common.Shape.TryGet(capi, assetLocation);
+            Shape shape2 = Vintagestory.API.Common.Shape.TryGet(api, assetLocation);
 
 
             Dictionary<string, AssetLocation> newdict = new Dictionary<string, AssetLocation>();
