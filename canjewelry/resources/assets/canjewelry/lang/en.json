@@ -310,6 +310,9 @@
 
   "horuseyenecklace-parts-with-gem-held-info": "Strap: {0}, cloth: {1}, gem: {2}",
   "horuseyenecklace-parts-without-gem-held-info": "Strap: {0}, cloth: {1}",
-  "item-canhoruseye-normal": "Horus eye necklace"
+  "item-canhoruseye-normal": "Horus eye necklace",
+  "cut-gem-cutting-type-round": "round",
+  "cut-gem-cutting-type-pear": "pear",
+  "cut-gem-cutting-type-baguette": "baguette"
 
 }

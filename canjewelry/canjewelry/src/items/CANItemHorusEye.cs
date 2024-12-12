@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 using Vintagestory.API.Client;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Common;
@@ -12,8 +12,7 @@ using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 using Vintagestory.API.Datastructures;
-using System.Net.Sockets;
-using Vintagestory.Client.NoObf;
+
 
 namespace canjewelry.src.items
 {
@@ -178,8 +177,8 @@ namespace canjewelry.src.items
             Dictionary<string, string[]> vg = this.Attributes["variantGroups"].AsObject<Dictionary<string, string[]>>(null);
             Random r = new Random();
 
-            string[] loops = ArrayExtensions.Shuffle(vg["metal"], r)[0..2];
-            string[] sockets = ArrayExtensions.Shuffle(vg["silk"], r)[0..2];
+            string[] loops = vg["metal"][0..2];
+            string[] sockets = vg["silk"][0..2];
             foreach (string loop in loops)
             {
                 foreach (string socket in sockets)

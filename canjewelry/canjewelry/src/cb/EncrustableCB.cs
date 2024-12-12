@@ -423,7 +423,7 @@ namespace canjewelry.src.CB
                     string secondaryBuffName = buffAttributes.PossibleSecondaryStats.ToArray()[Config.rand.Next(buffAttributes.PossibleSecondaryStats.Count())];
 
                     float secondaryBuffValue = buffAttributes.GetRandomSecondaryValue(outstack.Collectible.Attributes["canGemType"].AsInt());
-                    secondaryBuffValue = (float)Math.Round(secondaryBuffValue, 3);// * cuttingAttributes.GrindingBuffIncreaseMultipliers[0];
+                    secondaryBuffValue = (float)Math.Round(secondaryBuffValue, 3) / 100;// * cuttingAttributes.GrindingBuffIncreaseMultipliers[0];
 
                     if (secondaryBuffValue == 0)
                     {
