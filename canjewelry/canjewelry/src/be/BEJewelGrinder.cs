@@ -544,8 +544,18 @@ namespace canjewelry.src.jewelry
                         if(cutGemTree.GetBool(CANJWConstants.GEM_FULL_PROCESSED, false))
                         {
                             return;
-                        }                     
+                        }
+                        if (!cutGemTree.HasAttribute(CANJWConstants.CUTTING_TYPE))
+                        {
+                            return;
+                        }
                     }
+                    else
+                    {
+                        return;
+                    }
+                    
+
                     ITreeAttribute tree = new TreeAttribute();
 
                     tree.SetInt("grindtype", 1);
