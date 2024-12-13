@@ -536,9 +536,14 @@ namespace canjewelry.src.jewelry
                     return;
                 }
 
+                ITreeAttribute cutGemTree = activeItemStack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
+                if (cutGemTree == null)
+                {
+                    return;
+                }
+
                 if (!activeSlot.Itemstack.Attributes.HasAttribute("cangrindlayerinfo"))
                 {
-                    ITreeAttribute cutGemTree = activeItemStack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
                     if(cutGemTree != null)
                     {
                         if(cutGemTree.GetBool(CANJWConstants.GEM_FULL_PROCESSED, false))
@@ -587,7 +592,6 @@ namespace canjewelry.src.jewelry
                     this.Api.World.SpawnParticles((IParticlePropertiesProvider)BEJewelGrinder.FlourDustParticles);
                     if (itree.GetInt("grindcounter") <= 1)
                     {
-                        ITreeAttribute cutGemTree = activeItemStack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
                         canjewelry.config.CuttingAttributesDict.TryGetValue(cutGemTree.GetString(CANJWConstants.CUTTING_TYPE), out var cuttingAttributes);
                         var currentValues = (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
                         currentValues[0] = currentValues[0] * cuttingAttributes.GrindingBuffIncreaseMultipliers[itree.GetInt("grindtype")];
