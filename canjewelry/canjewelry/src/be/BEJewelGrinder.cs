@@ -538,6 +538,24 @@ namespace canjewelry.src.jewelry
 
                 if (!activeSlot.Itemstack.Attributes.HasAttribute("cangrindlayerinfo"))
                 {
+
+                    ITreeAttribute cutGemTree = activeItemStack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
+                    if (cutGemTree != null)
+                    {
+                        if (cutGemTree.GetBool(CANJWConstants.GEM_FULL_PROCESSED, false))
+                        {
+                            return;
+                        }
+                        if (!cutGemTree.HasAttribute(CANJWConstants.CUTTING_TYPE))
+                        {
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        return;
+                    }
+
                     ITreeAttribute tree = new TreeAttribute();
 
                     tree.SetInt("grindtype", 1);
@@ -576,7 +594,8 @@ namespace canjewelry.src.jewelry
                         (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value = currentValues;
                         if (itree.GetInt("grindtype") == 2)
                         {
-                            activeItemStack.Attributes.RemoveAttribute("cangrindlayerinfo");                          
+                            activeItemStack.Attributes.RemoveAttribute("cangrindlayerinfo");
+                            cutGemTree.SetBool(CANJWConstants.GEM_FULL_PROCESSED, true);
                             return;
                         }
                         itree.SetInt("grindtype", itree.GetInt("grindtype") + 1);

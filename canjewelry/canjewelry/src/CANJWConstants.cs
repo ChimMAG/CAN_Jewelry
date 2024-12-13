@@ -27,5 +27,6 @@ namespace canjewelry.src
         public static string CUT_GEM_MAIN_STAT_NAME = "cutgemmainstatname";
         public static string ENCRUSTABLE_BUFFS_NAMES = "encrustablebuffsnames";
         public static string ENCRUSTABLE_BUFFS_VALUES = "encrustablebuffsvalues";
+        public static string GEM_FULL_PROCESSED = "gemfullprocessed";
     }
 }
