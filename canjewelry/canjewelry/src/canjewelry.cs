@@ -17,6 +17,7 @@ using canjewelry.src.jewelry;
 using canjewelry.src.items;
 using canjewelry.src.eb;
 using canjewelry.src.be;
+using canjewelry.src.bb;
 
 namespace canjewelry.src
 {
@@ -45,6 +46,8 @@ namespace canjewelry.src
             api.RegisterBlockEntityClass("JewelerSetBE", typeof(JewelerSetBE));
 
             api.RegisterCollectibleBehaviorClass("Encrustable", typeof(EncrustableCB));
+        
+            api.RegisterBlockBehaviorClass("CANTemporalGraspBB", typeof(CANTemporalGraspBB));
 
             api.RegisterBlockClass("BlockJewelGrinder", typeof(BlockJewelGrinder));
             api.RegisterBlockClass("BlockCANWireDrawingBench", typeof(CANWireDrawingBench));
@@ -339,6 +342,21 @@ namespace canjewelry.src
                     if (config.debugMode)
                     {
                        // api.Logger.VerboseDebug(String.Format("[canjewelry] Item with \"{0}\" code not found", it.Key));
+                    }
+                }
+            }
+
+            if (config.TemporalGraspEnabled)
+            {
+                foreach (var it in config.TemporalGraspBlockList)
+                {
+                    Block[] arrayResult = api.World.SearchBlocks(new AssetLocation(it));
+                    foreach (var itB in arrayResult)
+                    {
+                        if (!itB.HasBehavior<CANTemporalGraspBB>())
+                        {
+                            itB.BlockBehaviors = itB.BlockBehaviors.Append(new CANTemporalGraspBB(itB));
+                        }
                     }
                 }
             }

@@ -236,7 +236,7 @@ namespace canjewelry.src.eb
                         {
                             continue;
                         }
-                        if (socketSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF) == "candurability")
+                        if (socketSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF) == "candurability" || socketSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF) == "temporalgrasp") //TODO
                         {
                             continue;
                         }
@@ -260,7 +260,7 @@ namespace canjewelry.src.eb
                         {
                             float additionalValue = buffValues[j];
                             string attributeBuffName = buffNames[j];
-                            if (attributeBuffName.Equals("candurability"))
+                            if (attributeBuffName.Equals("candurability") || attributeBuffName.Equals("temporalgrasp"))//TODO
                             {
                                 continue;
                             }

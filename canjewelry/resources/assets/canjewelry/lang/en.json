@@ -49,6 +49,10 @@
   "item-gem-rough-flawed-amethyst": "Medium rough amethyst",
   "item-gem-rough-normal-amethyst": "Great rough amethyst",
 
+  "item-gem-rough-chipped-topaz": "Small rough topaz",
+  "item-gem-rough-flawed-topaz": "Medium rough topaz",
+  "item-gem-rough-normal-topaz": "Great rough topaz",
+
   //Cut gems
 
   "item-gem-cut-exquisite-diamond": "Great cut diamond",
@@ -173,6 +177,10 @@
   "item-gem-cut-flawless-tourmalinewatermelon": "Medium cut watermelon tourmaline",
   "item-gem-cut-normal-tourmalinewatermelon": "Small cut watermelon tourmaline",
 
+  "item-gem-cut-exquisite-topaz": "Great cut topaz",
+  "item-gem-cut-flawless-topaz": "Medium cut topaz",
+  "item-gem-cut-normal-topaz": "Small cut topaz",
+
   "item-crushed-diamond": "Crushed diamond",
 
   "item-can-have-n-sockets": "<icon name=select></icon>Can have ({0}) sockets",
@@ -255,7 +263,8 @@
   "buff-name-armorWalkSpeedAffectedness": "<font color=\"#99c9f9\">armor walkspeed affectedness</font>",
   "buff-name-bowDrawingStrength": "<font color=\"#99c9f9\">bow drawing strength</font>",
   "buff-name-candurability": "<font color=\"#99c9f9\">item durability</font>",
-
+  "buff-name-animalSeekingRange": "<font color=\"#99c9f9\">animal seeking range</font>",
+  "buff-name-temporalgrasp": "<font color=\"#99c9f9\">temporal grasp</font>",
 
   "block-grindlayeritem-rough": "Rough grindlayer(old)",
   "block-grindlayeritem-medium": "Medium grindlayer(old)",

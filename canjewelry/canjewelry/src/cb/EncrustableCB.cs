@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.Util;
@@ -449,6 +450,41 @@ namespace canjewelry.src.CB
                 }
                 outstack.Attributes.RemoveAttribute(CANJWConstants.CUTTING_TYPE);
             }
+        }
+        public float GetTemporalGraspValue(ItemStack itemStack)
+        {
+            if(itemStack.Attributes.HasAttribute("canencrusted"))
+            {
+                var tree = itemStack.Attributes.GetTreeAttribute("canencrusted");
+                float collectedValue = 0;
+                for (int i = 0; i < EncrustableCB.GetMaxAmountSockets(itemStack); i++)
+                {
+                    ITreeAttribute socketSlot = tree.GetTreeAttribute("slot" + i.ToString());
+
+                    if (socketSlot == null)
+                    {
+                        continue;
+                    }
+
+                    if (socketSlot.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_NAMES))
+                    {
+                        string[] buffNames = (socketSlot[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value;
+                        float[] buffValues = (socketSlot[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
+
+                        for (int j = 0; j < buffNames.Length; j++)
+                        {
+                            float additionalValue = buffValues[j];
+                            string attributeBuffName = buffNames[j];
+                            if (attributeBuffName == "temporalgrasp")//TODO
+                            {
+                                collectedValue += additionalValue;
+                            }
+                        }
+                    }
+                }
+                return collectedValue;
+            }
+            return 0;
         }
     }
 }

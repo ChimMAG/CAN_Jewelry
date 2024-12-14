@@ -36,6 +36,8 @@ namespace canjewelry.src
         public int wirehank_per_strap = 4;
         public string[] socketTiersColorsWords = new string[0];
         public string[] socketTiersColors = new string[0];
+        public HashSet<string> TemporalGraspBlockList = new HashSet<string>();
+        public bool TemporalGraspEnabled = true;
 
         public void FillDefaultValues(bool onlyEmptyStructs = false)
         {
@@ -81,6 +83,7 @@ namespace canjewelry.src
                     "bow", "knife", "ihammer", "tshammer", "biaxe", "tssword", "shammer", "hamb", "atgeir", "blade", "brigandine",
                     "plate", "chain", "scale", "-antique" , "canrottenkingmask", "axe-felling-", "prospectingpick-", "hammer-", "shovel-", "hoe-", "saw-"
                 , "chisel-", "scythe-", "cancoronet", "pickaxe-"} },
+                 {"topaz",  new HashSet<string>{ "pickaxe", "shovel" }},
             });
             }
             if (gems_buffs.Count == 0)
@@ -204,6 +207,12 @@ namespace canjewelry.src
                     }
                 },
                 { "candurability", new Dictionary<string, float>{
+                    { "1", 0.2f },
+                    { "2", 0.45f },
+                    { "3", 0.95f }
+                    }
+                },
+                { "temporalgrasp", new Dictionary<string, float>{
                     { "1", 0.2f },
                     { "2", 0.45f },
                     { "3", 0.95f }
@@ -423,7 +432,8 @@ namespace canjewelry.src
                     { "tourmalineschorl",  "mechanicalsDamage"},
                     { "tourmalineverdelite",  "healingeffectivness"},
                     { "tourmalinewatermelon",  "rangedWeaponsAcc"},
-                    { "amethyst", "candurability" }
+                    { "amethyst", "candurability" },
+                    { "topaz", "temporalgrasp" }
                 };
             }
 
@@ -698,6 +708,7 @@ namespace canjewelry.src
                 { "tourmalineschorl", new HashSet<string>{ "mechanicalsDamage" } },
                 { "tourmalinewatermelon", new HashSet<string>{ "rangedWeaponsAcc" } },
                 { "amethyst", new HashSet<string>{ "candurability" } },
+                { "topaz", new HashSet<string>{ "temporalgrasp" } }
             };
             BuffAttributesDict = new Dictionary<string, BuffAttributes>
             {
@@ -983,7 +994,21 @@ namespace canjewelry.src
                         { 2, new float[]{ 0.03f, 0.09f } },
                         { 3, new float[]{ 0.1f, 0.15f } }
                     },
-                    new HashSet<string>{ "meleeWeaponsDamage", "miningSpeedMul" })}
+                    new HashSet<string>{ "meleeWeaponsDamage", "miningSpeedMul" })},
+                  {"temporalgrasp",
+                    new BuffAttributes(
+                       new Dictionary<int, float[]>
+                    {
+                        { 1, new float[]{ 0.2f, 0.33f } },
+                        { 2, new float[]{ 0.35f, 0.69f } },
+                        { 3, new float[]{ 0.89f, 1f } }
+                    }, new Dictionary<int, float[]>
+                    {
+                        { 1, new float[]{ 0.01f, 0.02f } },
+                        { 2, new float[]{ 0.03f, 0.09f } },
+                        { 3, new float[]{ 0.1f, 0.15f } }
+                    },
+                    new HashSet<string>{ "walkspeed", "miningSpeedMul" })},
             };
 
             CuttingAttributesDict = new Dictionary<string, CuttingAttributes>
@@ -1011,6 +1036,10 @@ namespace canjewelry.src
                 "2B3FF7",
                 "9214C9" 
             };
+            if (TemporalGraspBlockList.Count == 0)
+            {
+                TemporalGraspBlockList = new HashSet<string> { "game:soil-*", "game:rawclay-blue-*", "game:forestfloor-*", "game:stalagsection-*", "game:ore-bountiful-*", "game:ore-rich-*", "game:ore-poor-*", "game:ore-medium-*", "game:peat-*", "game:lakeice" };
+            }
         }
         public class DropInfo
         {
