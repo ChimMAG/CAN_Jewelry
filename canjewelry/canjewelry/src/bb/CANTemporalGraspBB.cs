@@ -26,7 +26,7 @@ namespace canjewelry.src.bb
 
             ItemStack activeTool = activeSlot.Itemstack;
 
-            if(activeTool.Item.Tool == EnumTool.Shovel || activeTool.Item.Tool == EnumTool.Pickaxe)
+            if(activeTool.Item != null && (activeTool.Item.Tool == EnumTool.Shovel || activeTool.Item.Tool == EnumTool.Pickaxe))
             {
                 if(!activeTool.Item.HasBehavior<EncrustableCB>())
                 {
