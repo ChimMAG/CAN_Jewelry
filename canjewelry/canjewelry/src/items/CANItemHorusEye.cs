@@ -254,7 +254,16 @@ namespace canjewelry.src.items
             string loop = itemstack.Attributes.GetString("metal", null);
             string socket = itemstack.Attributes.GetString("silk", null);
 
-            string gem = itemstack.Attributes.GetString("gem", null);
+            if(loop == null)
+            {
+                loop = "steel";
+            }
+
+            if (socket == null)
+            {
+                socket = "red";
+            }
+            string gem = itemstack.Attributes.GetString("gem", "not");
 
             if (compositeShape == null)
             {

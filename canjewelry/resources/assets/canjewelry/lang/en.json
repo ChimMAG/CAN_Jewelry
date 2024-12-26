@@ -175,7 +175,7 @@
 
   "item-crushed-diamond": "Crushed diamond",
 
-  "item-can-have-n-sockets": "<icon name=select></icon>Can have ({0}) sockets",
+  "item-can-have-n-sockets": "Can have ({0}) sockets",
   "item-socket-tier": "Socket tier: {0}",
   "socket-has-attribute": "{0} <font color=\"#99c9f9\"> {1} </font>",
   "socket-has-attribute-percent": "{0} <font color=\"#99c9f9\"> {1}% </font>",
