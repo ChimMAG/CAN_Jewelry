@@ -10,8 +10,8 @@
   "attributes": {
     "__comment": "Note: variantgroups inside attributes. Used to generate all variants for the creative inventory dynamically, and for valid recipe checking",
     "variantGroups": {
-      "metal": [ "tinbronze", "bismuthbronze", "blackbronze", "gold", "silver", "iron", "meteoriciron", "steel" ],
-      "stone": [ "andesite", "chalk", "chert", "conglomerate", "limestone", "claystone", "granite", "sandstone", "shale", "basalt", "peridotite", "phyllite", "slate", "bauxite" ]
+      "metal": [ "tinbronze", "bismuthbronze", "blackbronze", "gold", "silver", "iron", "meteoriciron", "steel", "copper" ],
+      "stone": [ "andesite", "chalk", "chert", "conglomerate", "limestone", "claystone", "granite", "sandstone", "shale", "basalt", "peridotite", "phyllite", "slate", "bauxite", "kimberlite" ]
     }
   },
   "entityClass": "BEGemCuttingTable",

@@ -405,7 +405,7 @@ namespace canjewelry.src.blocks
                 //var c2 = base.FirstCodePart(0);
                 if (oreSlot.Itemstack != null && oreSlot.Itemstack.Item != null)
                 {
-                    if (oreSlot.Itemstack.Item.Code.Path.Contains("stone"))
+                    if (oreSlot.Itemstack.Item.Code.Path.Contains("stone-"))
                     {
                         if (oreSlot.Itemstack.StackSize < canjewelry.config.pan_take_per_use * 4)
                         {
@@ -426,7 +426,7 @@ namespace canjewelry.src.blocks
 
                         itemCode = "ore-" + CodePartsAfterFirst(oreSlot.Itemstack.Item.Code.ToShortString());
                     }
-                    else if(firstCodePart.Equals("stone"))
+                    else if(oreSlot.Itemstack.Item.Code.Path.Contains("stone-"))
                     {
                         itemCode = "game:rock-" + CodePartsAfterFirst(oreSlot.Itemstack.Item.Code.SecondCodePart());
                     }
@@ -450,7 +450,7 @@ namespace canjewelry.src.blocks
                     }
                     
                     this.SetMaterial(slot, itemCode);
-                    if (oreSlot.Itemstack.Item.Code.Path.Contains("stone"))
+                    if (oreSlot.Itemstack.Item.Code.Path.Contains("stone-"))
                     {
                         oreSlot.TakeOut(canjewelry.config.pan_take_per_use * 4);
                     }

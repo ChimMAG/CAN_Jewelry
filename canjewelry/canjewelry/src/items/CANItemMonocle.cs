@@ -474,8 +474,8 @@ namespace canjewelry.src.items
 
 
 
-            dict["metal"] = itemStack.Item.Textures["metal"].Base;
-            dict["gems"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+            //dict["metal"] = itemStack.Item.Textures["metal"].Base;
+            //dict["gems"] = new AssetLocation("canjewelry:item/gem/notvis.png");
         }
 
         private MeshData genMesh(ICoreClientAPI capi, ItemStack itemstack, ITexPositionSource texSource)

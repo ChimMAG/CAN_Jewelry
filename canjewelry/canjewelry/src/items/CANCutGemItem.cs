@@ -164,6 +164,8 @@ namespace canjewelry.src.jewelry
                     if (canjewelry.config.gems_buffs.TryGetValue(buffName, out var buffValuesDict))
                     {
                         float buffValue = buffValuesDict[inSlot.Itemstack.Collectible.Attributes["canGemType"].AsInt().ToString()] * 100;
+                        dsc.Append(Lang.Get("canjewelry:buff-name-" + buffName));
+                        dsc.Append(buffValue > 0 ? " +" + Math.Round(buffValue) + "%" : " " + Math.Round(buffValue) + "%");
                     }
 
                 }

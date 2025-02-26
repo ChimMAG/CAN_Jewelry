@@ -220,33 +220,12 @@ namespace canjewelry.src.jewelry
             this.Inventory.FromTreeAttributes(tree.GetTreeAttribute("inventory"));
             if (this.Api != null)
                 this.Inventory.AfterBlocksLoaded(this.Api.World);
-            //this.inputGrindTime = tree.GetFloat("inputGrindTime");
-            // this.nowOutputFace = tree.GetInt("nowOutputFace");
-            /* if (worldForResolving.Side == EnumAppSide.Client)
-             {
-                 List<int> clientIds = new List<int>((IEnumerable<int>)(tree["clientIdsGrinding"] as IntArrayAttribute).value);
-                 this.quantityPlayersGrinding = clientIds.Count;
-                 foreach (string str in this.playersGrinding.Keys.ToArray<string>())
-                 {
-                     IPlayer player = this.Api.World.PlayerByUid(str);
-                     if (!clientIds.Contains(player.ClientId))
-                         this.playersGrinding.Remove(str);
-                     else
-                         clientIds.Remove(player.ClientId);
-                 }
-                 for (int i = 0; i < clientIds.Count; i++)
-                 {
-                     IPlayer player = ((IEnumerable<IPlayer>)worldForResolving.AllPlayers).FirstOrDefault<IPlayer>((System.Func<IPlayer, bool>)(p => p.ClientId == clientIds[i]));
-                     if (player != null)
-                         this.playersGrinding.Add(player.PlayerUID, worldForResolving.ElapsedMilliseconds);
-                 }
-                 this.updateGrindingState();
-             }*/
             ICoreAPI api = this.Api;
             if (api != null ? (api.Side == EnumAppSide.Client) : false)
             {
                 if (this.renderer != null)
                 {
+                    this.renderer.meshref.Dispose();
                     this.renderer.meshref = (api as ICoreClientAPI).Render.UploadMesh(this.GenMesh("top"));
                 }
                 //this.GenMesh("top");

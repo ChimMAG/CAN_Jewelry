@@ -69,7 +69,7 @@ namespace canjewelry.src.jewelry
                 {
                     return;
                 }
-               
+
                 if (slotId > 0 && slotId < 4)
                 {
                     if (workStack.Item is not CANCutGemItem)
@@ -97,7 +97,7 @@ namespace canjewelry.src.jewelry
                         {
                             continue;
                         }
-                        if(!socketSlot.HasAttribute("attributeBuffValue") || !socketSlot.HasAttribute("attributeBuffValue"))
+                        if (!socketSlot.HasAttribute("attributeBuffValue") || !socketSlot.HasAttribute("attributeBuffValue"))
                         {
                             return;
                         }
@@ -110,6 +110,8 @@ namespace canjewelry.src.jewelry
                         socketSlot.RemoveAttribute("attributeBuff");
                         //this.inventory.Slots[slotId].MarkDirty();
                     }
+
+
                 }
             };
         }
@@ -463,12 +465,66 @@ namespace canjewelry.src.jewelry
                     mesh.Translate(0, 9f / 16, -1);
                 }
             }
+            else if(stack.Item.Code?.Path.Contains("quarterstaff-plain-") ?? false)
+            {
+                mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.5f, 0.5f, 0.5f);
+                mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), 0.0f, ((float)Math.PI * 0.6f), 0f);
+                mesh.Translate(-0.2f, 10.5f / 16, -0.2f);
+            }
+            else if (stack.Item.Code?.Path.Contains("axe-long-plain-") ?? false)
+            {
+                mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.7f, 0.7f, 0.7f);
+                mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), 0.0f, ((float)Math.PI * 0.6f), 0f);
+                mesh.Translate(-0.2f, 12f / 16, -0.2f);
+            }
+            else if (stack.Item.Code?.Path.Contains("sword-great-plain-") ?? false)
+            {
+                mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.6f, 0.6f, 0.6f);
+                mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
+                mesh.Translate(-0.2f, 8.5f / 16, -0.2f);
+            }
+            else if (stack.Item.Code?.Path.Contains("sword-long-plain-") ?? false)
+            {
+                mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.6f, 0.6f, 0.6f);
+                mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
+                mesh.Translate(-0.2f, 8.5f / 16, -0.2f);
+            }
+            else if (stack.Item.Code?.Path.Contains("sword-short-plain-") ?? false)
+            {
+                mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.6f, 0.6f, 0.6f);
+                mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
+                mesh.Translate(-0.2f, 8.5f / 16, -0.2f);
+            }
+            else if (stack.Item.Code?.Path.Contains("javelin-plain-") ?? false)
+            {
+                mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.7f, 0.7f, 0.7f);
+                mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
+                mesh.Translate(-0.1f, 8.5f / 16, 0.2f);
+            }
+            else if (stack.Item.Code?.Path.Contains("pike-plain-") ?? false)
+            {
+                mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.5f, 0.5f, 0.5f);
+                mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
+                mesh.Translate(-0.1f, 8.5f / 16, 0.6f);
+            }
+            else if (stack.Item.Code?.Path.Contains("club-plain-") ?? false)
+            {
+                mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.6f, 0.6f, 0.6f);
+                mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
+                mesh.Translate(-0.2f, 8.5f / 16, -0.2f);
+            }
+            else if (stack.Item.Code?.Path.Contains("halberd-plain-") ?? false)
+            {
+                mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.7f, 0.7f, 0.7f);
+                mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
+                mesh.Translate(-0.2f, 8.5f / 16, 0.5f);
+            }
             else
             {
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), 0.0f, ((float)Math.PI / 2), 0f);
                 mesh.Translate(0, 13f / 16, 0);
             }
-
+            
 
 
             if (this.facing == BlockFacing.SOUTH)

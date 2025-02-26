@@ -141,8 +141,9 @@ namespace canjewelry.src.eb
                     return;
                 }
                 //if there is diff or new buffs are empty
-                if(!currentBuffDict.Equals(newBuffDict))
+                if(currentBuffDict.Except(newBuffDict).Any())
                 {
+                    var f = currentBuffDict.Except(newBuffDict).ToArray();
                     ApplyBuffFromItemStack(currentBuffDict, this.entity as EntityPlayer, false);
                     if (newBuffDict.Count > 0)
                     {

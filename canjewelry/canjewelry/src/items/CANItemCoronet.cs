@@ -17,7 +17,7 @@ using canjewelry.src.CB;
 
 namespace canjewelry.src.items
 {
-    public class CANItemCoronet: CANItemWearable, IWearableShapeSupplier
+    public class CANItemCoronet: CANItemWearable, IWearableShapeSupplier, IAttachableToEntity
     {
         private Shape nowTesselatingShape;
         private ITextureAtlasAPI curAtlas;
@@ -122,11 +122,10 @@ namespace canjewelry.src.items
             }
             return gearShape;
         }
-        public bool IsAttachable(ItemStack itemStack)
+        public bool IsAttachable(Entity toEntity, ItemStack itemStack)
         {
             return true;
         }
-
         public void CollectTextures(ItemStack stack, Shape shape, string texturePrefixCode, Dictionary<string, CompositeTexture> intoDict)
         {
             if (this.api.Side is EnumAppSide.Server)

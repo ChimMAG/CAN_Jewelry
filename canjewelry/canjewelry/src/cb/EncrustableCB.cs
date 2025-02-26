@@ -133,7 +133,7 @@ namespace canjewelry.src.CB
 
                     int[] socketsTiersList = GetSocketsTiers(encrustable.Itemstack);
 
-                    if (socketsTiersList[socketNumber] < socketSlot.Itemstack.Collectible.Attributes[CANJWConstants.LEVEL_OF_SOSCKET_STRING].AsInt())
+                    if (socketsTiersList == null || socketsTiersList[socketNumber] < socketSlot.Itemstack.Collectible.Attributes[CANJWConstants.LEVEL_OF_SOSCKET_STRING].AsInt())
                     {
                         inventory.TakeLocked = false;
                         return false;
@@ -197,8 +197,8 @@ namespace canjewelry.src.CB
                     string[] newBuffNames = (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value;
                     float[] newBuffValues = (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
 
-                    string[] currentBuffNames = (tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute)?.value;
-                    float[] currentBuffValues = (tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute)?.value;
+                    string[] currentBuffNames = (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute)?.value;
+                    float[] currentBuffValues = (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute)?.value;
 
 
                     if(currentMaxDurability < 1)
@@ -276,7 +276,8 @@ namespace canjewelry.src.CB
                     treeSocket.SetInt(CANJWConstants.GEM_BUFF_TYPE, (int)EnumGemBuffType.STATS_BUFF);
                     treeSocket.SetInt("size", gem_slot.Itemstack.Collectible.Attributes["canGemType"].AsInt());
                     treeSocket.SetString("gemtype", gem_slot.Itemstack.Collectible.Code.Path.Split('-').Last());
-                    if(!treeSocket.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_NAMES))
+                    
+                    if (!treeSocket.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_NAMES))
                     {
                         treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(newBuffNames);
                         treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(newBuffValues);
@@ -296,7 +297,6 @@ namespace canjewelry.src.CB
                     {
                         encrustable.Itemstack.Attributes.SetString("gem_" + (socket_number + 1), gem_slot.Itemstack.Collectible.Code.Path.Split('-').Last());
                     }
-
                     gem_slot.TakeOut(1);
                     gem_slot.MarkDirty();
                     encrustable.MarkDirty();

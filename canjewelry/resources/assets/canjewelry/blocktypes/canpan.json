@@ -850,6 +850,329 @@
             "var": 0
           }
         }
+      ],
+      //
+      "@(ore|crystalizedore)-bountiful-nativecopper-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-normal-ruby",
+          "chance": {
+            "avg": 0.4,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-flawed-ruby",
+          "chance": {
+            "avg": 0.7,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-ruby",
+          "chance": {
+            "avg": 0.8,
+            "var": 0
+          }
+        }
+      ],
+      "@(ore|crystalizedore)-rich-nativecopper-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-normal-ruby",
+          "chance": {
+            "avg": 0.2,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-flawed-ruby",
+          "chance": {
+            "avg": 0.5,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-ruby",
+          "chance": {
+            "avg": 0.6,
+            "var": 0
+          }
+        }
+      ],
+      "@(ore|crystalizedore)-medium-nativecopper-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-flawed-ruby",
+          "chance": {
+            "avg": 0.4,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-ruby",
+          "chance": {
+            "avg": 0.5,
+            "var": 0
+          }
+        }
+      ],
+      "@(ore|crystalizedore)-poor-nativecopper-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-ruby",
+          "chance": {
+            "avg": 0.4,
+            "var": 0
+          }
+        }
+      ],
+      //
+      "@(ore|crystalizedore)-bountiful-magnetite-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-normal-citrine",
+          "chance": {
+            "avg": 0.4,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-flawed-citrine",
+          "chance": {
+            "avg": 0.7,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-citrine",
+          "chance": {
+            "avg": 0.8,
+            "var": 0
+          }
+        }
+      ],
+      "@(ore|crystalizedore)-rich-magnetite-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-normal-citrine",
+          "chance": {
+            "avg": 0.2,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-flawed-citrine",
+          "chance": {
+            "avg": 0.5,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-citrine",
+          "chance": {
+            "avg": 0.6,
+            "var": 0
+          }
+        }
+      ],
+      "@(ore|crystalizedore)-medium-magnetite-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-flawed-citrine",
+          "chance": {
+            "avg": 0.4,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-citrine",
+          "chance": {
+            "avg": 0.5,
+            "var": 0
+          }
+        }
+      ],
+      "@(ore|crystalizedore)-poor-magnetite-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-citrine",
+          "chance": {
+            "avg": 0.4,
+            "var": 0
+          }
+        }
+      ],
+      //
+      "@(ore|crystalizedore)-bountiful-uranium-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-normal-uranium",
+          "chance": {
+            "avg": 0.5,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-flawed-uranium",
+          "chance": {
+            "avg": 0.75,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-uranium",
+          "chance": {
+            "avg": 0.9,
+            "var": 0
+          }
+        }
+      ],
+      "@(ore|crystalizedore)-rich-uranium-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-normal-uranium",
+          "chance": {
+            "avg": 0.3,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-flawed-uranium",
+          "chance": {
+            "avg": 0.6,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-uranium",
+          "chance": {
+            "avg": 0.7,
+            "var": 0
+          }
+        }
+      ],
+      "@(ore|crystalizedore)-medium-uranium-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-flawed-uranium",
+          "chance": {
+            "avg": 0.5,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-uranium",
+          "chance": {
+            "avg": 0.6,
+            "var": 0
+          }
+        }
+      ],
+      "@(ore|crystalizedore)-poor-uranium-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-uranium",
+          "chance": {
+            "avg": 0.6,
+            "var": 0
+          }
+        }
+      ], //
+      "@(ore|crystalizedore)-bountiful-galena-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-normal-amethyst",
+          "chance": {
+            "avg": 0.5,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-flawed-amethyst",
+          "chance": {
+            "avg": 0.75,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-amethyst",
+          "chance": {
+            "avg": 0.9,
+            "var": 0
+          }
+        }
+      ],
+      "@(ore|crystalizedore)-rich-galena-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-normal-amethyst",
+          "chance": {
+            "avg": 0.3,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-flawed-amethyst",
+          "chance": {
+            "avg": 0.6,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-amethyst",
+          "chance": {
+            "avg": 0.7,
+            "var": 0
+          }
+        }
+      ],
+      "@(ore|crystalizedore)-medium-galena-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-flawed-amethyst",
+          "chance": {
+            "avg": 0.5,
+            "var": 0
+          }
+        },
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-amethyst",
+          "chance": {
+            "avg": 0.6,
+            "var": 0
+          }
+        }
+      ],
+      "@(ore|crystalizedore)-poor-galena-.*": [
+        {
+          "type": "item",
+          "code": "canjewelry:gem-rough-chipped-amethyst",
+          "chance": {
+            "avg": 0.6,
+            "var": 0
+          }
+        }
       ]
     }
   },

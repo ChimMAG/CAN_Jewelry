@@ -6,7 +6,7 @@
   "variantgroups": [
     {
       "code": "metal",
-      "states": [ "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "gold", "copper" ]
+      "states": [ "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "gold", "copper", "silver" ]
     }
   ],
   "textures": {

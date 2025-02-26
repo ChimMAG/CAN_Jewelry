@@ -80,7 +80,6 @@ namespace canjewelry.src
         public override void StartClientSide(ICoreClientAPI api)
         {
             base.StartClientSide(api);
-           
             capi = api;
             loadConfig(capi);
             harmonyInstance = new Harmony(harmonyID);
@@ -145,9 +144,26 @@ namespace canjewelry.src
                 }
             };
         }
+        /*public void PlayerChatDelegate(IServerPlayer byPlayer, int channelId, ref string message, ref string data, BoolRef consumed)
+        {
+            var c = 3;
+            var now = DateTime.Now;
+            var cc = byPlayer.Entity.Api.ModLoader.GetModSystem<Th3Essentials.Th3Essentials>();
+
+            var ccc = typeof(Th3Essentials.Th3Essentials).GetMember("config",  BindingFlags.Static);
+            if(!string.IsNullOrEmpty("war"))
+            {
+                var c2 = 3;
+            }
+            //var f = Th3Essentials.Th3Essentials;
+            message = $"{now.TimeOfDay.ToString("hh\\:mm")}: {message}";
+
+        }*/
         public override void StartServerSide(ICoreServerAPI api)
         {
             base.StartServerSide(api);
+
+            //api.Event.PlayerChat += PlayerChatDelegate;
 
             harmonyInstance = new Harmony(harmonyID);
             sapi = api;
@@ -294,10 +310,13 @@ namespace canjewelry.src
 
             Item[] cut_gems_items = api.World.SearchItems(new AssetLocation("canjewelry:gem-cut-*"));
 
-            foreach (var gem in cut_gems_items)
+            if (!serverSide)
             {
-                //catch if not present?
-                gems_textures.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":textures/" + gem.Textures["gem"].Base.Path);
+                foreach (var gem in cut_gems_items)
+                {
+                    //catch if not present?
+                    gems_textures.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":textures/" + gem.Textures["gem"].Base.Path);
+                }
             }
           
             foreach (var gem in cut_gems_items)

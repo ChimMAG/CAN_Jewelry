@@ -11,10 +11,10 @@
 		"gold1": [16,16]
 	},
 	"textures": {
-		"gems_1": "game:block/metal/plate/steel",
-		"gems_2": "game:block/metal/plate/steel",
-		"gems_3": "game:block/metal/plate/steel",
-		"gems_4": "game:block/metal/plate/steel"
+		"gems_1": "canjewelry:item/gem/notvis",
+		"gems_2": "canjewelry:item/gem/notvis",
+		"gems_3": "canjewelry:item/gem/notvis",
+		"gems_4": "canjewelry:item/gem/notvis"
 	},
 	"elements": [
 		{

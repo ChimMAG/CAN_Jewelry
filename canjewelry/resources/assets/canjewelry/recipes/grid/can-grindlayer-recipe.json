@@ -10,7 +10,7 @@
       },      
       "D": {
         "type": "item",
-        "code": "game:leather-*",
+        "code": "game:leather-normal-*",
         "allowedVariants": [ "plain", "orange", "black", "red", "blue", "purple", "pink", "white", "yellow", "gray", "green" ],
         "quantity": 2
       }
@@ -41,7 +41,7 @@
       },
       "D": {
         "type": "item",
-        "code": "game:leather-*",
+        "code": "game:leather-normal-*",
         "allowedVariants": [ "plain", "orange", "black", "red", "blue", "purple", "pink", "white", "yellow", "gray", "green" ],
         "quantity": 2
       }

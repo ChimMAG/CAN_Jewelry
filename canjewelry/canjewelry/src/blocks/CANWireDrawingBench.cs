@@ -326,6 +326,44 @@ namespace canjewelry.src.blocks
             }
             base.OnBlockRemoved(world, pos);
         }
+        public override ItemStack[] GetDrops(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, float dropQuantityMultiplier = 1)
+        {
+            ItemStack newItem = new ItemStack(world.BlockAccessor.GetBlock(base.CodeWithParts(new string[]
+                {
+                    "head",
+                    "north"
+                })), 1);
+            int rotatedIndex = GameMath.Mod(BlockFacing.FromCode(base.LastCodePart(0)).HorizontalAngleIndex, 4);
+            BlockFacing nowFacing = BlockFacing.HORIZONTALS_ANGLEORDER[rotatedIndex];
+            var p = pos.AddCopy(nowFacing.Opposite);
+            if (world.BlockAccessor.GetBlockEntity(pos.AddCopy(nowFacing.Opposite)) is CANBEWireDrawingBench blockEntity)
+            {
+                if (blockEntity.woodType != null)
+                {
+                    newItem.Attributes.SetString("type", blockEntity.woodType);
+                }
+            }
+            else if(world.BlockAccessor.GetBlockEntity(pos) is CANBEWireDrawingBench blockEntity1)
+            {
+                if (blockEntity1.woodType != null)
+                {
+                    newItem.Attributes.SetString("type", blockEntity1.woodType);
+                }
+            }
+            return new ItemStack[] { newItem };
+                /*if (base.LastCodePart(1) == "feet")
+                    if (world.BlockAccessor.GetBlockEntity(blockSel.Position.AddCopy(nowFacing.Opposite)) is CANBEWireDrawingBench blockEntity)
+                newItem.Attributes.SetString("type", this.ty)*/
+            /*var f = base.GetDrops(world, pos, byPlayer, dropQuantityMultiplier);
+            if (f[0] != null)
+            {
+                if (f[0].Collectible.Code.Path.Contains("feet"))
+                {
+                    //f[0].Collectible.Code.Path = f[0].Collectible.
+                }
+            }
+            return f;*/
+        }
         public override AssetLocation GetRotatedBlockCode(int angle)
         {
             int rotatedIndex = GameMath.Mod(BlockFacing.FromCode(base.LastCodePart(0)).HorizontalAngleIndex - angle / 90, 4);

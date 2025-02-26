@@ -17,6 +17,10 @@ namespace canjewelry.src.bb
 
         public override ItemStack[] GetDrops(IWorldAccessor world, BlockPos pos, IPlayer byPlayer, ref float dropChanceMultiplier, ref EnumHandling handling)
         {           
+            if(byPlayer == null)
+            {
+                return base.GetDrops(world, pos, byPlayer, ref dropChanceMultiplier, ref handling);
+            }
             ItemSlot activeSlot = byPlayer.InventoryManager.ActiveHotbarSlot;
             
             if(activeSlot.Empty)
