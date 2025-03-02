@@ -116,7 +116,8 @@ namespace canjewelry.src.jewelry
             if (itemStack.Attributes.HasAttribute(CANJWConstants.CUT_GEM_TREE))
             {
                 ITreeAttribute tree = itemStack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
-                bb += "[" + tree.GetString(CANJWConstants.CUTTING_TYPE, "round") +"]";
+                bb += " <i>[" + Lang.Get("canjewelry:cut-gem-cutting-type-" + tree.GetString(CANJWConstants.CUTTING_TYPE, "round")) + "]</i>";
+                //bb += "[" +  +"]";
             }
             return bb;
         }
@@ -134,7 +135,7 @@ namespace canjewelry.src.jewelry
                     if (buffNames[i].Equals("maxhealthExtraPoints"))
                     {
                         dsc.Append(Lang.Get("canjewelry:buff-name-" + buffNames[i])).Append(" +" + buffValues[i].ToString());
-                        dsc.Append('\n');
+                        dsc.AppendLine();
                     }
                     else
                     {
@@ -163,6 +164,8 @@ namespace canjewelry.src.jewelry
                     if (canjewelry.config.gems_buffs.TryGetValue(buffName, out var buffValuesDict))
                     {
                         float buffValue = buffValuesDict[inSlot.Itemstack.Collectible.Attributes["canGemType"].AsInt().ToString()] * 100;
+                        dsc.Append(Lang.Get("canjewelry:buff-name-" + buffName));
+                        dsc.Append(buffValue > 0 ? " +" + Math.Round(buffValue) + "%" : " " + Math.Round(buffValue) + "%");
                     }
 
                 }

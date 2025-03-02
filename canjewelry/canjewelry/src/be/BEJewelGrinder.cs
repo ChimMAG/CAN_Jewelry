@@ -220,33 +220,12 @@ namespace canjewelry.src.jewelry
             this.Inventory.FromTreeAttributes(tree.GetTreeAttribute("inventory"));
             if (this.Api != null)
                 this.Inventory.AfterBlocksLoaded(this.Api.World);
-            //this.inputGrindTime = tree.GetFloat("inputGrindTime");
-            // this.nowOutputFace = tree.GetInt("nowOutputFace");
-            /* if (worldForResolving.Side == EnumAppSide.Client)
-             {
-                 List<int> clientIds = new List<int>((IEnumerable<int>)(tree["clientIdsGrinding"] as IntArrayAttribute).value);
-                 this.quantityPlayersGrinding = clientIds.Count;
-                 foreach (string str in this.playersGrinding.Keys.ToArray<string>())
-                 {
-                     IPlayer player = this.Api.World.PlayerByUid(str);
-                     if (!clientIds.Contains(player.ClientId))
-                         this.playersGrinding.Remove(str);
-                     else
-                         clientIds.Remove(player.ClientId);
-                 }
-                 for (int i = 0; i < clientIds.Count; i++)
-                 {
-                     IPlayer player = ((IEnumerable<IPlayer>)worldForResolving.AllPlayers).FirstOrDefault<IPlayer>((System.Func<IPlayer, bool>)(p => p.ClientId == clientIds[i]));
-                     if (player != null)
-                         this.playersGrinding.Add(player.PlayerUID, worldForResolving.ElapsedMilliseconds);
-                 }
-                 this.updateGrindingState();
-             }*/
             ICoreAPI api = this.Api;
             if (api != null ? (api.Side == EnumAppSide.Client) : false)
             {
                 if (this.renderer != null)
                 {
+                    this.renderer.meshref.Dispose();
                     this.renderer.meshref = (api as ICoreClientAPI).Render.UploadMesh(this.GenMesh("top"));
                 }
                 //this.GenMesh("top");
@@ -544,9 +523,11 @@ namespace canjewelry.src.jewelry
 
                 if (!activeSlot.Itemstack.Attributes.HasAttribute("cangrindlayerinfo"))
                 {
-                    if(cutGemTree != null)
+
+                    cutGemTree = activeItemStack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
+                    if (cutGemTree != null)
                     {
-                        if(cutGemTree.GetBool(CANJWConstants.GEM_FULL_PROCESSED, false))
+                        if (cutGemTree.GetBool(CANJWConstants.GEM_FULL_PROCESSED, false))
                         {
                             return;
                         }
@@ -559,7 +540,6 @@ namespace canjewelry.src.jewelry
                     {
                         return;
                     }
-                    
 
                     ITreeAttribute tree = new TreeAttribute();
 
@@ -592,6 +572,7 @@ namespace canjewelry.src.jewelry
                     this.Api.World.SpawnParticles((IParticlePropertiesProvider)BEJewelGrinder.FlourDustParticles);
                     if (itree.GetInt("grindcounter") <= 1)
                     {
+                        cutGemTree = activeItemStack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
                         canjewelry.config.CuttingAttributesDict.TryGetValue(cutGemTree.GetString(CANJWConstants.CUTTING_TYPE), out var cuttingAttributes);
                         var currentValues = (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
                         currentValues[0] = currentValues[0] * cuttingAttributes.GrindingBuffIncreaseMultipliers[itree.GetInt("grindtype")];

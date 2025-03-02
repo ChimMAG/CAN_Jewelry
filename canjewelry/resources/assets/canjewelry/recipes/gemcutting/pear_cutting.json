@@ -4,7 +4,7 @@
       "type": "item",
       "code": "canjewelry:gem-rough-chipped-*",
       "name": "gemtype",
-      "allowedVariants": [ "diamond", "corundum", "emerald", "fluorite", "lapislazuli", "malachite", "olivine", "quartz", "uranium", "ruby", "citrine", "amethyst" ]
+      "allowedVariants": [ "diamond", "corundum", "emerald", "fluorite", "lapislazuli", "malachite", "olivine", "quartz", "uranium", "ruby", "citrine", "amethyst", "topaz" ]
     },
     "pattern": [
       [
@@ -91,7 +91,7 @@
       "type": "item",
       "code": "canjewelry:gem-rough-flawed-*",
       "name": "gemtype",
-      "allowedVariants": [ "diamond", "corundum", "emerald", "fluorite", "lapislazuli", "malachite", "olivine", "quartz", "uranium", "ruby", "citrine", "amethyst" ]
+      "allowedVariants": [ "diamond", "corundum", "emerald", "fluorite", "lapislazuli", "malachite", "olivine", "quartz", "uranium", "ruby", "citrine", "amethyst", "topaz" ]
     },
     "pattern": [
       [
@@ -178,7 +178,7 @@
       "type": "item",
       "code": "canjewelry:gem-rough-normal-*",
       "name": "gemtype",
-      "allowedVariants": [ "diamond", "corundum", "emerald", "fluorite", "lapislazuli", "malachite", "olivine", "quartz", "uranium", "ruby", "citrine", "amethyst" ]
+      "allowedVariants": [ "diamond", "corundum", "emerald", "fluorite", "lapislazuli", "malachite", "olivine", "quartz", "uranium", "ruby", "citrine", "amethyst", "topaz" ]
     },
     "pattern": [
       [

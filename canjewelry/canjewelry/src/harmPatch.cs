@@ -219,7 +219,7 @@ namespace canjewelry.src
         public static MethodInfo GetAttributesFromItemStack = typeof(ItemStack).GetMethod("get_Attributes");
         public static MethodInfo HasAttributeITreeAttribute = typeof(ITreeAttribute).GetMethod("HasAttribute");
 
-        public static FieldInfo ElementBoundsSlotGrid = typeof(GuiElementItemSlotGridBase).GetField("slotBounds", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static FieldInfo ElementBoundsSlotGrid = typeof(GuiElementItemSlotGridBase).GetField("SlotBounds");
         
         public static FieldInfo slotQuantityTexturesSlotGrid = typeof(GuiElementItemSlotGridBase).GetField("slotQuantityTextures", BindingFlags.NonPublic | BindingFlags.Instance);
         
@@ -310,8 +310,9 @@ namespace canjewelry.src
                     if(treeSlot == null)
                     {
                         continue;
-                    } 
-                    dsc.Append(Lang.Get("canjewelry:item-socket-tier", treeSlot.GetAsInt("sockettype")));
+                    }
+                    dsc.Append("<font color=\"#").Append(canjewelry.config.socketTiersColors[treeSlot.GetAsInt("sockettype") - 1]).Append("\"></font>").Append(Lang.Get("canjewelry:item-socket-tier", treeSlot.GetAsInt("sockettype")));
+                   // dsc.Append("<font color=\"" + canjewelry.config.socketTiersColors[2] + "\"><icon name=wpCircle></icon></font>" +  Lang.Get("canjewelry:item-socket-tier", treeSlot.GetAsInt("sockettype")));
                     dsc.Append("\n");
                     if(treeSlot.GetString("gemtype") != "")
                     {
@@ -326,8 +327,8 @@ namespace canjewelry.src
                             else
                             {
                                 dsc.Append(Lang.Get("canjewelry:socket-has-attribute-percent", i, treeSlot.GetFloat("attributeBuffValue") * 100)).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString("attributeBuff")));
-                            }                        
-                            dsc.Append('\n');
+                            }
+                            dsc.AppendLine();
                         }
                         else
                         {
@@ -339,7 +340,7 @@ namespace canjewelry.src
                                 if (buffNames[j].Equals("maxhealthExtraPoints"))
                                 {
                                     dsc.Append(Lang.Get("canjewelry:buff-name-" + buffNames[j])).Append(" +" + buffValues[j].ToString());
-                                    dsc.Append('\n');
+                                    dsc.AppendLine();
                                 }
                                 else
                                 {
@@ -463,7 +464,7 @@ namespace canjewelry.src
         }
         public static void TryDropGems(Entity byEntity, ItemSlot itemslot)
         {
-            if (canjewelry.capi != null)
+            if (byEntity == null || (byEntity.Api != null && byEntity.Api.Side != EnumAppSide.Client))
             {
                 return;
             }
@@ -479,7 +480,7 @@ namespace canjewelry.src
                 {
                     if(canjewelry.config.chance_gem_drop_on_item_broken == 0 || r.NextDouble() > canjewelry.config.chance_gem_drop_on_item_broken)
                     {
-                        return;
+                        continue;
                     }
                     ITreeAttribute socketSlot = tree.GetTreeAttribute("slot" + i.ToString());
                     if (socketSlot != null)
@@ -502,8 +503,21 @@ namespace canjewelry.src
                                 return;
                         }
 
+                        string[] buffNames = (socketSlot[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value;
+                        float[] buffValues = (socketSlot[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
+                        ITreeAttribute isTree = new TreeAttribute();
+                        tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(buffNames);
+                        tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(buffValues);
+                        tree.SetString(CANJWConstants.CUTTING_TYPE, socketSlot.GetString(CANJWConstants.CUTTING_TYPE));
+                        /* ITreeAttribute tree = new TreeAttribute();
+                         tree.SetString(CANJWConstants.CUTTING_TYPE, newCuttingType);
+                         workStack.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
+                         EncrustableCB.ApplyCuttingBuff(workStack);*/
+
+
                         Item currentItem = canjewelry.sapi.World.GetItem(new AssetLocation("canjewelry:" + "gem-cut-" + gemSize + "-" + gemType));
                         ItemStack newIS = new ItemStack(currentItem, 1);
+                        newIS.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
                         canjewelry.sapi.World.SpawnItemEntity(newIS, byEntity.Pos.XYZ.Clone().Add(0.5f, 0.25f, 0.5f));
                     }
                 }

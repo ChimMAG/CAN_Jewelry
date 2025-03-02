@@ -68,25 +68,20 @@ namespace canjewelry.src.items
                         {
                             dsc.Append(Lang.Get("canjewelry:buff-name-" + buffName))
                                 .Append(string.Format("{0}/{1}", (buffAttributes.MainStatValueRange[itemStack.Collectible.Attributes["canGemType"].AsInt()][0] > 0
-                                                                                                    ? " +" + Math.Round(buffAttributes.MainStatValueRange[itemStack.Collectible.Attributes["canGemType"].AsInt()][0], 3)
-                                                                                                    : Math.Round(buffAttributes.MainStatValueRange[itemStack.Collectible.Attributes["canGemType"].AsInt()][0], 3)),
+                                                                                                    ? " +" + Math.Round(buffAttributes.MainStatValueRange[itemStack.Collectible.Attributes["canGemType"].AsInt()][0] * 100, 3)
+                                                                                                    : Math.Round(buffAttributes.MainStatValueRange[itemStack.Collectible.Attributes["canGemType"].AsInt()][0] * 100, 3)) + "%",
                                                                     buffAttributes.MainStatValueRange[itemStack.Collectible.Attributes["canGemType"].AsInt()][1] > 0
-                                                                                                    ? " +" + Math.Round(buffAttributes.MainStatValueRange[itemStack.Collectible.Attributes["canGemType"].AsInt()][1], 2)
-                                                                                                    :  Math.Round(buffAttributes.MainStatValueRange[itemStack.Collectible.Attributes["canGemType"].AsInt()][1], 2)))
+                                                                                                    ? " +" + Math.Round(buffAttributes.MainStatValueRange[itemStack.Collectible.Attributes["canGemType"].AsInt()][1] * 100, 2)
+                                                                                                    :  Math.Round(buffAttributes.MainStatValueRange[itemStack.Collectible.Attributes["canGemType"].AsInt()][1] * 100, 2))).Append("%")
                                 .AppendLine();
                 
                         }
                     }
 
                 }
-                //string selectedBuffName = possibleBuffs.ToArray()[Config.rand.Next(possibleBuffs.Count())];
-                
-                // tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(new string[] { });
-                // tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(new float[] { });
-                // outstack.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
                 return;
             }
-            //string selectedBuffName = possibleBuffs.ToArray()[Config.rand.Next(possibleBuffs.Count())];
+
             if (inSlot.Itemstack.Collectible.Attributes.KeyExists("canGemTypeToAttribute"))
             {
                 string buffName = inSlot.Itemstack.Collectible.Attributes["canGemTypeToAttribute"].ToString();

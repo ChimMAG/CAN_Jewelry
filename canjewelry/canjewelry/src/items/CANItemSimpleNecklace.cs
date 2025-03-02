@@ -18,7 +18,7 @@ using Vintagestory.GameContent;
 
 namespace canjewelry.src.items
 {
-    public class CANItemSimpleNecklace : CANItemWearable, IWearableShapeSupplier
+    public class CANItemSimpleNecklace : CANItemWearable, IWearableShapeSupplier, IAttachableToEntity
     {
         public override Size2i AtlasSize => curAtlas.Size;
 
@@ -179,8 +179,8 @@ namespace canjewelry.src.items
             Dictionary<string, string[]> vg = this.Attributes["variantGroups"].AsObject<Dictionary<string, string[]>>(null);
             Random r = new Random();
 
-            string[] loops = ArrayExtensions.Shuffle(vg["loop"], r)[0..2];
-            string[] sockets = ArrayExtensions.Shuffle(vg["socket"], r)[0..2];
+            string[] loops = vg["loop"][0..2];
+            string[] sockets = vg["socket"][0..2];
             foreach (string loop in loops)
             {
                 foreach (string socket in sockets)
@@ -444,60 +444,53 @@ namespace canjewelry.src.items
             });
         }
 
-        public Shape GetShape(ItemStack stack, EntityAgent forEntity, string texturePrefixCode)
-        {
-            
+        public Shape GetShape(ItemStack stack, Entity forEntity, string texturePrefixCode)
+        {          
             JsonObject attributes = stack.Collectible.Attributes;
-            //EntityProperties entityType = capi.World.GetEntityType(new AssetLocation("player"));
-            //Shape loadedShape = entityType.Client.LoadedShape;
-           // AssetLocation @base = entityType.Client.Shape.Base;
-            /*Shape shape = new Shape
-            {
-                Elements = loadedShape.CloneElements(),
-                Animations = loadedShape.Animations,
-                AnimationsByCrc32 = loadedShape.AnimationsByCrc32,
-                AttachmentPointsByCode = loadedShape.AttachmentPointsByCode,
-                JointsById = loadedShape.JointsById,
-                TextureWidth = loadedShape.TextureWidth,
-                TextureHeight = loadedShape.TextureHeight,
-                Textures = null
-            };*/
             CompositeShape compositeShape = (attributes["attachShape"].Exists ? attributes["attachShape"].AsObject<CompositeShape>(null, stack.Collectible.Code.Domain) : ((stack.Class == EnumItemClass.Item) ? stack.Item.Shape : stack.Block.Shape));
 
             AssetLocation assetLocation = compositeShape.Base.CopyWithPath("shapes/" + compositeShape.Base.Path + ".json");
-            Shape shape2 = Vintagestory.API.Common.Shape.TryGet(capi, assetLocation);
-          
+            Shape shape2 = Vintagestory.API.Common.Shape.TryGet(this.api, assetLocation);
+            return shape2;       
+        }
+        public bool IsAttachable(ItemStack itemStack)
+        {
+            return true;
+        }
 
-            Dictionary<string, AssetLocation> newdict = new Dictionary<string, AssetLocation>();
+        public void CollectTextures(ItemStack stack, Shape shape, string texturePrefixCode, Dictionary<string, CompositeTexture> intoDict)
+        {
+            if (this.api.Side is EnumAppSide.Server)
+            {
+                return;
+            }
+
             string loop = stack.Attributes.GetString("loop", null);
             string socket = stack.Attributes.GetString("socket", null);
             string gem = stack.Attributes.GetString("gem", null);
 
-
             if (!canjewelry.gems_textures.TryGetValue(gem, out string assetPath))
             {
-                newdict["gem"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                tmpTextures["gem"] = new AssetLocation("canjewelry:item/gem/notvis.png");
             }
             else
             {
-                newdict["gem"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                tmpTextures["gem"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
             }
-           
-            newdict["loop"] = new AssetLocation("block/metal/sheet/" + loop + "1.png");
-            newdict["socket"] = new AssetLocation("block/metal/plate/" + socket + ".png");
-          
-            foreach (var val in newdict)
+
+            tmpTextures["loop"] = new AssetLocation("block/metal/sheet/" + loop + "1.png");
+            tmpTextures["socket"] = new AssetLocation("block/metal/plate/" + socket + ".png");
+
+            foreach (var texture in tmpTextures)
             {
-                CompositeTexture ctex = new CompositeTexture() { Base = val.Value };
+                CompositeTexture ctex = new CompositeTexture() { Base = texture.Value };
 
-                ICoreClientAPI capi = this.capi as ICoreClientAPI;
-
-                AssetLocation armorTexLoc = val.Value;
+                AssetLocation armorTexLoc = texture.Value;
 
                 int textureSubId = 0;
                 TextureAtlasPosition texpos;
 
-                capi.EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
+                (this.api as ICoreClientAPI).EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
                 {
                     IAsset texAsset = this.capi.Assets.TryGet(armorTexLoc.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
                     if (texAsset != null)
@@ -508,11 +501,37 @@ namespace canjewelry.src.items
                 });
 
                 ctex.Baked = new BakedCompositeTexture() { BakedName = armorTexLoc, TextureSubId = textureSubId };
-
-                ((EntityClientProperties)forEntity.SidedProperties).Textures[val.Key] = ctex;
+                intoDict[texture.Key] = ctex;
             }
+        }
 
-            return shape2;
+        public string GetCategoryCode(ItemStack stack)
+        {
+            return "cansimplenecklace";
+        }
+
+        public CompositeShape GetAttachedShape(ItemStack stack, string slotCode)
+        {
+            return null;
+        }
+
+        public string[] GetDisableElements(ItemStack stack)
+        {
+            return null;
+        }
+
+        public string[] GetKeepElements(ItemStack stack)
+        {
+            return null;
+        }
+
+        public string GetTexturePrefixCode(ItemStack stack)
+        {
+            return this.GetMeshCacheKey(stack);
+        }
+        public bool IsAttachable(Entity toEntity, ItemStack itemStack)
+        {
+            return true;
         }
 
     }

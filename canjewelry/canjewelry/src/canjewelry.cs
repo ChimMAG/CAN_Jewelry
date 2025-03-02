@@ -17,6 +17,7 @@ using canjewelry.src.jewelry;
 using canjewelry.src.items;
 using canjewelry.src.eb;
 using canjewelry.src.be;
+using canjewelry.src.bb;
 
 namespace canjewelry.src
 {
@@ -45,6 +46,8 @@ namespace canjewelry.src
             api.RegisterBlockEntityClass("JewelerSetBE", typeof(JewelerSetBE));
 
             api.RegisterCollectibleBehaviorClass("Encrustable", typeof(EncrustableCB));
+        
+            api.RegisterBlockBehaviorClass("CANTemporalGraspBB", typeof(CANTemporalGraspBB));
 
             api.RegisterBlockClass("BlockJewelGrinder", typeof(BlockJewelGrinder));
             api.RegisterBlockClass("BlockCANWireDrawingBench", typeof(CANWireDrawingBench));
@@ -77,10 +80,10 @@ namespace canjewelry.src
         public override void StartClientSide(ICoreClientAPI api)
         {
             base.StartClientSide(api);
-           
             capi = api;
             loadConfig(capi);
             harmonyInstance = new Harmony(harmonyID);
+
             harmonyInstance.Patch(typeof(Vintagestory.API.Client.GuiElementItemSlotGridBase).GetMethod("ComposeSlotOverlays", BindingFlags.NonPublic | BindingFlags.Instance), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_ComposeSlotOverlays_Add_Socket_Overlays_Not_Draw_ItemDamage")));
 
             harmonyInstance.Patch(typeof(Vintagestory.API.Common.CollectibleObject).GetMethod("GetHeldItemInfo"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_GetHeldItemInfo")));
@@ -141,13 +144,31 @@ namespace canjewelry.src
                 }
             };
         }
+        /*public void PlayerChatDelegate(IServerPlayer byPlayer, int channelId, ref string message, ref string data, BoolRef consumed)
+        {
+            var c = 3;
+            var now = DateTime.Now;
+            var cc = byPlayer.Entity.Api.ModLoader.GetModSystem<Th3Essentials.Th3Essentials>();
+
+            var ccc = typeof(Th3Essentials.Th3Essentials).GetMember("config",  BindingFlags.Static);
+            if(!string.IsNullOrEmpty("war"))
+            {
+                var c2 = 3;
+            }
+            //var f = Th3Essentials.Th3Essentials;
+            message = $"{now.TimeOfDay.ToString("hh\\:mm")}: {message}";
+
+        }*/
         public override void StartServerSide(ICoreServerAPI api)
         {
             base.StartServerSide(api);
 
+            //api.Event.PlayerChat += PlayerChatDelegate;
+
             harmonyInstance = new Harmony(harmonyID);
             sapi = api;
             loadConfig(sapi);
+            config.InitColors();
             api.RegisterEntityBehaviorClass("cangembuffaffected", typeof(CANGemBuffAffected));
 
             harmonyInstance.Patch(typeof(Vintagestory.Server.CoreServerEventManager).GetMethod("TriggerAfterActiveSlotChanged"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_TriggerAfterActiveSlotChanged")));
@@ -202,6 +223,7 @@ namespace canjewelry.src
                     block.Drops = block.Drops.Append(blockDropsToAdd.ToArray());
                 }
             }
+            //var c = api.ModLoader.GetModSystem<Timeswitch>();
         }
         public void OnPlayerNowPlaying(IServerPlayer byPlayer)
         {
@@ -288,10 +310,13 @@ namespace canjewelry.src
 
             Item[] cut_gems_items = api.World.SearchItems(new AssetLocation("canjewelry:gem-cut-*"));
 
-            foreach (var gem in cut_gems_items)
+            if (!serverSide)
             {
-                //catch if not present?
-                gems_textures.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":textures/" + gem.Textures["gem"].Base.Path);
+                foreach (var gem in cut_gems_items)
+                {
+                    //catch if not present?
+                    gems_textures.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":textures/" + gem.Textures["gem"].Base.Path);
+                }
             }
           
             foreach (var gem in cut_gems_items)
@@ -336,6 +361,21 @@ namespace canjewelry.src
                     if (config.debugMode)
                     {
                        // api.Logger.VerboseDebug(String.Format("[canjewelry] Item with \"{0}\" code not found", it.Key));
+                    }
+                }
+            }
+
+            if (config.TemporalGraspEnabled)
+            {
+                foreach (var it in config.TemporalGraspBlockList)
+                {
+                    Block[] arrayResult = api.World.SearchBlocks(new AssetLocation(it));
+                    foreach (var itB in arrayResult)
+                    {
+                        if (!itB.HasBehavior<CANTemporalGraspBB>())
+                        {
+                            itB.BlockBehaviors = itB.BlockBehaviors.Append(new CANTemporalGraspBB(itB));
+                        }
                     }
                 }
             }

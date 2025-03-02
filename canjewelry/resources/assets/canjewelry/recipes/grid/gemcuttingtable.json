@@ -7,16 +7,15 @@
         "type": "block",
         "code": "game:rockpolished-*",
         "name": "stone-type",
-        "allowedVariants": [ "andesite", "chalk", "chert", "conglomerate", "limestone", "claystone", "granite", "sandstone", "shale", "basalt", "peridotite", "phyllite", "slate", "bauxite" ]
+        "allowedVariants": [ "andesite", "chalk", "chert", "conglomerate", "limestone", "claystone", "granite", "sandstone", "shale", "basalt", "peridotite", "phyllite", "slate", "bauxite", "kimberlite" ]
       },
       "S": {
         "type": "item",
-        "code": "canjewelry:canstrap-*",
-        "name": "metal-type",
-        "allowedVariants": [ "tinbronze", "bismuthbronze", "blackbronze", "gold", "silver", "iron", "meteoriciron", "steel", "copper" ]
+        "code": "canjewelry:canstrap-tinbronze",
+        "name": "metal-type"
       }
     },
-    "name": "canjewelgrinder",
+    "name": "cangemcuttingtable-tb",
     "width": 3,
     "height": 3,
     "output": {
@@ -24,7 +23,239 @@
       "code": "canjewelry:cangemcuttingtable",
       "quantity": 1,
       "attributes": {
-        "metal": "{metal-type}",
+        "metal": "tinbronze",
+        "stone": "{stone-type}"
+      }
+    }
+  },
+  {
+
+    "ingredientPattern": "_S_,SRS,_S_",
+    "ingredients": {
+      "R": {
+        "type": "block",
+        "code": "game:rockpolished-*",
+        "name": "stone-type",
+        "allowedVariants": [ "andesite", "chalk", "chert", "conglomerate", "limestone", "claystone", "granite", "sandstone", "shale", "basalt", "peridotite", "phyllite", "slate", "bauxite", "kimberlite" ]
+      },
+      "S": {
+        "type": "item",
+        "code": "canjewelry:canstrap-bismuthbronze",
+        "name": "metal-type"
+      }
+    },
+    "name": "cangemcuttingtable-bb",
+    "width": 3,
+    "height": 3,
+    "output": {
+      "type": "block",
+      "code": "canjewelry:cangemcuttingtable",
+      "quantity": 1,
+      "attributes": {
+        "metal": "bismuthbronze",
+        "stone": "{stone-type}"
+      }
+    }
+  },
+  {
+
+    "ingredientPattern": "_S_,SRS,_S_",
+    "ingredients": {
+      "R": {
+        "type": "block",
+        "code": "game:rockpolished-*",
+        "name": "stone-type",
+        "allowedVariants": [ "andesite", "chalk", "chert", "conglomerate", "limestone", "claystone", "granite", "sandstone", "shale", "basalt", "peridotite", "phyllite", "slate", "bauxite", "kimberlite" ]
+      },
+      "S": {
+        "type": "item",
+        "code": "canjewelry:canstrap-blackbronze",
+        "name": "metal-type"
+      }
+    },
+    "name": "cangemcuttingtable-blb",
+    "width": 3,
+    "height": 3,
+    "output": {
+      "type": "block",
+      "code": "canjewelry:cangemcuttingtable",
+      "quantity": 1,
+      "attributes": {
+        "metal": "blackbronze",
+        "stone": "{stone-type}"
+      }
+    }
+  },
+  {
+
+    "ingredientPattern": "_S_,SRS,_S_",
+    "ingredients": {
+      "R": {
+        "type": "block",
+        "code": "game:rockpolished-*",
+        "name": "stone-type",
+        "allowedVariants": [ "andesite", "chalk", "chert", "conglomerate", "limestone", "claystone", "granite", "sandstone", "shale", "basalt", "peridotite", "phyllite", "slate", "bauxite", "kimberlite" ]
+      },
+      "S": {
+        "type": "item",
+        "code": "canjewelry:canstrap-gold",
+        "name": "metal-type"
+      }
+    },
+    "name": "cangemcuttingtable-g",
+    "width": 3,
+    "height": 3,
+    "output": {
+      "type": "block",
+      "code": "canjewelry:cangemcuttingtable",
+      "quantity": 1,
+      "attributes": {
+        "metal": "gold",
+        "stone": "{stone-type}"
+      }
+    }
+  },
+  {
+
+    "ingredientPattern": "_S_,SRS,_S_",
+    "ingredients": {
+      "R": {
+        "type": "block",
+        "code": "game:rockpolished-*",
+        "name": "stone-type",
+        "allowedVariants": [ "andesite", "chalk", "chert", "conglomerate", "limestone", "claystone", "granite", "sandstone", "shale", "basalt", "peridotite", "phyllite", "slate", "bauxite", "kimberlite" ]
+      },
+      "S": {
+        "type": "item",
+        "code": "canjewelry:canstrap-silver",
+        "name": "metal-type"
+      }
+    },
+    "name": "cangemcuttingtable-si",
+    "width": 3,
+    "height": 3,
+    "output": {
+      "type": "block",
+      "code": "canjewelry:cangemcuttingtable",
+      "quantity": 1,
+      "attributes": {
+        "metal": "silver",
+        "stone": "{stone-type}"
+      }
+    }
+  },
+  {
+
+    "ingredientPattern": "_S_,SRS,_S_",
+    "ingredients": {
+      "R": {
+        "type": "block",
+        "code": "game:rockpolished-*",
+        "name": "stone-type",
+        "allowedVariants": [ "andesite", "chalk", "chert", "conglomerate", "limestone", "claystone", "granite", "sandstone", "shale", "basalt", "peridotite", "phyllite", "slate", "bauxite", "kimberlite" ]
+      },
+      "S": {
+        "type": "item",
+        "code": "canjewelry:canstrap-iron",
+        "name": "metal-type"
+      }
+    },
+    "name": "cangemcuttingtable-ir",
+    "width": 3,
+    "height": 3,
+    "output": {
+      "type": "block",
+      "code": "canjewelry:cangemcuttingtable",
+      "quantity": 1,
+      "attributes": {
+        "metal": "iron",
+        "stone": "{stone-type}"
+      }
+    }
+  },
+  {
+
+    "ingredientPattern": "_S_,SRS,_S_",
+    "ingredients": {
+      "R": {
+        "type": "block",
+        "code": "game:rockpolished-*",
+        "name": "stone-type",
+        "allowedVariants": [ "andesite", "chalk", "chert", "conglomerate", "limestone", "claystone", "granite", "sandstone", "shale", "basalt", "peridotite", "phyllite", "slate", "bauxite", "kimberlite" ]
+      },
+      "S": {
+        "type": "item",
+        "code": "canjewelry:canstrap-meteoriciron",
+        "name": "metal-type"
+      }
+    },
+    "name": "cangemcuttingtable-meir",
+    "width": 3,
+    "height": 3,
+    "output": {
+      "type": "block",
+      "code": "canjewelry:cangemcuttingtable",
+      "quantity": 1,
+      "attributes": {
+        "metal": "meteoriciron",
+        "stone": "{stone-type}"
+      }
+    }
+  },
+  {
+
+    "ingredientPattern": "_S_,SRS,_S_",
+    "ingredients": {
+      "R": {
+        "type": "block",
+        "code": "game:rockpolished-*",
+        "name": "stone-type",
+        "allowedVariants": [ "andesite", "chalk", "chert", "conglomerate", "limestone", "claystone", "granite", "sandstone", "shale", "basalt", "peridotite", "phyllite", "slate", "bauxite", "kimberlite" ]
+      },
+      "S": {
+        "type": "item",
+        "code": "canjewelry:canstrap-steel",
+        "name": "metal-type"
+      }
+    },
+    "name": "cangemcuttingtable-st",
+    "width": 3,
+    "height": 3,
+    "output": {
+      "type": "block",
+      "code": "canjewelry:cangemcuttingtable",
+      "quantity": 1,
+      "attributes": {
+        "metal": "steel",
+        "stone": "{stone-type}"
+      }
+    }
+  },
+  {
+
+    "ingredientPattern": "_S_,SRS,_S_",
+    "ingredients": {
+      "R": {
+        "type": "block",
+        "code": "game:rockpolished-*",
+        "name": "stone-type",
+        "allowedVariants": [ "andesite", "chalk", "chert", "conglomerate", "limestone", "claystone", "granite", "sandstone", "shale", "basalt", "peridotite", "phyllite", "slate", "bauxite", "kimberlite" ]
+      },
+      "S": {
+        "type": "item",
+        "code": "canjewelry:canstrap-copper",
+        "name": "metal-type"
+      }
+    },
+    "name": "cangemcuttingtable-co",
+    "width": 3,
+    "height": 3,
+    "output": {
+      "type": "block",
+      "code": "canjewelry:cangemcuttingtable",
+      "quantity": 1,
+      "attributes": {
+        "metal": "copper",
         "stone": "{stone-type}"
       }
     }

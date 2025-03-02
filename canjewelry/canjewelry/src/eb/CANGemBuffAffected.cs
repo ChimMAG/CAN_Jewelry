@@ -141,8 +141,9 @@ namespace canjewelry.src.eb
                     return;
                 }
                 //if there is diff or new buffs are empty
-                if(!currentBuffDict.Equals(newBuffDict))
+                if(currentBuffDict.Except(newBuffDict).Any())
                 {
+                    var f = currentBuffDict.Except(newBuffDict).ToArray();
                     ApplyBuffFromItemStack(currentBuffDict, this.entity as EntityPlayer, false);
                     if (newBuffDict.Count > 0)
                     {
@@ -236,7 +237,7 @@ namespace canjewelry.src.eb
                         {
                             continue;
                         }
-                        if (socketSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF) == "candurability")
+                        if (socketSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF) == "candurability" || socketSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF) == "temporalgrasp") //TODO
                         {
                             continue;
                         }
@@ -260,7 +261,7 @@ namespace canjewelry.src.eb
                         {
                             float additionalValue = buffValues[j];
                             string attributeBuffName = buffNames[j];
-                            if (attributeBuffName.Equals("candurability"))
+                            if (attributeBuffName.Equals("candurability") || attributeBuffName.Equals("temporalgrasp"))//TODO
                             {
                                 continue;
                             }

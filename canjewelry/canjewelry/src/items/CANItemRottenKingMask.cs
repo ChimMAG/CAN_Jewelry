@@ -17,7 +17,7 @@ using Vintagestory.GameContent;
 
 namespace canjewelry.src.items
 {
-    public class CANItemRottenKingMask : CANItemWearable, IWearableShapeSupplier
+    public class CANItemRottenKingMask : CANItemWearable, IWearableShapeSupplier, IAttachableToEntity
     {
         private Shape nowTesselatingShape;
         private ITextureAtlasAPI curAtlas;
@@ -123,7 +123,7 @@ namespace canjewelry.src.items
             jsonItemStack.Resolve(this.api.World, "canrottenkingmask type", true);
             return jsonItemStack;
         }
-        public Shape GetShape(ItemStack stack, EntityAgent forEntity, string texturePrefixCode)
+        public Shape GetShape(ItemStack stack, Entity forEntity, string texturePrefixCode)
         {           
             Shape gearShape = null;
             CompositeShape compGearShape = null;
@@ -143,7 +143,7 @@ namespace canjewelry.src.items
                 });
                 return null;
             }
-            
+            return gearShape;
             //gearShape.SubclassForStepParenting(texturePrefixCode, damageEffect);
             HashSet<string> textureCodes = new HashSet<string>();
             ShapeElement[] elements = gearShape.Elements;
@@ -225,6 +225,73 @@ namespace canjewelry.src.items
 
 
             return gearShape;
+        }
+        public bool IsAttachable(ItemStack itemStack)
+        {
+            return true;
+        }
+
+        public void CollectTextures(ItemStack stack, Shape shape, string texturePrefixCode, Dictionary<string, CompositeTexture> intoDict)
+        {
+            if (this.api.Side is EnumAppSide.Server)
+            {
+                return;
+            }
+            string maskMetal = stack.Attributes.GetString("metal", null);
+            tmpTextures["canjewelry:canrottenkingmask-normal-silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
+            tmpTextures["silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
+            //"canjewelry:canrottenkingmask-normal-silver1"
+            tmpTextures["rotten-king-mask"] = new AssetLocation("canjewelry:item/rottenking.png");
+            tmpTextures["rotten-king-cloth"] = new AssetLocation("canjewelry:item/rottenkingcloth.png");
+
+            foreach (var texture in tmpTextures)
+            {
+                CompositeTexture ctex = new CompositeTexture() { Base = texture.Value };
+
+
+                AssetLocation armorTexLoc = texture.Value;
+
+                int textureSubId = 0;
+                TextureAtlasPosition texpos;
+
+                (this.api as ICoreClientAPI).EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
+                {
+                    IAsset texAsset = this.capi.Assets.TryGet(armorTexLoc.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
+                    if (texAsset != null)
+                    {
+                        return texAsset.ToBitmap(capi);
+                    }
+                    return null;
+                });
+
+                ctex.Baked = new BakedCompositeTexture() { BakedName = armorTexLoc, TextureSubId = textureSubId };
+                intoDict[texture.Key] = ctex;
+            }
+        }
+
+        public string GetCategoryCode(ItemStack stack)
+        {
+            return "canrottenkingmask";
+        }
+
+        public CompositeShape GetAttachedShape(ItemStack stack, string slotCode)
+        {
+            return null;
+        }
+
+        public string[] GetDisableElements(ItemStack stack)
+        {
+            return null;
+        }
+
+        public string[] GetKeepElements(ItemStack stack)
+        {
+            return null;
+        }
+
+        public string GetTexturePrefixCode(ItemStack stack)
+        {
+            return this.GetMeshCacheKey(stack);
         }
         public override string GetMeshCacheKey(ItemStack itemstack)
         {
@@ -352,6 +419,10 @@ namespace canjewelry.src.items
         public override string GetHeldItemName(ItemStack itemStack)
         {
             return Lang.Get("game:material-" + itemStack.Attributes.GetString("metal", "default")) + Lang.Get("canjewelry:item-canrottenkingmask");
+        }
+        public bool IsAttachable(Entity toEntity, ItemStack itemStack)
+        {
+            return true;
         }
     }
 }

@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.Util;
@@ -84,6 +85,14 @@ namespace canjewelry.src.CB
                             }
                         }
 
+                        int[] socketsTiersList = GetSocketsTiers(encrustable.Itemstack);
+
+                        if (socketsTiersList[socketNumber] < socketSlot.Itemstack.Collectible.Attributes[CANJWConstants.LEVEL_OF_SOSCKET_STRING].AsInt())
+                        {
+                            inventory.TakeLocked = false;
+                            return false;
+                        }
+
                         tree.SetInt(CANJWConstants.SOCKET_ADDED_NUMBER, tree.GetInt(CANJWConstants.SOCKET_ADDED_NUMBER) + 1);
                         ITreeAttribute socketSlotTree = new TreeAttribute();
                         socketSlotTree.SetInt(CANJWConstants.ENCRUSTED_GEM_SIZE, 0);
@@ -120,6 +129,14 @@ namespace canjewelry.src.CB
                             inventory.TakeLocked = false;
                             return false;
                         }
+                    }
+
+                    int[] socketsTiersList = GetSocketsTiers(encrustable.Itemstack);
+
+                    if (socketsTiersList == null || socketsTiersList[socketNumber] < socketSlot.Itemstack.Collectible.Attributes[CANJWConstants.LEVEL_OF_SOSCKET_STRING].AsInt())
+                    {
+                        inventory.TakeLocked = false;
+                        return false;
                     }
 
                     ITreeAttribute socketSlotTree = new TreeAttribute();
@@ -180,8 +197,8 @@ namespace canjewelry.src.CB
                     string[] newBuffNames = (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value;
                     float[] newBuffValues = (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
 
-                    string[] currentBuffNames = (tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute)?.value;
-                    float[] currentBuffValues = (tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute)?.value;
+                    string[] currentBuffNames = (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute)?.value;
+                    float[] currentBuffValues = (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute)?.value;
 
 
                     if(currentMaxDurability < 1)
@@ -259,7 +276,8 @@ namespace canjewelry.src.CB
                     treeSocket.SetInt(CANJWConstants.GEM_BUFF_TYPE, (int)EnumGemBuffType.STATS_BUFF);
                     treeSocket.SetInt("size", gem_slot.Itemstack.Collectible.Attributes["canGemType"].AsInt());
                     treeSocket.SetString("gemtype", gem_slot.Itemstack.Collectible.Code.Path.Split('-').Last());
-                    if(!treeSocket.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_NAMES))
+                    
+                    if (!treeSocket.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_NAMES))
                     {
                         treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(newBuffNames);
                         treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(newBuffValues);
@@ -269,7 +287,8 @@ namespace canjewelry.src.CB
                         (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value = newBuffNames;
                         (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value = newBuffValues;
                     }
-                    
+                    treeSocket.SetString(CANJWConstants.CUTTING_TYPE, cutGemTree.GetString(CANJWConstants.CUTTING_TYPE, "round"));
+
                     if (encrustable.Itemstack.Item is CANItemSimpleNecklace || encrustable.Itemstack.Item is CANItemHorusEye)
                     {
                         encrustable.Itemstack.Attributes.SetString("gem", gem_slot.Itemstack.Collectible.Code.Path.Split('-').Last());
@@ -278,7 +297,6 @@ namespace canjewelry.src.CB
                     {
                         encrustable.Itemstack.Attributes.SetString("gem_" + (socket_number + 1), gem_slot.Itemstack.Collectible.Code.Path.Split('-').Last());
                     }
-
                     gem_slot.TakeOut(1);
                     gem_slot.MarkDirty();
                     encrustable.MarkDirty();
@@ -304,7 +322,6 @@ namespace canjewelry.src.CB
             }
             return false;
         }
-
         public static int GetMaxAmountSockets(ItemStack itemstack)
         {
             if (itemstack != null)
@@ -406,8 +423,8 @@ namespace canjewelry.src.CB
                     buffValue = (float)Math.Round(buffValue, 3) * cuttingAttributes.GrindingBuffIncreaseMultipliers[0];
                     string secondaryBuffName = buffAttributes.PossibleSecondaryStats.ToArray()[Config.rand.Next(buffAttributes.PossibleSecondaryStats.Count())];
 
-                    float secondaryBuffValue = buffAttributes.GetRandomSecondaryValue(outstack.Collectible.Attributes["canGemType"].AsInt()) / 100;
-                    secondaryBuffValue = (float)Math.Round(secondaryBuffValue, 3);// * cuttingAttributes.GrindingBuffIncreaseMultipliers[0];
+                    float secondaryBuffValue = buffAttributes.GetRandomSecondaryValue(outstack.Collectible.Attributes["canGemType"].AsInt());
+                    secondaryBuffValue = (float)Math.Round(secondaryBuffValue, 3) / 100;// * cuttingAttributes.GrindingBuffIncreaseMultipliers[0];
 
                     if (secondaryBuffValue == 0)
                     {
@@ -433,6 +450,41 @@ namespace canjewelry.src.CB
                 }
                 outstack.Attributes.RemoveAttribute(CANJWConstants.CUTTING_TYPE);
             }
+        }
+        public float GetTemporalGraspValue(ItemStack itemStack)
+        {
+            if(itemStack.Attributes.HasAttribute("canencrusted"))
+            {
+                var tree = itemStack.Attributes.GetTreeAttribute("canencrusted");
+                float collectedValue = 0;
+                for (int i = 0; i < EncrustableCB.GetMaxAmountSockets(itemStack); i++)
+                {
+                    ITreeAttribute socketSlot = tree.GetTreeAttribute("slot" + i.ToString());
+
+                    if (socketSlot == null)
+                    {
+                        continue;
+                    }
+
+                    if (socketSlot.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_NAMES))
+                    {
+                        string[] buffNames = (socketSlot[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value;
+                        float[] buffValues = (socketSlot[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
+
+                        for (int j = 0; j < buffNames.Length; j++)
+                        {
+                            float additionalValue = buffValues[j];
+                            string attributeBuffName = buffNames[j];
+                            if (attributeBuffName == "temporalgrasp")//TODO
+                            {
+                                collectedValue += additionalValue;
+                            }
+                        }
+                    }
+                }
+                return collectedValue;
+            }
+            return 0;
         }
     }
 }

@@ -111,6 +111,7 @@ namespace canjewelry.src.jewelry
                             elGem.fixedX += 20;
                             elGem.fixedY += 20;
                             var bucketSatck = new ItemStack(capi.World.GetItem(new AssetLocation("canjewelry:gem-cut-" + gemSize + "-" + gemType)), 1);
+
                             if (imaginaryGemTree.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_NAMES) && imaginaryGemTree.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_VALUES))
                             {
                                 var imaginaryGemTreeNew = new TreeAttribute();
@@ -120,7 +121,7 @@ namespace canjewelry.src.jewelry
                                 imaginaryGemTreeNew[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(currentBuffValues);
                                 imaginaryGemTreeNew.SetString(CANJWConstants.CUTTING_TYPE, imaginaryGemTree.GetString(CANJWConstants.CUTTING_TYPE, "round"));
                                 bucketSatck.Attributes[CANJWConstants.CUT_GEM_TREE] = imaginaryGemTreeNew;
-                            }
+                             }
                             var sli = new SlideshowItemstackTextComponent(capi, new ItemStack[] { bucketSatck }, 48, EnumFloat.Inline);
                             var rc = new RichTextComponentBase[] { sli };
                             tmpEl.fixedX += 20;
