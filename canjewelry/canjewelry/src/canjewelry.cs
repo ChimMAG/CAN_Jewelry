@@ -18,6 +18,7 @@ using canjewelry.src.items;
 using canjewelry.src.eb;
 using canjewelry.src.be;
 using canjewelry.src.bb;
+using canjewelry.src.cb;
 
 namespace canjewelry.src
 {
@@ -31,6 +32,7 @@ namespace canjewelry.src
         internal static IClientNetworkChannel clientChannel;
         public static Config config;
         public static Dictionary<string, string> gems_textures = new Dictionary<string, string>();
+        public static Dictionary<string, string> gems_textures_pngs = new Dictionary<string, string>();
         public static List<GemCuttingRecipe> gemCuttingRecipes;
         public override void Start(ICoreAPI api)
         {
@@ -46,7 +48,8 @@ namespace canjewelry.src
             api.RegisterBlockEntityClass("JewelerSetBE", typeof(JewelerSetBE));
 
             api.RegisterCollectibleBehaviorClass("Encrustable", typeof(EncrustableCB));
-        
+            api.RegisterCollectibleBehaviorClass("GemCuttableCB", typeof(CANGemCuttableCB));
+
             api.RegisterBlockBehaviorClass("CANTemporalGraspBB", typeof(CANTemporalGraspBB));
 
             api.RegisterBlockClass("BlockJewelGrinder", typeof(BlockJewelGrinder));
@@ -119,6 +122,7 @@ namespace canjewelry.src
                 {
                     //catch if not present?
                     gems_textures.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":textures/" + gem.Textures["gem"].Base.Path);
+                    gems_textures_pngs.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":" + gem.Textures["gem"].Base.Path + ".png");
                 }
                 if (clientChannel.Connected)
                 {
@@ -298,8 +302,10 @@ namespace canjewelry.src
             }         
             
             Item[] rough_gems_items = api.World.SearchItems(new AssetLocation("canjewelry:gem-rough-*"));
+            Item[] rough_gems_other = api.World.SearchItems(new AssetLocation("game:gem-*-rough"));
 
-            foreach(var gem in rough_gems_items)
+            rough_gems_items = rough_gems_items.Append(rough_gems_other);
+            foreach (var gem in rough_gems_items)
             {
                 string code_item = gem.Code.Path.Split('-').Last();
                 if(config.gem_type_to_buff.ContainsKey(code_item) )
@@ -307,6 +313,15 @@ namespace canjewelry.src
                     gem.Attributes.Token["canGemTypeToAttribute"] = config.gem_type_to_buff[code_item];
                 }
             }
+
+            foreach (var gem in rough_gems_items)
+            {
+                if (!gem.HasBehavior<CANGemCuttableCB>())
+                {
+                    gem.CollectibleBehaviors = gem.CollectibleBehaviors.Append(new CANGemCuttableCB(gem));
+                }
+            }
+
 
             Item[] cut_gems_items = api.World.SearchItems(new AssetLocation("canjewelry:gem-cut-*"));
 
@@ -316,6 +331,7 @@ namespace canjewelry.src
                 {
                     //catch if not present?
                     gems_textures.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":textures/" + gem.Textures["gem"].Base.Path);
+                    gems_textures_pngs.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":" + gem.Textures["gem"].Base.Path + ".png");
                 }
             }
           

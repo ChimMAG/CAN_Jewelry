@@ -1,9 +1,11 @@
 ﻿using canjewelry.src.blocks;
+using canjewelry.src.cb;
 using canjewelry.src.CB;
 using canjewelry.src.items;
 using canjewelry.src.jewelry;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -153,7 +155,7 @@ namespace canjewelry.src.be
 
         public bool CanWorkCurrent
         {
-            get { return workItemStack != null && (workItemStack.Collectible as IGemCuttingWorkable).CanWork(WorkItemStack); }
+            get { return workItemStack != null && workItemStack.Collectible.GetBehavior<CANGemCuttableCB>().CanWork(WorkItemStack); }
         }
 
         public ItemStack WorkItemStack
@@ -371,15 +373,20 @@ namespace canjewelry.src.be
             if (slot.Itemstack == null) return false;
             ItemStack stack = slot.Itemstack;
 
-            IGemCuttingWorkable workableobj = stack.Collectible as IGemCuttingWorkable;
-
-           /* foreach (var it in canjewelry.gemCuttingRecipes)
+            if(!stack.Collectible.HasBehavior<CANGemCuttableCB>())
             {
-                canjewelry.capi.Logger.Error(it.Output.Code.ToString());
-            }*/
+                return false;
+            }
+            CANGemCuttableCB gemBehavior = stack.Collectible.GetBehavior<CANGemCuttableCB>();
+            //IGemCuttingWorkable workableobj = stack.Collectible as IGemCuttingWorkable;
 
-            if (workableobj == null) return false;
-            int requiredTier = workableobj.GetRequiredGemCuttingTableTier(stack);
+            /* foreach (var it in canjewelry.gemCuttingRecipes)
+             {
+                 canjewelry.capi.Logger.Error(it.Output.Code.ToString());
+             }*/
+
+            //if (workableobj == null) return false;
+            int requiredTier = gemBehavior.GetRequiredGemCuttingTableTier(stack);
             if (requiredTier > OwnMetalTier)
             {
                 if (world.Side == EnumAppSide.Client)
@@ -390,7 +397,7 @@ namespace canjewelry.src.be
                 return false;
             }
             
-            ItemStack newWorkItemStack = workableobj.TryPlaceOn(stack, this);
+            ItemStack newWorkItemStack = gemBehavior.TryPlaceOn(stack, this);
             if (newWorkItemStack != null)
             {
                 if (workItemStack == null)
@@ -402,18 +409,24 @@ namespace canjewelry.src.be
 
                 if (SelectedRecipeId < 0)
                 {
-                    var list = workableobj.GetMatchingRecipes(stack);
+                    var list = gemBehavior.GetMatchingRecipes(stack);
+                    //canjewelry.gemCuttingRecipes
                     if (list.Count == 1)
                     {
                         SelectedRecipeId = list[0].RecipeId;
                         //SelectedRecipe = list[0];
                     }
-                    else
+                    else if(list.Count > 1) 
                     {
                         if (world.Side == EnumAppSide.Client)
                         {
                             OpenDialog(stack);
                         }
+                    }
+                    else
+                    {
+                        workItemStack = null;
+                        return false;
                     }
                 }
 
@@ -503,7 +516,7 @@ namespace canjewelry.src.be
 
             if (voxelMat != EnumVoxelMaterial.Empty)
             {
-                spawnParticles(voxelPos, voxelMat, byPlayer);
+                //spawnParticles(voxelPos, voxelMat, byPlayer);
                 switch (toolMode)
                 {
                     case 0:
@@ -541,19 +554,17 @@ namespace canjewelry.src.be
 
         private void spawnParticles(Vec3i voxelPos, EnumVoxelMaterial voxelMat, IPlayer byPlayer)
         {
-            float temp = workItemStack.Collectible.GetTemperature(Api.World, workItemStack);
-
-            if (voxelMat == EnumVoxelMaterial.Metal && temp > 800)
+            if (voxelMat == EnumVoxelMaterial.Metal)
             {
                 bigMetalSparks.MinPos = Pos.ToVec3d().AddCopy(voxelPos.X / 16f, voxYOff + voxelPos.Y / 16f + 0.0625f, voxelPos.Z / 16f);
                 bigMetalSparks.AddPos.Set(1 / 16f, 0, 1 / 16f);
-                bigMetalSparks.VertexFlags = (byte)GameMath.Clamp((int)(temp - 700) / 2, 32, 128);
+                bigMetalSparks.VertexFlags = (byte)GameMath.Clamp((int)(100 - 700) / 2, 32, 128);
                 bigMetalSparks.Bounciness = 0.7f;
                 Api.World.SpawnParticles(bigMetalSparks, byPlayer);
 
 
                 smallMetalSparks.MinPos = Pos.ToVec3d().AddCopy(voxelPos.X / 16f, voxYOff + voxelPos.Y / 16f + 0.0625f, voxelPos.Z / 16f);
-                smallMetalSparks.VertexFlags = (byte)GameMath.Clamp((int)(temp - 770) / 3, 32, 128);
+                smallMetalSparks.VertexFlags = (byte)GameMath.Clamp((int)(100 - 770) / 3, 32, 128);
                 smallMetalSparks.AddPos.Set(1 / 16f, 0, 1 / 16f);
 
 
@@ -681,7 +692,7 @@ namespace canjewelry.src.be
         {
             if (Api.World.Side == EnumAppSide.Client)
             {
-                spawnParticles(new Vec3i(x, y, z), mat == EnumVoxelMaterial.Empty ? EnumVoxelMaterial.Metal : mat, null);
+                //spawnParticles(new Vec3i(x, y, z), mat == EnumVoxelMaterial.Empty ? EnumVoxelMaterial.Metal : mat, null);
                 if (usableMetalVoxel != null) spawnParticles(usableMetalVoxel, EnumVoxelMaterial.Metal, null);
             }
 
@@ -749,9 +760,9 @@ namespace canjewelry.src.be
             ItemStack ditchedStack;
             if (SelectedRecipe == null)
             {
-                ditchedStack = returnOnCancelStack ?? (workItemStack.Collectible as IGemCuttingWorkable).GetBaseMaterial(workItemStack);
-                float temp = workItemStack.Collectible.GetTemperature(Api.World, workItemStack);
-                ditchedStack.Collectible.SetTemperature(Api.World, ditchedStack, temp);
+                ditchedStack = returnOnCancelStack ?? workItemStack.Collectible.GetBehavior<CANGemCuttableCB>().GetBaseMaterial(workItemStack);
+                //float temp = workItemStack.Collectible.GetTemperature(Api.World, workItemStack);
+                //ditchedStack.Collectible.SetTemperature(Api.World, ditchedStack, temp);
             }
             else
             {
@@ -1296,7 +1307,7 @@ namespace canjewelry.src.be
         }
         internal void OpenDialog(ItemStack ingredient)
         {
-            List<GemCuttingRecipe> recipes = (ingredient.Collectible as IGemCuttingWorkable).GetMatchingRecipes(ingredient);
+            List<GemCuttingRecipe> recipes = ingredient.Collectible.GetBehavior<CANGemCuttableCB>().GetMatchingRecipes(ingredient);
 
             List<ItemStack> stacks = recipes
                 .Select(r => r.Output.ResolvedItemstack)

@@ -2,6 +2,11 @@
 	"code": "gemcuttingworkitem",
 	"class": "CANItemGemCuttingWorkItem",
 	"maxstacksize": 1,
+	"behaviors": [
+		{
+			"name": "GemCuttableCB"
+		}
+	],
 	"storageFlags": 5,
 	"materialDensity": 7000,
 	"texture": { "base": "game:block/metal/ingot/iron" },

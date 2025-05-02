@@ -15,7 +15,7 @@ using Vintagestory.GameContent;
 
 namespace canjewelry.src.items
 {
-    public class CANItemGemCuttingWorkItem : Item, IGemCuttingWorkable
+    public class CANItemGemCuttingWorkItem : Item
     {
         public override void OnLoaded(ICoreAPI api)
         {
@@ -93,8 +93,26 @@ namespace canjewelry.src.items
                 canjewelry.gems_textures.TryGetValue("diamond", out assetPath);
             }
             AssetLocation asset = canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location;
-            tposMetal = capi.ItemTextureAtlas.GetPosition(capi.World.GetItem(new AssetLocation("canjewelry:gem-rough-normal-" + gemBase)), "gem");
+            //canjewelry.gems_textures
+
+            /*while (true)
+            {
+                try
+                {
+                    capi.ItemTextureAtlas.GetOrInsertTexture(new AssetLocation(canjewelry.gems_textures[gemBase]), out var id, out tposMetal);
+                    tposMetal = capi.ItemTextureAtlas.GetPosition(capi.World.GetItem(new AssetLocation("canjewelry:gem-rough-normal-" + gemBase)), "gem");
+                }
+                catch 
+                {
+                    var c = 3;
+                }
+            }*/
+            //canjewelry.gems_textures_pngs.TryGetValue(gemBase, )
+            capi.ItemTextureAtlas.GetOrInsertTexture(new AssetLocation(canjewelry.gems_textures_pngs[gemBase]), out var id, out tposMetal);
+            //tposMetal = capi.ItemTextureAtlas.GetPosition(capi.World.GetItem(new AssetLocation("canjewelry:gem-rough-normal-" + gemBase)), "gem");
+            //tposMetal = capi.ItemTextureAtlas.GetPosition(capi.World.GetItem(new AssetLocation("canjewelry:gem-rough-normal-" + gemBase)), "gem");
             tposSlag = capi.BlockTextureAtlas.GetPosition(capi.World.GetBlock(new AssetLocation("game:anvil-copper")), "ironbloom", false); ;
+            //tposMetal = tposMetal2;
             /*if (workitemStack.Collectible.FirstCodePart(0) == "ironbloom")
             {
                 tposSlag = capi.BlockTextureAtlas.GetPosition(capi.World.GetBlock(new AssetLocation("anvil-copper")), "ironbloom", false);
@@ -206,7 +224,7 @@ namespace canjewelry.src.items
                     orderby r.Output.ResolvedItemstack.Collectible.Code
                     select r).ToList<GemCuttingRecipe>();
         }
-        public bool CanWork(ItemStack stack)
+        /*public bool CanWork(ItemStack stack)
         {
             float temperature = stack.Collectible.GetTemperature(api.World, stack);
             float meltingpoint = stack.Collectible.GetMeltingPoint(api.World, null, new DummySlot(stack));
@@ -217,8 +235,8 @@ namespace canjewelry.src.items
             }
 
             return temperature >= meltingpoint / 2;
-        }
-        public ItemStack TryPlaceOn(ItemStack stack, BlockEntityGemCuttingTable beAnvil)
+        }*/
+        /*public ItemStack TryPlaceOn(ItemStack stack, BlockEntityGemCuttingTable beAnvil)
         {
             if (beAnvil.WorkItemStack != null)
             {
@@ -233,11 +251,17 @@ namespace canjewelry.src.items
             {
             }
             return stack.Clone();
-        }
+        }*/
         public ItemStack GetBaseMaterial(ItemStack stack)
         {
             Item item = api.World.GetItem(AssetLocation.Create("canjewelry:gem-rough-" + stack.Attributes.GetString(CANJWConstants.ENCRUSTED_GEM_SIZE) + "-" + stack.Attributes.GetString(CANJWConstants.GEM_TYPE_IN_SOCKET)));
             //Item item = api.World.GetItem(AssetLocation.Create("ingot-" + Variant["metal"], Attributes?["baseMaterialDomain"].AsString("game")));
+
+            if (item == null)
+            {
+                item = api.World.GetItem(AssetLocation.Create("game:gem-" + stack.Attributes.GetString(CANJWConstants.GEM_TYPE_IN_SOCKET)) + "-rough");
+            }
+
             if (item == null)
             {
                 throw new Exception(string.Format("Base material for {0} not found, there is no item with code 'ingot-{1}'", stack.Collectible.Code, Variant["metal"]));

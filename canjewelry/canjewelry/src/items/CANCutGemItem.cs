@@ -116,7 +116,7 @@ namespace canjewelry.src.jewelry
             if (itemStack.Attributes.HasAttribute(CANJWConstants.CUT_GEM_TREE))
             {
                 ITreeAttribute tree = itemStack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
-                bb += " <i>[" + Lang.Get("canjewelry:cut-gem-cutting-type-" + tree.GetString(CANJWConstants.CUTTING_TYPE, "round")) + "]</i>";
+                bb += " [" + Lang.Get("canjewelry:cut-gem-cutting-type-" + tree.GetString(CANJWConstants.CUTTING_TYPE, "round")) + "]";
                 //bb += "[" +  +"]";
             }
             return bb;

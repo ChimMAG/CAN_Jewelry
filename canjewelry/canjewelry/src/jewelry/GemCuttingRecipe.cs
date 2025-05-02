@@ -50,6 +50,7 @@ namespace canjewelry.src.jewelry
         {
             writer.Write(RecipeId);
             base.Ingredient.ToBytes(writer);
+            
             writer.Write(Pattern.Length);
             for (int i = 0; i < Pattern.Length; i++)
             {

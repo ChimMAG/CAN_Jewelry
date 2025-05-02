@@ -155,7 +155,7 @@ namespace canjewelry.src.jewelry
                                 //gemStack.Attributes.SetString(CANJWConstants.CUTTING_TYPE, selectedCutting);
                                 tree.SetString(CANJWConstants.CUTTING_TYPE, selectedCutting);
                                 gemStack.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
-                                BlockEntityGemCuttingTable.ApplyCuttingBuff(gemStack);
+                                EncrustableCB.ApplyCuttingBuff(gemStack);
                                 this.inventory[slotId].MarkDirty();
                             }
                         }

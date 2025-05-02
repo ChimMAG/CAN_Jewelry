@@ -15,7 +15,7 @@ using static canjewelry.src.Config;
 
 namespace canjewelry.src.items
 {
-    public class CANRoughGemItem: Item, IGemCuttingWorkable
+    public class CANRoughGemItem: Item
     {
         public bool CanWork(ItemStack stack)
         {
@@ -245,7 +245,7 @@ namespace canjewelry.src.items
             gemItemAttribute.SetString(CANJWConstants.GEM_TYPE_IN_SOCKET, this.Variant[CANJWConstants.GEM_TYPE_IN_SOCKET]);
             gemItemAttribute.SetString(CANJWConstants.ENCRUSTED_GEM_SIZE, this.Variant["quality"]);
             workItemStack.Attributes = gemItemAttribute;
-            workItemStack.Collectible.SetTemperature(this.api.World, workItemStack, stack.Collectible.GetTemperature(this.api.World, stack), true);
+            //workItemStack.Collectible.SetTemperature(this.api.World, workItemStack, stack.Collectible.GetTemperature(this.api.World, stack), true);
             if (beGemCuttingTable.WorkItemStack == null)
             {
                 CANRoughGemItem.CreateVoxelsFromRoughGem(this.api, ref beGemCuttingTable.Voxels, false);

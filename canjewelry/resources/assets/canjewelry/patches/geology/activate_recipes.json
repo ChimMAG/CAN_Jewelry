@@ -1,0 +1,76 @@
+﻿[
+  {
+    "file": "canjewelry:recipes/gemcutting/baguette_cutting_geology.json",
+    "op": "replace",
+    "path": "/0/enabled",
+    "value": "true",
+    "side": "server",
+    "dependsOn": [ { "modid": "geoaddons" } ]
+  },
+  {
+    "file": "canjewelry:recipes/gemcutting/baguette_cutting_geology.json",
+    "op": "replace",
+    "path": "/1/enabled",
+    "value": "true",
+    "side": "server",
+    "dependsOn": [ { "modid": "geoaddons" } ]
+  },
+  {
+    "file": "canjewelry:recipes/gemcutting/baguette_cutting_geology.json",
+    "op": "replace",
+    "path": "/2/enabled",
+    "value": "true",
+    "side": "server",
+    "dependsOn": [ { "modid": "geoaddons" } ]
+  },
+
+  {
+    "file": "canjewelry:recipes/gemcutting/pear_cutting_geology.json",
+    "op": "replace",
+    "path": "/0/enabled",
+    "value": "true",
+    "side": "server",
+    "dependsOn": [ { "modid": "geoaddons" } ]
+  },
+  {
+    "file": "canjewelry:recipes/gemcutting/pear_cutting_geology.json",
+    "op": "replace",
+    "path": "/1/enabled",
+    "value": "true",
+    "side": "server",
+    "dependsOn": [ { "modid": "geoaddons" } ]
+  },
+  {
+    "file": "canjewelry:recipes/gemcutting/pear_cutting_geology.json",
+    "op": "replace",
+    "path": "/2/enabled",
+    "value": "true",
+    "side": "server",
+    "dependsOn": [ { "modid": "geoaddons" } ]
+  },
+
+  {
+    "file": "canjewelry:recipes/gemcutting/round_cutting_geology.json",
+    "op": "replace",
+    "path": "/0/enabled",
+    "value": "true",
+    "side": "server",
+    "dependsOn": [ { "modid": "geoaddons" } ]
+  },
+  {
+    "file": "canjewelry:recipes/gemcutting/round_cutting_geology.json",
+    "op": "replace",
+    "path": "/1/enabled",
+    "value": "true",
+    "side": "server",
+    "dependsOn": [ { "modid": "geoaddons" } ]
+  },
+  {
+    "file": "canjewelry:recipes/gemcutting/round_cutting_geology.json",
+    "op": "replace",
+    "path": "/2/enabled",
+    "value": "true",
+    "side": "server",
+    "dependsOn": [ { "modid": "geoaddons" } ]
+  }
+]

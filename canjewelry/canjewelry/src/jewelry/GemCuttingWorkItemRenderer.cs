@@ -147,6 +147,7 @@ namespace canjewelry.src.jewelry
                 }
 
                 MeshData data = CANItemGemCuttingWorkItem.GenMesh(api, workitemStack, voxels, out texId);
+                workItemMeshRef?.Dispose();
                 workItemMeshRef = api.Render.UploadMesh(data);
             }
         }
