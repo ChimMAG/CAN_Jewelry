@@ -38,6 +38,8 @@ namespace canjewelry.src
         public string[] socketTiersColors = new string[0];
         public HashSet<string> TemporalGraspBlockList = new HashSet<string>();
         public bool TemporalGraspEnabled = true;
+        public float minFineForMistake = 0.01f;
+        public float maxFineForMistake = 0.08f;
 
         public void FillDefaultValues(bool onlyEmptyStructs = false)
         {
