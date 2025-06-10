@@ -310,6 +310,41 @@ namespace canjewelry.src.be
 
         internal bool OnPlayerInteract(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel)
         {
+            ItemSlot slot = byPlayer.InventoryManager.ActiveHotbarSlot;
+            if (world.Api.Side == EnumAppSide.Server && slot.Itemstack != null && slot.Itemstack?.Collectible is ItemHammer)
+            {
+                if(MatchesRecipeWithPossibleMistake(out int mistakes))
+                {
+                    Voxels = new byte[16, 14, 16];
+                    ItemStack outstack = SelectedRecipe.Output.ResolvedItemstack.Clone();
+                    EncrustableCB.ApplyCuttingBuff(outstack);
+                    float mistakeValueMult = Math.Max(0, 1 - (float)(canjewelry.config.minFineForMistake + Config.rand.NextDouble() * (canjewelry.config.maxFineForMistake - canjewelry.config.minFineForMistake)) * mistakes);
+
+                    EncrustableCB.ReduceBuffValueBecauseOfMistakes(outstack, mistakeValueMult);
+                    //ApplyCuttingBuff(outstack);
+                    //outstack.Collectible.SetTemperature(Api.World, outstack, workItemStack.Collectible.GetTemperature(Api.World, workItemStack));
+                    workItemStack = null;
+
+                    SelectedRecipeId = -1;
+
+                    if (byPlayer?.InventoryManager.TryGiveItemstack(outstack) == true)
+                    {
+                        Api.World.PlaySoundFor(new AssetLocation("game:sounds/player/collect"), byPlayer, false, 24);
+                    }
+                    else
+                    {
+                        Api.World.SpawnItemEntity(outstack, Pos.ToVec3d().Add(0.5, 0.626, 0.5));
+                    }
+
+                    RegenMeshAndSelectionBoxes();
+                    MarkDirty(true);
+                    Api.World.BlockAccessor.MarkBlockDirty(Pos);
+                    //rotation = 0;
+                    return false;
+                }
+            }
+            
+
             if (byPlayer.InventoryManager.ActiveHotbarSlot.Itemstack?.Collectible is CANItemGemChisel)
             {
                 return RotateWorkItem(byPlayer.Entity.Controls.ShiftKey);
@@ -825,7 +860,40 @@ namespace canjewelry.src.be
 
             return true;
         }
+        private bool MatchesRecipeWithPossibleMistake(out int mistakesCount)
+        {
+            mistakesCount = 0;
+            if (SelectedRecipe == null) return false;
 
+            int ymax = Math.Min(14, SelectedRecipe.QuantityLayers);
+
+            bool[,,] recipeVoxels = this.recipeVoxels; // Otherwise we cause lag spikes
+
+            for (int x = 0; x < 16; x++)
+            {
+                for (int y = 0; y < ymax; y++)
+                {
+                    for (int z = 0; z < 16; z++)
+                    {
+                        byte desiredMat = (byte)(recipeVoxels[x, y, z]
+                                                ? EnumVoxelMaterial.Metal
+                                                : EnumVoxelMaterial.Empty);
+
+                        if (Voxels[x, y, z] != desiredMat)
+                        {
+                            if(desiredMat == 1 && Voxels[x, y, z] == 0)
+                            {
+                                mistakesCount++;
+                                continue;
+                            }
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
 
 
         bool HasAnyMetalVoxel()

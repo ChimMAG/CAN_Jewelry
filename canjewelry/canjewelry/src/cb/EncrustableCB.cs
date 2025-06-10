@@ -451,6 +451,27 @@ namespace canjewelry.src.CB
                 outstack.Attributes.RemoveAttribute(CANJWConstants.CUTTING_TYPE);
             }
         }
+        public static void ReduceBuffValueBecauseOfMistakes(ItemStack itemStack, float mult)
+        {
+            if (itemStack.Attributes.HasAttribute("cutgemtree"))
+            {
+                var tree = itemStack.Attributes.GetTreeAttribute("cutgemtree");
+
+
+                if (tree.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_NAMES))
+                {
+                    string[] buffNames = (tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value;
+                    float[] buffValues = (tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
+                        
+                    for (int j = 0; j < buffValues.Count(); j++)
+                    {
+                        buffValues[j] *= mult;
+                    }
+                    tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(buffValues);
+                }
+                
+            }
+        }
         public float GetTemporalGraspValue(ItemStack itemStack)
         {
             if(itemStack.Attributes.HasAttribute("canencrusted"))
