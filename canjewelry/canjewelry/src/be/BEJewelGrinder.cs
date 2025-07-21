@@ -586,6 +586,7 @@ namespace canjewelry.src.jewelry
                         itree.SetInt("grindtype", itree.GetInt("grindtype") + 1);
                         itree.SetInt("grindcounter", 20);
                         player.InventoryManager.ActiveHotbarSlot.MarkDirty();
+                        //activeSlot.MarkDirty();
                     }
                     else
                     {

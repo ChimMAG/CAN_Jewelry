@@ -87,7 +87,7 @@ namespace canjewelry.src
             loadConfig(capi);
             harmonyInstance = new Harmony(harmonyID);
 
-            //harmonyInstance.Patch(typeof(Vintagestory.API.Client.GuiElementItemSlotGridBase).GetMethod("ComposeSlotOverlays", BindingFlags.NonPublic | BindingFlags.Instance), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_ComposeSlotOverlays_Add_Socket_Overlays_Not_Draw_ItemDamage")));
+            harmonyInstance.Patch(typeof(Vintagestory.API.Client.GuiElementItemSlotGridBase).GetMethod("ComposeSlotOverlays", BindingFlags.NonPublic | BindingFlags.Instance), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_ComposeSlotOverlays_Add_Socket_Overlays_Not_Draw_ItemDamage")));
 
             harmonyInstance.Patch(typeof(Vintagestory.API.Common.CollectibleObject).GetMethod("GetHeldItemInfo"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_GetHeldItemInfo")));
 
@@ -468,11 +468,13 @@ namespace canjewelry.src
                 }
                 var currVersion = api.ModLoader.Mods.FirstOrDefault(mod => mod.Info.ModID == "canjewelry")?.Info.Version ?? "0.0.0";
                 if(currVersion != null) 
-                { 
-                    if(currVersion != config.config_version)
+                {
+                    /*if(currVersion != config.config_version)
                     {
                         config.FillDefaultValues(true);
-                    }
+                        config.config_version = currVersion;
+                    }*/
+                    config.config_version = currVersion;
                 }
 
 

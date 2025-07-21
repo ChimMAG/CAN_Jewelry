@@ -1,0 +1,328 @@
+{
+   "jewelset_gui_name": "Ensemble de bijoux (CANJewelry)",
+
+   "item-gem-rough-chipped-diamond": "Petit diamant brut",
+   "item-gem-rough-flawed-diamond": "Moyen diamant brut",
+   "item-gem-rough-normal-diamond": "Grand diamant brut", 
+
+   "item-gem-rough-chipped-corundum": "Petit corindon brut", 
+   "item-gem-rough-flawed-corundum": "Moyen corindon brut", 
+   "item-gem-rough-normal-corundum": "Grand corindon brut", 
+
+   "item-gem-rough-chipped-emerald": "Petite émeraude brute", 
+   "item-gem-rough-flawed-emerald": "Moyenne émeraude brute", 
+   "item-gem-rough-normal-emerald": "Grande émeraude brute", 
+
+   "item-gem-rough-chipped-fluorite": "Petite fluorite brute", 
+   "item-gem-rough-flawed-fluorite": "Moyenne fluorite brute", 
+   "item-gem-rough-normal-fluorite": "Grande fluorite brute", 
+
+   "item-gem-rough-chipped-lapislazuli": "Petit lapis-lazuli brut", 
+   "item-gem-rough-flawed-lapislazuli": "Moyen lapis-lazuli brut", 
+   "item-gem-rough-normal-lapislazuli": "Grand lapis-lazuli brut", 
+
+   "item-gem-rough-chipped-malachite": "Petite malachite brute", 
+   "item-gem-rough-flawed-malachite": "Moyenne malachite brute", 
+   "item-gem-rough-normal-malachite": "Grande malachite brute", 
+
+   "item-gem-rough-chipped-olivine": "Petit péridot brut", 
+   "item-gem-rough-flawed-olivine": "Moyen péridot brut", 
+   "item-gem-rough-normal-olivine": "Grand péridot brut", 
+
+   "item-gem-rough-chipped-quartz": "Petit quartz brut", 
+   "item-gem-rough-flawed-quartz": "Moyen quartz brut", 
+   "item-gem-rough-normal-quartz": "Grand quartz brut", 
+
+   "item-gem-rough-chipped-uranium": "Petit uranium brut", 
+   "item-gem-rough-flawed-uranium": "Moyen uranium brut", 
+   "item-gem-rough-normal-uranium": "Grand uranium brut", 
+
+   "item-gem-rough-chipped-ruby": "Petit rubis brut", 
+   "item-gem-rough-flawed-ruby": "Moyen rubis brut", 
+   "item-gem-rough-normal-ruby": "Grand rubis brut", 
+
+   "item-gem-rough-chipped-citrine": "Petite citrine brute", 
+   "item-gem-rough-flawed-citrine": "Moyenne citrine brute", 
+   "item-gem-rough-normal-citrine": "Grande citrine brute", 
+
+   "item-gem-rough-chipped-amethyst": "Petite améthyste brute", 
+   "item-gem-rough-flawed-amethyst": "Moyenne améthyste brute", 
+   "item-gem-rough-normal-amethyst": "Grande améthyste brute", 
+
+   "item-gem-rough-chipped-topaz": "Petite topaze brute",
+   "item-gem-rough-flawed-topaz": "Moyenne topaze brute",
+   "item-gem-rough-normal-topaz": "Grande topaze brute",
+
+  //Cut gems
+
+  "item-gem-cut-exquisite-diamond": "Grand diamant taillé",
+  "item-gem-cut-flawless-diamond": "Moyen diamant taillé",
+  "item-gem-cut-normal-diamond": "Petit diamant taillé",
+
+  "item-gem-cut-exquisite-corundum": "Grand corindon taillé",
+  "item-gem-cut-flawless-corundum": "Moyen corindon taillé",
+  "item-gem-cut-normal-corundum": "Petit corindon taillé",
+
+  "item-gem-cut-exquisite-emerald": "Grande émeraude taillée",
+  "item-gem-cut-flawless-emerald": "Moyenne émeraude taillée",
+  "item-gem-cut-normal-emerald": "Petite émeraude taillée",
+
+  "item-gem-cut-exquisite-fluorite": "Grande fluorite taillée",
+  "item-gem-cut-flawless-fluorite": "Moyenne fluorite taillée",
+  "item-gem-cut-normal-fluorite": "Petite fluorite taillée",
+
+  "item-gem-cut-exquisite-lapislazuli": "Grand lapis-lazuli taillé",
+  "item-gem-cut-flawless-lapislazuli": "Moyen lapis-lazuli taillé",
+  "item-gem-cut-normal-lapislazuli": "Petit lapis-lazuli taillé",
+
+  "item-gem-cut-exquisite-malachite": "Grande malachite taillée",
+  "item-gem-cut-flawless-malachite": "Moyenne malachite taillée",
+  "item-gem-cut-normal-malachite": "Petite malachite taillée",
+
+  "item-gem-cut-exquisite-olivine": "Grand péridot taillé",
+  "item-gem-cut-flawless-olivine": "Moyen péridot taillé",
+  "item-gem-cut-normal-olivine": "Petit péridot taillé",
+
+  "item-gem-cut-exquisite-quartz": "Grand quartz taillé",
+  "item-gem-cut-flawless-quartz": "Moyen quartz taillé",
+  "item-gem-cut-normal-quartz": "Petit quartz taillé",
+
+  "item-gem-cut-exquisite-amethyst": "Grand améthyste taillé",
+  "item-gem-cut-flawless-amethyst": "Moyenne améthyste taillée",
+  "item-gem-cut-normal-amethyst": "Petit améthyste taillé",
+
+  "item-gem-cut-exquisite-uranium": "Grand uranium taillé",
+  "item-gem-cut-flawless-uranium": "Moyen uranium taillé",
+  "item-gem-cut-normal-uranium": "Petit uranium taillé",
+
+  "item-gem-cut-exquisite-ruby": "Grand rubis taillé",
+  "item-gem-cut-flawless-ruby": "Moyen rubis taillé",
+  "item-gem-cut-normal-ruby": "Petit rubis taillé",
+
+  "item-gem-cut-exquisite-citrine": "Grande citrine taillée",
+  "item-gem-cut-flawless-citrine": "Moyenne citrine taillée", 
+  "item-gem-cut-normal-citrine": "Petit citrine taillé",
+
+  "item-gem-cut-exquisite-berylaquamarine": "Grand aquamarine taillé",
+  "item-gem-cut-flawless-berylaquamarine": "Moyen aquamarine taillé",
+  "item-gem-cut-normal-berylaquamarine": "Petit aquamarine taillé",
+
+  "item-gem-cut-exquisite-berylbixbite": "Grand béryl rouge taillé",
+  "item-gem-cut-flawless-berylbixbite": "Moyen béryl rouge taillé",
+  "item-gem-cut-normal-berylbixbite": "Petit béryl rouge taillé",
+
+  "item-gem-cut-exquisite-corundumruby": "Grand rubis taillé",
+  "item-gem-cut-flawless-corundumruby": "Moyen rubis taillé",
+  "item-gem-cut-normal-corundumruby": "Petit rubis taillé",
+
+  "item-gem-cut-exquisite-corundumsapphire": "Grand saphir taillé",
+  "item-gem-cut-flawless-corundumsapphire": "Moyen saphir taillé",
+  "item-gem-cut-normal-corundumsapphire": "Petit saphir taillé",
+
+  "item-gem-cut-exquisite-garnetalmandine": "Grand grenat almandine taillé",
+  "item-gem-cut-flawless-garnetalmandine": "Moyen grenat almandine taillé",
+  "item-gem-cut-normal-garnetalmandine": "Petit grenat almandine taillé",
+
+  "item-gem-cut-exquisite-garnetandradite": "Grand grenat andradite taillé",
+  "item-gem-cut-flawless-garnetandradite": "Moyen grenat andradite taillé",
+  "item-gem-cut-normal-garnetandradite": "Petit grenat andradite taillé",
+
+  "item-gem-cut-exquisite-garnetgrossular": "Grand grenat grossulaire taillé",
+  "item-gem-cut-flawless-garnetgrossular": "Moyen grenat grossulaire taillé",
+  "item-gem-cut-normal-garnetgrossular": "Petit grenat grossulaire taillé",
+
+  "item-gem-cut-exquisite-garnetpyrope": "Grand grenat pyrope taillé",
+  "item-gem-cut-flawless-garnetpyrope": "Moyen grenat pyrope taillé",
+  "item-gem-cut-normal-garnetpyrope": "Petit grenat pyrope taillé",
+
+  "item-gem-cut-exquisite-garnetspessartine": "Grand grenat spessartine taillé",
+  "item-gem-cut-flawless-garnetspessartine": "Moyen grenat spessartine taillé",
+  "item-gem-cut-normal-garnetspessartine": "Petit grenat spessartine taillé",
+
+  "item-gem-cut-exquisite-garnetuvarovite": "Grand grenat uvarovite taillé",
+  "item-gem-cut-flawless-garnetuvarovite": "Moyen grenat uvarovite taillé",
+  "item-gem-cut-normal-garnetuvarovite": "Petit grenat uvarovite taillé",
+
+  "item-gem-cut-exquisite-spinelred": "Grand spinelle taillé",
+  "item-gem-cut-flawless-spinelred": "Moyen spinelle taillé",
+  "item-gem-cut-normal-spinelred": "Petit spinelle taillé",
+
+  "item-gem-cut-exquisite-topazamber": "Grand topaze ambre taillé",
+  "item-gem-cut-flawless-topazamber": "Moyen topaze ambre taillé",
+  "item-gem-cut-normal-topazamber": "Petit topaze ambre taillé",
+
+  "item-gem-cut-exquisite-topazblue": "Grand topaze bleu taillé",
+  "item-gem-cut-flawless-topazblue": "Moyen topaze bleu taillé",
+  "item-gem-cut-normal-topazblue": "Petit topaze bleu taillé",
+
+  "item-gem-cut-exquisite-topazpink": "Grand topaze rose taillé",
+  "item-gem-cut-flawless-topazpink": "Moyen topaze rose taillé",
+  "item-gem-cut-normal-topazpink": "Petit topaze rose taillé",
+
+  "item-gem-cut-exquisite-tourmalinerubellite": "Grande tourmaline rubellite taillée",
+  "item-gem-cut-flawless-tourmalinerubellite": "Moyenne tourmaline rubellite taillée",
+  "item-gem-cut-normal-tourmalinerubellite": "Petite tourmaline rubellite taillée",
+
+  "item-gem-cut-exquisite-tourmalineschorl": "Grande tourmaline schorl taillée",
+  "item-gem-cut-flawless-tourmalineschorl": "Moyenne tourmaline schorl taillée",
+  "item-gem-cut-normal-tourmalineschorl": "Petite tourmaline schorl taillée",
+
+  "item-gem-cut-exquisite-tourmalineverdelite": "Grande tourmaline verdélite taillée",
+  "item-gem-cut-flawless-tourmalineverdelite": "Moyenne tourmaline verdélite taillée",
+  "item-gem-cut-normal-tourmalineverdelite": "Petite tourmaline verdélite taillée",
+
+  "item-gem-cut-exquisite-tourmalinewatermelon": "Grande tourmaline melon d'eau taillée",
+  "item-gem-cut-flawless-tourmalinewatermelon": "Moyenne tourmaline melon d'eau taillée",
+  "item-gem-cut-normal-tourmalinewatermelon": "Petite tourmaline melon d'eau taillée",
+
+  "item-gem-cut-exquisite-topaz": "Grande topaze taillée",
+  "item-gem-cut-flawless-topaz": "Moyenne topaze taillée",
+  "item-gem-cut-normal-topaz": "Petite topaze taillée",
+
+  "item-crushed-diamond": "Diamant écrasé",
+
+  "item-can-have-n-sockets": "Peut avoir ({0}) emplacements",
+  "item-socket-tier": "Niveau d'emplacement : {0}",
+  "socket-has-attribute": "{0} <font color=\"#99c9f9\"> {1} </font>",
+  "socket-has-attribute-percent": "{0} <font color=\"#99c9f9\"> {1}% </font>",
+
+  "item-cansocket-steel": "Emplacement en acier",
+  "itemdesc-cansocket-steel": "Petites, moyennes et grandes gemmes",
+  "item-cansocket-tinbronze": "Emplacement en bronze d'étain",
+  "itemdesc-cansocket-tinbronze": "Petites gemmes uniquement",
+  "item-cansocket-bismuthbronze": "Emplacement en bronze de bismuth",
+  "itemdesc-cansocket-bismuthbronze": "Petites gemmes uniquement",
+  "item-cansocket-blackbronze": "Emplacement en bronze noir",
+  "itemdesc-cansocket-blackbronze": "Petites gemmes uniquement",
+  "item-cansocket-iron": "Emplacement en fer",
+  "itemdesc-cansocket-iron": "Petites et moyennes gemmes",
+  "item-cansocket-meteoriciron": "Emplacement en fer météorique",
+  "itemdesc-cansocket-meteoriciron": "Petites et moyennes gemmes",
+
+  "block-jewelerset": "Table de bijoutier",
+  "block-jewelerset-north": "Table de bijoutier",
+  "block-jewelgrinder": "Meuleuse de bijoux",
+
+  "block-grindlayer-rough": "Couche abrasive grossière", 
+  "block-grindlayer-medium": "Couche abrasive intermédiaire",
+  "block-grindlayer-fine": "Couche abrasive fine",
+
+  "processedgem-chipped-diamond": "Petit diamant traité",
+  "processedgem-chipped-corundum": "Petit corindon traité",
+  "processedgem-chipped-emerald": "Petite émeraude traitée",
+  "processedgem-chipped-fluorite": "Petite fluorite traitée",
+  "processedgem-chipped-lapislazuli": "Petit lapis-lazuli traité",
+  "processedgem-chipped-olivine": "Petite olivine traitée",
+  "processedgem-chipped-quartz": "Petit quartz traité",
+  "processedgem-chipped-uranium": "Petit uranium traité",
+  "processedgem-chipped-citrine": "Petite citrine traitée",
+  "processedgem-chipped-amethyst": "Petite améthyste traitée",
+
+  "processedgem-flawed-diamond": "Moyen diamant traité",
+  "processedgem-flawed-corundum": "Moyen corindon traité",
+  "processedgem-flawed-emerald": "Moyenne émeraude traitée",
+  "processedgem-flawed-fluorite": "Moyenne fluorite traitée",
+  "processedgem-flawed-lapislazuli": "Moyen lapis-lazuli traité",
+  "processedgem-flawed-olivine": "Moyenne olivine traitée",
+  "processedgem-flawed-quartz": "Moyen quartz traité",
+  "processedgem-flawed-uranium": "Moyen uranium traité",
+  "processedgem-flawed-citrine": "Moyenne citrine traitée",
+  "processedgem-flawed-amethyst": "Moyenne améthyste traitée",
+
+  "processedgem-normal-diamond": "Grand diamant traité",
+  "processedgem-normal-corundum": "Grand corindon traité",
+  "processedgem-normal-emerald": "Grande émeraude traitée",
+  "processedgem-normal-fluorite": "Grande fluorite traitée",
+  "processedgem-normal-lapislazuli": "Grand lapis-lazuli traité",
+  "processedgem-normal-olivine": "Grande olivine traitée",
+  "processedgem-normal-quartz": "Grand quartz traité",
+  "processedgem-normal-uranium": "Grand uranium traité",
+  "processedgem-normal-citrine": "Grande citrine traitée",
+  "processedgem-normal-amethyst": "Grande améthyste traitée",
+  "processedgem-stage": " [Stage {0}]",
+
+  "buff-name-walkspeed": "<font color=\"#99c9f9\">vitesse de marche</font>",
+  "buff-name-miningSpeedMul": "<font color=\"#99c9f9\">vitesse de minage</font>",
+  "buff-name-maxhealthExtraPoints": "<font color=\"#99c9f9\">santé supplémentaire</font>",
+  "buff-name-meleeWeaponsDamage": "<font color=\"#99c9f9\">dommages de mêlée</font>",
+  "buff-name-hungerrate": "<font color=\"#99c9f9\">taux de faim</font>",
+  "buff-name-wildCropDropRate": "<font color=\"#99c9f9\">taux de chute de culture sauvage</font>",
+  "buff-name-armorDurabilityLoss": "<font color=\"#99c9f9\">perte de durabilité d'armure</font>",
+  "buff-name-oreDropRate": "<font color=\"#99c9f9\">taux de chute de minerai</font>",
+  "buff-name-healingeffectivness": "<font color=\"#99c9f9\">efficacité de guérison</font>",
+  "buff-name-rangedWeaponsDamage": "<font color=\"#99c9f9\">dégâts d'arme à distance</font>",
+  "buff-name-animalLootDropRate": "<font color=\"#99c9f9\">taux de chute de butin animal</font>",
+  "buff-name-vesselContentsDropRate": "<font color=\"#99c9f9\">taux de chute de contenu de récipient</font>",
+  "buff-name-animalseekingrange": "<font color=\"#99c9f9\">portée de recherche animale</font>",
+  "buff-name-rangedWeaponsSpeed": "<font color=\"#99c9f9\">vitesse des armes à distance</font>",
+  "buff-name-animalharvestingtime": "<font color=\"#99c9f9\">temps de récolte des animaux</font>",
+  "buff-name-mechanicalsDamage": "<font color=\"#99c9f9\">dégâts mécaniques</font>",
+  "buff-name-rangedWeaponsAcc": "<font color=\"#99c9f9\">précision des armes à distance</font>",
+  "buff-name-armorWalkSpeedAffectedness": "<font color=\"#99c9f9\">impact de la vitesse de marche avec armure</font>",
+  "buff-name-bowDrawingStrength": "<font color=\"#99c9f9\">force de tir à l'arc</font>",
+  "buff-name-candurability": "<font color=\"#99c9f9\">durabilité de l'objet</font>",
+  "buff-name-animalSeekingRange": "<font color=\"#99c9f9\">portée de recherche des animaux</font>",
+  "buff-name-temporalgrasp": "<font color=\"#99c9f9\">prise temporelle</font>",
+
+  "block-grindlayeritem-rough": "Couche abrasive grossière (ancienne)",
+  "block-grindlayeritem-medium": "Couche abrasive intermédiaire (ancienne)",
+  "block-grindlayeritem-fine": "Couche abrasive fine (ancienne)",
+  "exp_tired": "Vous vous sentez fatigué, vous ne gagnerez pas plus d'expérience aujourd'hui.",
+  "game:tabname-canjewelry": "Boîte à Bijoux",
+
+  //simplenecklace
+  "necklace-parts-with-gem-held-info": "Lanière : {0}, pendentif : {1}, gemme : {2}",
+  "necklace-parts-without-gem-held-info": "Lanière : {0}, pendentif : {1}",
+
+  //strap
+  "item-canstrap-tinbronze": "Lanière en bronze-étain",
+  "item-canstrap-bismuthtinbronze": "Lanière en bronze-bismuth",
+  "item-canstrap-iron": "Lanière en fer",
+  "item-canstrap-blackbronze": "Lanière en bronze noir",
+  "item-canstrap-meteoriciron": "Lanière en fer météorique",
+  "item-canstrap-steel": "Lanière en acier",
+  "item-canstrap-bismuthbronze": "Lanière en bronze-bismuth",
+  "item-canstrap-gold": "Lanière en or",
+  "item-canstrap-copper": "Lanière en cuivre",
+  "item-canstrap-silver": "Lanière en argent",
+  "block-canpan-steel": "Batée d'orpaillage en acier",
+  "block-canpan-iron": "Batée d'orpaillage en fer",
+  "item-grindlayeritem-rough": "Couche abrasive grossière",
+  "item-grindlayeritem-medium": "Couche abrasive intermédiaire",
+  "item-grindlayeritem-fine": "Couche abrasive fine",
+  "need_to_be_processed": "<font color=\"#9966ff\">Doit être traité(e)</font>",
+
+  "item-coronet": " couronne",
+  "item-monocle": " monocle",
+  "item-armband": " brassard",
+  "item-wire-hank": " fils",
+  "item-canrottenkingmask": " masque de roi lépreux",
+
+  "blockhelp-jewelgrinder-addremovelayer": "Ajouter/retirer une couche abrasive",
+  "stats-tab-name": "Statistiques",
+  "block-cangemcuttingtable": "Table de découpe de gemmes",
+  "block-canwiredrawingbench": "Banc de tréfilage",
+  "item-cangemchisel-tinbronze": "Ciseau de découpe de gemmes en bronze-étain",
+  "item-cangemchisel-bismuthtinbronze": "Ciseau de découpe de gemmes en bronze-bismuth",
+  "item-cangemchisel-iron": "Ciseau de découpe de gemmes en fer",
+  "item-cangemchisel-blackbronze": "Ciseau de découpe de gemmes en bronze noir", 
+  "item-cangemchisel-meteoriciron": "Ciseau de découpe de gemmes en  fer météorique",
+  "item-cangemchisel-steel": "Ciseau de découpe de gemmes en acier",
+  "item-cangemchisel-bismuthbronze": "Ciseau de découpe de gemmes en bronze-bismuth",
+  "item-cangemchisel-gold": "Ciseau de découpe de gemmes en or",
+  "item-cangemchisel-copper": "Ciseau de découpe de gemmes en cuivre",
+  "rough-gem-possible-stats-header": "Statistiques possibles :",
+  "item-gemcuttingworkitem": "Gemme inachevée",
+  "game:craftinginfo-gemcutting-title": "CANJewelry : Découpe de gemmes",
+  "game:craftinginfo-gemcutting-text": "<strong>Découpe de gemmes</strong><br>  Le mod ajoute au jeu diverses pierres précieuses qui peuvent être incrustées dans les outils et les armures pour obtenir des bonus utiles. Les pierres ont différents types d'effets et de pouvoirs, en fonction de leur traitement. <br><br>Vous pouvez trouver des pierres brutes en cassant des pierres ou des blocs de minerai ou en extrayant des morceaux de minerai (dans les forges de fer ou d'acier) à l'aide d'une <a href=\"handbook://block-canjewelry:canpan-iron\">Batée</a>).<br><br>  Pour utiliser les pierres, vous devez les traiter au moins sur une table de taille des pierres précieuses en <a href=\"handbook://block-canjewelry:cangemcuttingtable-{{ \\\"métal\\\": \\\"bronze-étain\\\", \\\"pierre\\\": \\\"andésite\\\" }}\"></a> avec <a href=\"handbook://item-canjewelry:cangemchisel-copper\"> un ciseau de découpe de gemmes</a>.(Les différences entre les tables de taille des gemmes ne sont que décoratives et n'affectent pas les résultats des bonus des gemmes).<br><br> En plaçant la pierre brute sur la table, vous verrez la liste des tailles disponibles :<br><br>  - Baguette - donne un bonus supplémentaire, mais avec une valeur inférieure à la valeur principale (par exemple, vous pouvez avoir la vitesse de marche sur votre gemme de diamant et la vitesse d'extraction Mule comme bonus secondaire si vous avez sélectionné cette taille). <br> - Poire - en comparaison avec les gemmes avec d'autres tailles, même sans traitement sur la meuleuse à bijoux, aura un bonus plus élevé (mais il en manquera un peu si les deux sont entièrement traités sur la meuleuse à bijoux). Pas de bonus secondaires.<br><br> - Ronde - après traitement complet, le bonus principal aura une valeur plus élevée que le bonus Baguette.<br><br> Après la table de taille des gemmes, vous obtiendrez une gemme taillée avec des valeurs de type(s) d'amélioration. Pour augmenter sa puissance, vous pouvez également la traiter sur une meuleuse à bijoux. Ce bloc nécessite de l'énergie mécanique et des couches abrasives. Lorsque la meuleuse est connectée et que la couche abrasive est placée (CTRL + clic droit), vous pouvez traiter la gemme coupée que vous avez, d'abord avec la couche grossière et ensuite avec la couche fine. <br><br> Lorsque votre gemme taillée est prête, vous pouvez l'incruster dans des outils/armures à l'aide de la table de bijoutier.<br>En plus de la table, il faut des emplacements de forge. Il en existe trois niveaux : <br><br>- bronze - 1<br>- fer - 2 <br>- acier - 3<br>Pour savoir quel emplacement peut être utilisé sur vos objets, vous devez les placer sur la table du bijoutier :<br>- vert - 1er niveau<br>- bleu - 2e niveau<br>- violet - 3e niveau<br><br>Les pierres précieuses sont également divisées en plusieurs niveaux :<br>- petite - peut être placée dans n'importe quel emplacement<br>- moyenne - peut être placé dans le 2e ou 3e niveau d'emplacement<br>- grande - seulement dans le 3e niveau.<br><br> En plus des gemmes, il y a des objets à fabriquer qui sont des modifications additionnelles que vous pouvez porter : <br> brassards, couronnes, masques du roi pourri, tiares, colliers, monocles, œil d'Horus. <br>Certaines de leurs pièces sont forgées - Lanières, plaques, couronnes. Les fils peuvent être produits à l'aide d'un marteau ou sur une table de tréfilage à plus haut rendement.",
+
+  "game:craftinginfo-panning_gems-title": "CANJewelry : Lavage à la batée",
+  "game:craftinginfo-panning_gems-text": "   Les batées en fer/acier peuvent être utilisées pour obtenir des gemmes à partir de morceaux de minerai de différents types. Comme pour les batées en bois, il faut se mettre dans l'eau, mais pour commencer à chercher des gemmes, il faut placer un morceau de minerai dans l'inventaire, dans l'emplacement le plus proche à droite. Par défaut, il faut 8 morceaux de minerai par cycle.<br><br> <strong>Suévite :</strong> toutes les tailles de diamants (50 % petits, 30 % moyens, 20 % grands)<br><br>Tous les autres minerais tombent en fonction de leur qualité - les minerais abondants/riches auront plus de chances que les minerais moyens ou pauvres, mais ils auront aussi une chance de faire tomber de grandes pierres précieuses, les minerais pauvres seulement de petites pierres.<br>généreux : 80%, 70%, 40%<br>riche : 60%, 50%, 20% <br>moyen : 50%, 40%<br>pauvre : 40%<br><br>Types de gemmes et de minerais :<br>hématite - corindon<br>malachite - malachite<br>bismuthinite - lapis-lazuli<br>cassitérite - olivine<br>sphalérite - fluorite<br>argent natif - quartz<br>or natif - quartz<br>limonite - uranium<br>ilménite - diamant/émeraude<br>cuivre natif - rubis<br>magnétite - citrine<br>uranium - uranium<br>galène - améthyste<br>",
+
+  "horuseyenecklace-parts-without-gem-held-info": "Lanière : {0}, tissu : {1}",
+  "item-canhoruseye-normal": "Collier avec œil d'Horus",
+  "cut-gem-cutting-type-round": "ronde",
+  "cut-gem-cutting-type-pear": "poire",
+  "cut-gem-cutting-type-baguette": "baguette",
+
+}

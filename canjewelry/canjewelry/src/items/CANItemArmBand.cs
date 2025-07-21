@@ -297,7 +297,7 @@ namespace canjewelry.src.items
 
             curAtlas = targetAtlas;
             MeshData meshData = genMesh(api as ICoreClientAPI, itemstack, this);
-            meshData.RenderPassesAndExtraBits.Fill((short)1);
+            meshData.RenderPassesAndExtraBits.Fill((short)EnumChunkRenderPass.OpaqueNoCull);
             return meshData;
         }
         public void FillTextureDict(Dictionary<string, AssetLocation> dict, ItemStack itemStack)
