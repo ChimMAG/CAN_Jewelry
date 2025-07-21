@@ -3,15 +3,18 @@ using canjewelry.src.be;
 using canjewelry.src.cb;
 using canjewelry.src.CB;
 using canjewelry.src.eb;
+using canjewelry.src.gui;
 using canjewelry.src.items;
 using HarmonyLib;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -593,66 +596,71 @@ namespace canjewelry.src
 
             return sb;
         }
+        public static List<string>GetPlayerBuffCellElements()
+        {
+            List<string> cellElements = new List<string>();
+            var player = canjewelry.capi.World.Player;
+            var playerAttributes = player.Entity.WatchedAttributes;
+            if (playerAttributes.Keys.Contains("stats"))
+            {
+                var stats = playerAttributes.GetTreeAttribute("stats");
+                foreach (var it in canjewelry.config.buffs_to_show_gui)
+                {
+                    if (stats.HasAttribute(it))
+                    {
+                        cellElements.Add(Lang.Get("canjewelry:buff-name-" + it) + ": " + player.Entity.Stats[it].GetBlended());                   
+                    }
+                }
+            }
+            return cellElements;
+        }
         private static void composeProgressTab(GuiComposer compo)
         {
             var mainBounds = ElementBounds.Fixed(0.0, 35.0, 355.0, 250);
             var textBounds = mainBounds.FlatCopy();
             mainBounds.Alignment = EnumDialogArea.LeftTop;
-            ElementBounds scrollbarBounds = textBounds.CopyOffsetedSibling(textBounds.fixedWidth + 7, -32).WithFixedWidth(20);
-            compo.AddInset(textBounds);
+            int insetDepth = 3;
+            int insetWidth = (int)mainBounds.fixedWidth;
+            int insetHeight = (int)mainBounds.fixedHeight;
+            int rowHeight = 25;
+            int rowCount = 40;
+
             //compo.AddRichtext("hello", CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15).WithFontSize(16), mainBounds);
+
+            ElementBounds insetBounds = ElementBounds.Fixed(0, GuiStyle.TitleBarHeight, insetWidth, insetHeight);
+            ElementBounds scrollbarBounds = insetBounds.RightCopy().WithFixedWidth(20);
+            ElementBounds clipBounds = insetBounds.ForkContainingChild(GuiStyle.HalfPadding, GuiStyle.HalfPadding, GuiStyle.HalfPadding, GuiStyle.HalfPadding);
+            ElementBounds containerBounds = insetBounds.ForkContainingChild(GuiStyle.HalfPadding, GuiStyle.HalfPadding, GuiStyle.HalfPadding, GuiStyle.HalfPadding);
+            ElementBounds containerRowBounds = ElementBounds.Fixed(0, 0, insetWidth, rowHeight);
+
             compo.BeginChildElements(mainBounds)
-                .BeginClip(textBounds);
-
-            var sb = BuildText();
-            compo.AddRichtext(sb.ToString(), CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15).WithFontSize(16), ElementBounds.Fixed(0.0, 35.0, 350.0, 250), "credits")
-            //.AddRichtext("hello", CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15).WithFontSize(16), ElementBounds.Fixed(0.0, 25.0 + 10, 100.0, 50))
-            .EndClip()
-            .AddVerticalScrollbar(new Action<float>(delegate (float value)
-            {
-                ElementBounds bounds = compo.GetRichtext("credits").Bounds;
-                bounds.fixedY = (double)(10f - value);
-                bounds.CalcWorldBounds();
-            }), scrollbarBounds, "scrollbar")
+               .AddInset(insetBounds, insetDepth)
+                    .BeginClip(clipBounds)
+                        .AddContainer(containerBounds, "scroll-content")
+                    .EndClip()
+                    .AddVerticalScrollbar((float value)  =>
+                    {
+                        ElementBounds bounds = compo.GetContainer("scroll-content").Bounds;
+                        bounds.fixedY = 5 - value;
+                        bounds.CalcWorldBounds();
+                    }, scrollbarBounds, "scrollbar")
             .EndChildElements();
-            TextExtents textExtents = CairoFont.WhiteDetailText().GetTextExtents("hello\n1\ndffd\ns\nhello\n1\ndffd\ns\nhello\n1\ndffd\ns\nhello\n1\ndffd\ns\nhello\n1\ndffd\ns\nhello\n1\ndffd\ns\n");
-            //currentBounds.fixedWidth = textExtents.Width;
-            compo.GetScrollbar("scrollbar").SetHeights((float)textBounds.fixedHeight, (float)lineCounter * 25);
-            //scrollbarBounds.fixedY = 10;
-            //scrollbarBounds.CalcWorldBounds();
-           //textBounds.absFixedY = -40;
-            //c.WithChild(b);
-            //c.fixedHeight
-            //  compo.AddInset(c);
-            //compo.AddRichtext("hello", CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15).WithFontSize(16), b);
+            GuiElementContainer scrollArea = compo.GetContainer("scroll-content");
+            var li = GetPlayerBuffCellElements();
+            foreach (var it in li)
+            {
+                scrollArea.Add(new GuiElementRichtext(compo.Api, VtmlUtil.Richtextify(compo.Api,it, CairoFont.WhiteMediumText().WithFontSize(20)), containerRowBounds));
+                containerRowBounds = containerRowBounds.BelowCopy();
+            }
+            compo.Compose();
 
-            // compo.AddStaticText("hel", CairoFont.WhiteMediumText(), c.BelowCopy());
+            // After composing dialog, need to set the scrolling area heights to enable scroll behavior
+            float scrollVisibleHeight = (float)clipBounds.fixedHeight;
+            float scrollTotalHeight = rowHeight * li.Count;
+            compo.GetScrollbar("scrollbar").SetHeights(scrollVisibleHeight, scrollTotalHeight);
 
             return;
-           /* var mainBounds = ElementBounds.Fixed(0.0, 25.0, 385.0, 200.0);
-            var pageBounds = mainBounds.BelowCopy().WithFixedSize(200, 100);
-            ElementBounds clippingBounds = pageBounds.ForkBoundingParent();
-            var f = pageBounds.renderX;
-            //ElementBounds scrollbarBounds = pageBounds.CopyOffsetedSibling(pageBounds.fixedWidth + 7).WithFixedWidth(20);
-
-            //compo.BeginChildElements(pageBounds)
-                        //.BeginClip(clippingBounds)
-                        compo.AddRichtext("hello", CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15).WithFontSize(16), pageBounds)
-                        //.EndClip()
-                       /* .AddVerticalScrollbar(new Action<float> (delegate (float value)
-                        {
-
-                            ElementBounds bounds = compo.GetRichtext("credits").Bounds;
-                            bounds.fixedY = (double)(10f - value);
-                            bounds.CalcWorldBounds();
-                        } ),
-                        scrollbarBounds, "scrollbar")*/
-                    //.AddSmallButton("Close", OnButtonClose, closeButtonBounds)
-                    //.EndChildElements()
-
-                    //.Compose();*/
-
-            
         }
+
     }
 }

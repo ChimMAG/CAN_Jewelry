@@ -19,6 +19,7 @@ namespace canjewelry.src.items
     public class CANItemHorusEye : CANItemWearable, IWearableShapeSupplier, IAttachableToEntity
     {
         public override Size2i AtlasSize => curAtlas.Size;
+        public int RequiresBehindSlots { get; set; }
 
         private Dictionary<int, MultiTextureMeshRef> meshrefs
         {

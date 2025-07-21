@@ -25,6 +25,7 @@ namespace canjewelry.src.items
         private float offY;
         private float curOffY;
         public StatModifiers StatModifers;
+        public int RequiresBehindSlots { get; set; }
         public override Size2i AtlasSize => curAtlas.Size;
         private Dictionary<int, MultiTextureMeshRef> meshrefs
         {

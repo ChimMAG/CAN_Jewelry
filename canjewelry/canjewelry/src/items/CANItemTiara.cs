@@ -1,11 +1,9 @@
 ﻿using canjewelry.src.CB;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -14,15 +12,14 @@ using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
-using static HarmonyLib.Code;
-using static Vintagestory.Server.Timer;
+
 
 namespace canjewelry.src.items
 {
     public class CANItemTiara: CANItemWearable, IWearableShapeSupplier, IAttachableToEntity
     {
         public override Size2i AtlasSize => curAtlas.Size;
-
+        public int RequiresBehindSlots { get; set; }
         private Dictionary<int, MultiTextureMeshRef> meshrefs
         {
             get

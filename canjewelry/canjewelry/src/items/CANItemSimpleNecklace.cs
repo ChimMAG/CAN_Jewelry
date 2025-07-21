@@ -41,6 +41,7 @@ namespace canjewelry.src.items
         private ITextureAtlasAPI curAtlas;
 
         public EnumCharacterDressType DressType { get; private set; }
+        public int RequiresBehindSlots { get; set; }
 
         public StatModifiers StatModifers;
 
