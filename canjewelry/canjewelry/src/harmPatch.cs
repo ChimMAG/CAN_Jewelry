@@ -5,6 +5,7 @@ using canjewelry.src.CB;
 using canjewelry.src.eb;
 using canjewelry.src.gui;
 using canjewelry.src.items;
+using canjewelry.src.jewelry;
 using HarmonyLib;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -553,7 +554,14 @@ namespace canjewelry.src
                 Name = Lang.Get("canjewelry:stats-tab-name"),
                 DataInt = 2
             });
-            ___charDlg.RenderTabHandlers.Add(new Action<GuiComposer>(composeProgressTab));
+            ___charDlg.RenderTabHandlers.Add(new Action<GuiComposer>(composeStatsTab));
+
+            ___charDlg.Tabs.Add(new GuiTab()
+            {
+                Name = Lang.Get("canjewelry:additionaljewelry-tab-name"),
+                DataInt = 3
+            });
+            ___charDlg.RenderTabHandlers.Add(new Action<GuiComposer>(composeAdditionalJewelryTab));
         }
         public static void Postfix_ItemChisel_OnHeldAttackStart(ItemChisel __instance, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, ref EnumHandHandling handling)
         {
@@ -614,7 +622,7 @@ namespace canjewelry.src
             }
             return cellElements;
         }
-        private static void composeProgressTab(GuiComposer compo)
+        private static void composeStatsTab(GuiComposer compo)
         {
             var mainBounds = ElementBounds.Fixed(0.0, 35.0, 355.0, 250);
             var textBounds = mainBounds.FlatCopy();
@@ -661,6 +669,21 @@ namespace canjewelry.src
 
             return;
         }
+        private static void composeAdditionalJewelryTab(GuiComposer compo)
+        {
+            var mainBounds = ElementBounds.Fixed(0.0, 35.0, 355.0, 10);
+            var textBounds = mainBounds.FlatCopy();
 
+            //compo.AddStaticText("hello", CairoFont.WhiteDetailText(), textBounds);
+            var invBounds = textBounds.BelowCopy(20, 0).WithFixedSize(350, 250);
+            IInventory additionalJewelryInv = canjewelry.capi.World.Player.InventoryManager.GetOwnInventory("additionaljewelrycharacter");
+            
+            compo.AddItemSlotGrid(additionalJewelryInv, new Action<object>(SendInvPacket), 6, invBounds, "invBounds");
+            compo.Compose();
+        }
+        protected static void SendInvPacket(object packet)
+        {
+            canjewelry.capi.Network.SendPacketClient(packet);
+        }
     }
 }

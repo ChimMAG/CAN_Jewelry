@@ -19,6 +19,12 @@ using canjewelry.src.eb;
 using canjewelry.src.be;
 using canjewelry.src.bb;
 using canjewelry.src.cb;
+using Vintagestory.Client.NoObf;
+using Vintagestory.Common;
+using Vintagestory.Server;
+using canjewelry.src.inventories;
+using Cairo;
+using Vintagestory.API.MathTools;
 
 namespace canjewelry.src
 {
@@ -75,16 +81,22 @@ namespace canjewelry.src
             api.RegisterItemClass("CANItemGemCuttingWorkItem", typeof(CANItemGemCuttingWorkItem));
             api.RegisterItemClass("CANItemGemChisel", typeof(CANItemGemChisel));
             api.RegisterItemClass("CANItemHorusEye", typeof(CANItemHorusEye));
-
+            api.RegisterItemClass("CANItemNoseRing", typeof(CANItemNoseRing));
+            api.RegisterItemClass("CANItemGemStuddedEarrings", typeof(CANItemGemStuddedEarrings));
 
             api.RegisterBlockClass("CANBlockPan", typeof(CANBlockPan));
             api.RegisterBlockClass("BlockGemCuttingTable", typeof(BlockGemCuttingTable));
+            api.RegisterEntityBehaviorClass("playeradditionaljewelryinventory", typeof(EntityBehaviorAdditionalJewelryPlayerInventory));
+           
+                     
+            PlayerInventoryManager.defaultInventories = PlayerInventoryManager.defaultInventories.Append("additionaljewelrycharacter");
         }
         public override void StartClientSide(ICoreClientAPI api)
         {
             base.StartClientSide(api);
             capi = api;
             loadConfig(capi);
+            AddCustomIcons();
             harmonyInstance = new Harmony(harmonyID);
 
             harmonyInstance.Patch(typeof(Vintagestory.API.Client.GuiElementItemSlotGridBase).GetMethod("ComposeSlotOverlays", BindingFlags.NonPublic | BindingFlags.Instance), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_ComposeSlotOverlays_Add_Socket_Overlays_Not_Draw_ItemDamage")));
@@ -147,6 +159,22 @@ namespace canjewelry.src
                     ), 60 * 1000);
                 }
             };
+            ClientMain.ClassRegistry.RegisterInventoryClass("additionaljewelrycharacter", typeof(InventoryCharacterAdditionalJewelry));
+        }
+        public void AddCustomIcons()
+        {
+            List<string> iconList = new List<string> { "nose-side", "drop-earrings", "eye-left", "eye-right", "nose",
+            "earrings-right", "earrings-left", "palm-right", "palm-left"};
+            foreach (var icon in iconList)
+            {
+                capi.Gui.Icons.CustomIcons["canjewelry:" + icon] = delegate (Context ctx, int x, int y, float w, float h, double[] rgba)
+                {
+                    AssetLocation location = new AssetLocation("canjewelry:textures/icons/" + icon + ".svg");
+                    IAsset svgAsset = capi.Assets.TryGet(location, true);
+                    int value = ColorUtil.ColorFromRgba(44, 44, 44, 204);
+                    capi.Gui.DrawSvg(svgAsset, ctx.GetTarget() as ImageSurface, x, y, (int)w, (int)h, new int?(value));
+                };
+            }
         }
         /*public void PlayerChatDelegate(IServerPlayer byPlayer, int channelId, ref string message, ref string data, BoolRef consumed)
         {
@@ -227,6 +255,7 @@ namespace canjewelry.src
                     block.Drops = block.Drops.Append(blockDropsToAdd.ToArray());
                 }
             }
+            ServerMain.ClassRegistry.RegisterInventoryClass("additionaljewelrycharacter", typeof(InventoryCharacterAdditionalJewelry));
             //var c = api.ModLoader.GetModSystem<Timeswitch>();
         }
         public void OnPlayerNowPlaying(IServerPlayer byPlayer)
