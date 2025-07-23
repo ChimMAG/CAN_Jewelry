@@ -4,40 +4,43 @@
         "ingredients": {
             "E": {
                 "type": "item",
-                "code": "canjewelry:cangemstuddedearrings-normal"
+                "code": "canjewelry:canearrings-keys"
             }
         },
-        "name": "can-cangemstuddedearrings-change-side",
+        "name": "can-canearrings-change-side",
         "width": 1,
         "height": 1,
         "output": {
             "type": "item",
-            "code": "canjewelry:cangemstuddedearrings-normal",
+            "code": "canjewelry:canearrings-keys",
             "quantity": 1
         }
-
     },
     {
-
-        "ingredientPattern": "_W,W_",
+        "ingredientPattern": "_W,WL",
         "ingredients": {
             "W": {
                 "type": "item",
                 "code": "canjewelry:canwirehank-*",
                 "name": "metal-type",
                 "allowedVariants": [ "tinbronze", "bismuthbronze", "blackbronze", "gold", "silver", "iron", "meteoriciron", "steel", "copper" ]
+            },
+            "L": {
+                "type": "item",
+                "code": "game:leather-normal-*",
+                "allowedVariants": [ "plain", "orange", "black", "red", "blue", "purple", "pink", "white", "yellow", "gray", "green" ],
+                "quantity": 1
             }
         },
-        "name": "can-cangemstuddedearrings-default-crafts",
+        "name": "can-canearrings-keys-crafts",
         "width": 2,
         "height": 2,
         "output": {
             "type": "item",
-            "code": "canjewelry:cangemstuddedearrings-normal",
+            "code": "canjewelry:canearrings-keys",
             "quantity": 1,
             "attributes": {
-                "metal": "{metal-type}",
-                "glasstype": "{glass-type}"
+                "metal": "{metal-type}"
             }
         }
 

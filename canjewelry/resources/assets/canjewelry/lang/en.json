@@ -328,6 +328,11 @@
     "item-canhoruseye-normal": "Horus eye necklace",
     "cut-gem-cutting-type-round": "round",
     "cut-gem-cutting-type-pear": "pear",
-    "cut-gem-cutting-type-baguette": "baguette"
+    "cut-gem-cutting-type-baguette": "baguette",
+    "clothcategory-LeftEarrings": "LeftEarrings",
+    "clothcategory-RightEarrings": "RightEarrings",
+    "clothcategory-Nose": "Nose",
+    "item-canearrings-keys": " Earrings-Keys",
+    "item-canearrings-gemstuddedearrings": " Gem Studded Earrings"
 
 }

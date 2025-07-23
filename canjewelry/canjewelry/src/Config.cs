@@ -48,7 +48,7 @@ namespace canjewelry.src
                 buffNameToPossibleItem = new Dictionary<string, HashSet<string>>
                 (new Dictionary<string, HashSet<string>> {
                 {"diamond", 
-                        new HashSet<string>{ "brigandine", "plate", "chain", "scale", "cansimplenecklace", "cantiara", "-antique", "cancoronet", "canhoruseye", "canmonocle", "-tracker", "canarmband" } 
+                        new HashSet<string>{ "brigandine", "plate", "chain", "scale", "cansimplenecklace", "cantiara", "-antique", "cancoronet", "canhoruseye", "canmonocle", "-tracker", "canarmband", "greenwich-head" } 
                 },
 
                 {"corundum", 
@@ -574,6 +574,7 @@ namespace canjewelry.src
             {  "blackguardadditions:armor-head-tracker-*", new int[1] {3} },
             {  "blackguardadditions:armor-legs-tracker-*", new int[1] {3} },
             {  "blackguardadditions:armor-body-tracker-*", new int[2] {3, 3} },
+             {  "fagreenwich:fa-greenwich-head-*", new int[2] {3, 3} },
                     //,
 
            /* {  "game:shears-", new int[1] {3} },
