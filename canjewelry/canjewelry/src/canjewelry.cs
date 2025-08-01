@@ -40,6 +40,11 @@ namespace canjewelry.src
         public static Dictionary<string, string> gems_textures = new Dictionary<string, string>();
         public static Dictionary<string, string> gems_textures_pngs = new Dictionary<string, string>();
         public static List<GemCuttingRecipe> gemCuttingRecipes;
+        public override void StartPre(ICoreAPI api)
+        {
+            PlayerInventoryManager.defaultInventories = PlayerInventoryManager.defaultInventories.Append("additionaljewelrycharacter");
+            base.StartPre(api);
+        }
         public override void Start(ICoreAPI api)
         {
             base.Start(api);
@@ -83,13 +88,15 @@ namespace canjewelry.src
             api.RegisterItemClass("CANItemHorusEye", typeof(CANItemHorusEye));
             api.RegisterItemClass("CANItemNoseRing", typeof(CANItemNoseRing));
             api.RegisterItemClass("CANItemEarrings", typeof(CANItemEarrings));
+            api.RegisterItemClass("CANItemNadiyanNecklace", typeof(CANItemNadiyanNecklace));
+            api.RegisterItemClass("CANItemGlasses", typeof(CANItemGlasses));
 
             api.RegisterBlockClass("CANBlockPan", typeof(CANBlockPan));
             api.RegisterBlockClass("BlockGemCuttingTable", typeof(BlockGemCuttingTable));
             api.RegisterEntityBehaviorClass("playeradditionaljewelryinventory", typeof(EntityBehaviorAdditionalJewelryPlayerInventory));
            
                      
-            PlayerInventoryManager.defaultInventories = PlayerInventoryManager.defaultInventories.Append("additionaljewelrycharacter");
+            
         }
         public override void StartClientSide(ICoreClientAPI api)
         {
@@ -176,38 +183,22 @@ namespace canjewelry.src
                 };
             }
         }
-        /*public void PlayerChatDelegate(IServerPlayer byPlayer, int channelId, ref string message, ref string data, BoolRef consumed)
-        {
-            var c = 3;
-            var now = DateTime.Now;
-            var cc = byPlayer.Entity.Api.ModLoader.GetModSystem<Th3Essentials.Th3Essentials>();
-
-            var ccc = typeof(Th3Essentials.Th3Essentials).GetMember("config",  BindingFlags.Static);
-            if(!string.IsNullOrEmpty("war"))
-            {
-                var c2 = 3;
-            }
-            //var f = Th3Essentials.Th3Essentials;
-            message = $"{now.TimeOfDay.ToString("hh\\:mm")}: {message}";
-
-        }*/
         public override void StartServerSide(ICoreServerAPI api)
         {
             base.StartServerSide(api);
-
-            //api.Event.PlayerChat += PlayerChatDelegate;
 
             harmonyInstance = new Harmony(harmonyID);
             sapi = api;
             loadConfig(sapi);
             config.InitColors();
             api.RegisterEntityBehaviorClass("cangembuffaffected", typeof(CANGemBuffAffected));
-
-            harmonyInstance.Patch(typeof(Vintagestory.Server.CoreServerEventManager).GetMethod("TriggerAfterActiveSlotChanged"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_TriggerAfterActiveSlotChanged")));
-
+            if (!canjewelry.config.TurnOffBuffs)
+            {
+                harmonyInstance.Patch(typeof(Vintagestory.Server.CoreServerEventManager).GetMethod("TriggerAfterActiveSlotChanged"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_TriggerAfterActiveSlotChanged")));
+            }
             harmonyInstance.Patch(typeof(Vintagestory.API.Common.CollectibleObject).GetMethod("DamageItem"), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_CollectibleObject_DamageItem")));
 
-            //harmonyInstance.Patch(typeof(Vintagestory.API.Common.Block).GetMethod("GetDrops"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_GetDrops")));
+            harmonyInstance.Patch(typeof(ServerWorldPlayerData).GetMethod("ToPacketForOtherPlayers"), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_ServerWorldPlayerData_ToPacketForOtherPlayers")));
 
             serverChannel = sapi.Network.RegisterChannel("canjewelry");
             serverChannel.RegisterMessageType(typeof(SyncCANJewelryPacket));
@@ -256,16 +247,18 @@ namespace canjewelry.src
                 }
             }
             ServerMain.ClassRegistry.RegisterInventoryClass("additionaljewelrycharacter", typeof(InventoryCharacterAdditionalJewelry));
-            //var c = api.ModLoader.GetModSystem<Timeswitch>();
         }
         public void OnPlayerNowPlaying(IServerPlayer byPlayer)
         {
-            var plBeh = byPlayer.Entity.GetBehavior<CANGemBuffAffected>();
-            if (plBeh != null)
+            if (!canjewelry.config.TurnOffBuffs)
             {
-                if(!plBeh.initialized)
+                var plBeh = byPlayer.Entity.GetBehavior<CANGemBuffAffected>();
+                if (plBeh != null)
                 {
-                    plBeh.TryToAddSlotModified();
+                    if (!plBeh.initialized)
+                    {
+                        plBeh.TryToAddSlotModified();
+                    }
                 }
             }
         }
@@ -444,7 +437,7 @@ namespace canjewelry.src
             {
                 oldConfig = api.LoadModConfig<OldConfig>(this.Mod.Info.ModID + ".json");
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
             }
@@ -462,7 +455,7 @@ namespace canjewelry.src
                     api.StoreModConfig<OldConfig>(oldConfig, this.Mod.Info.ModID + "_old.json");
                     api.StoreModConfig<Config>(config, this.Mod.Info.ModID + ".json");
                 }
-                catch(Exception e)
+                catch(Exception)
                 {
 
                 }

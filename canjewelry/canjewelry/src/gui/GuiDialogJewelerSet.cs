@@ -51,10 +51,8 @@ namespace canjewelry.src.jewelry
                   .BeginChildElements(backgroundBounds);
 
             int chosenGroupTab = groupOfInterests == null ? 0 : groupOfInterests.ActiveElement;
-            int fixedY1 = 60;
 
             var scaledSlotSize = (48);
-            var scaledInsetSize = (48 + (48 / 12 * 2));        
             var scaledOffset = (48 / 12);
 
             ElementBounds encrustetItemBounds = backgroundBounds.FlatCopy().WithFixedSize(this.Width, 60).WithFixedPosition(0, 30);
@@ -303,10 +301,6 @@ namespace canjewelry.src.jewelry
             {
                 foreach(var it in gemTypeSetPair.Value)
                 {                 
-                    if (it.Contains("pick"))
-                    {
-                        var c = 3;
-                    }
                     if (WildcardUtil.Match("*" + it + "*", itemCode))
                     {
                         res.Add(gemTypeSetPair.Key);
@@ -317,14 +311,10 @@ namespace canjewelry.src.jewelry
         }
         public static int getStringLength(string name)
         {
-            using (var paint = new SKPaint())
+            using (var skFont = new SKFont(SKTypeface.FromFamilyName("Times New Roman"), 24))
             {
-                paint.Typeface = SKTypeface.FromFamilyName("Times New Roman");
-
-                paint.TextSize = 24f;
                 var skBounds = SKRect.Empty;
-                return (int)paint.MeasureText(name.AsSpan(), ref skBounds);
-
+                return (int)skFont.MeasureText(name);
             }
         }
         public void ComposeAvailableGemTypesGui()

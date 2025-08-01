@@ -1,0 +1,128 @@
+{
+    "code": "canglasses",
+    "class": "CANItemGlasses",
+    "storageFlags": 128,
+    "attributes": {
+        "handbook": {
+            "groupBy": [ "canglasses-*" ]
+        },
+        "clothescategory": "face",
+        "rackable": true,
+        "wearableAttachment": true,
+        "groundStorageTransformByType": {
+            "*": {
+                "translation": {
+                    "x": -0.42,
+                    "y": -0.45,
+                    "z": -0.045
+                },
+                "rotation": {
+                    "x": 21,
+                    "y": 179,
+                    "z": -90
+                },
+                "scale": 1
+            }
+        },
+        "variantGroups": {
+            "metal": [ "tinbronze", "bismuthbronze", "blackbronze", "gold", "silver", "iron", "meteoriciron", "steel", "copper" ],
+            "glass": [ "blue", "brown", "green", "pink", "plain", "quartz", "quartzglass", "red", "smoky", "vintage", "violet", "yellow" ]
+        },
+        "allowedVariants": [
+            {
+                "construction": "heart",
+                "metal": "*",
+                "glass": "*"
+            }
+        ]
+    },
+    "variantgroups": [
+        {
+            "code": "construction",
+            "states": [ "heart" ]
+        }
+    ],
+    "shapeByType": {
+        "*-heart": { "base": "canjewelry:item/canglasses-heart" }
+    },
+
+    "texturesByType": {
+        "*": {
+            "seraph": { "base": "game:block/transparent" }
+        }
+    },
+    "fpHandTransformByType": {
+        "*": {
+            "translation": {
+                "x": 0.6,
+                "y": -1.6,
+                "z": -0.5
+            },
+            "rotation": {
+                "x": 180,
+                "y": -108,
+                "z": -180
+            },
+            "origin": {
+                "x": 0.5,
+                "y": 1.6,
+                "z": 0.5
+            },
+            "scale": 2.15
+        }
+    },
+    "tpHandTransform": {
+        "translation": {
+            "x": -0.77,
+            "y": -2.1,
+            "z": -0.6
+        },
+        "rotation": {
+            "x": 23,
+            "y": 162,
+            "z": -3
+        },
+        "origin": {
+            "x": 0.5,
+            "y": 1.5,
+            "z": 0.5
+        },
+        "scale": 0.86
+    },
+    "guiTransform": {
+        "translation": {
+            "x": 7,
+            "y": 4,
+            "z": -0.4
+        },
+        "rotation": {
+            "x": 162,
+            "y": -77,
+            "z": 1
+        },
+        "origin": {
+            "x": 0.52,
+            "y": 1.6,
+            "z": 0.5
+        },
+        "scale": 4.43
+    },
+    "groundTransform": {
+        "translation": {
+            "x": 0.05,
+            "y": -1.08,
+            "z": 0
+        },
+        "rotation": {
+            "x": 0,
+            "y": 30,
+            "z": -1
+        },
+        "origin": {
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5299
+        },
+        "scale": 4.7199
+    }
+}

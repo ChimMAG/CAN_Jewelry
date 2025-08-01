@@ -191,102 +191,104 @@ namespace canjewelry.src.CB
                         inventory.TakeLocked = false;
                         return false;
                     }
-
-                    int currentMaxDurability = encrustable.Itemstack.Collectible.GetMaxDurability(encrustable.Itemstack);
-                    int currentDurability = encrustable.Itemstack.Attributes.GetInt("durability", 0);
-                    string[] newBuffNames = (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value;
-                    float[] newBuffValues = (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
-
-                    string[] currentBuffNames = (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute)?.value;
-                    float[] currentBuffValues = (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute)?.value;
-
-
-                    if(currentMaxDurability < 1)
+                    if (!canjewelry.config.TurnOffBuffs)
                     {
-                        if((newBuffNames?.Contains("candurability") ?? false))
-                        {
-                            inventory.TakeLocked = false;
-                            return false;
-                        }
-                        else if((currentBuffNames?.Contains("candurability") ?? false))
-                        {
-                            inventory.TakeLocked = false;
-                            return false;
-                        }
-                    }
+                        int currentMaxDurability = encrustable.Itemstack.Collectible.GetMaxDurability(encrustable.Itemstack);
+                        int currentDurability = encrustable.Itemstack.Attributes.GetInt("durability", 0);
+                        string[] newBuffNames = (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value;
+                        float[] newBuffValues = (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
 
-                    //Go through current buffs
-                    if (currentBuffNames != null)
-                    {
-                        for (int i = 0; i < currentBuffNames.Length; i++)
-                        {
-                            string tmpName = currentBuffNames[i];
-                            float tmpValue = currentBuffValues[i];
+                        string[] currentBuffNames = (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute)?.value;
+                        float[] currentBuffValues = (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute)?.value;
 
-                            //if it is dur buff then remove it's part
+                    
+                        if (currentMaxDurability < 1)
+                        {
+                            if ((newBuffNames?.Contains("candurability") ?? false))
+                            {
+                                inventory.TakeLocked = false;
+                                return false;
+                            }
+                            else if ((currentBuffNames?.Contains("candurability") ?? false))
+                            {
+                                inventory.TakeLocked = false;
+                                return false;
+                            }
+                        }
+
+                        //Go through current buffs
+                        if (currentBuffNames != null)
+                        {
+                            for (int i = 0; i < currentBuffNames.Length; i++)
+                            {
+                                string tmpName = currentBuffNames[i];
+                                float tmpValue = currentBuffValues[i];
+
+                                //if it is dur buff then remove it's part
+                                if (tmpName.Equals("candurability"))
+                                {
+                                    float currentDurabilityBuffOnTree = tree.TryGetFloat(CANJWConstants.CANDURABILITY_STRING).GetValueOrDefault();
+                                    if (currentDurability > 0)
+                                    {
+                                        currentDurability = (int)((float)currentDurability / (1 + tmpValue));
+                                        //currentDurability = 1;
+                                        encrustable.Itemstack.Attributes.SetInt("durability", currentDurability);
+                                    }
+
+                                    currentDurabilityBuffOnTree -= tmpValue;
+
+                                    if (currentDurabilityBuffOnTree == 0)
+                                    {
+                                        tree.RemoveAttribute(CANJWConstants.CANDURABILITY_STRING);
+                                    }
+                                    else
+                                    {
+                                        tree.SetFloat(CANJWConstants.CANDURABILITY_STRING, currentDurabilityBuffOnTree);
+                                    }
+                                }
+                            }
+                        }
+                        for (int i = 0; i < newBuffNames.Length; i++)
+                        {
+                            string tmpName = newBuffNames[i];
+                            float tmpValue = newBuffValues[i];
+
                             if (tmpName.Equals("candurability"))
                             {
-                                float currentDurabilityBuffOnTree = tree.TryGetFloat(CANJWConstants.CANDURABILITY_STRING).GetValueOrDefault();
-                                if (currentDurability > 0)
+                                float currentDurabilityBuff = tree.TryGetFloat(CANJWConstants.CANDURABILITY_STRING).GetValueOrDefault();
+                                if (currentDurabilityBuff == 0)
                                 {
-                                    currentDurability = (int)((float)currentDurability / (1 + tmpValue));
-                                    //currentDurability = 1;
-                                    encrustable.Itemstack.Attributes.SetInt("durability", currentDurability);
-                                }
-
-                                currentDurabilityBuffOnTree -= tmpValue;
-
-                                if (currentDurabilityBuffOnTree == 0)
-                                {
-                                    tree.RemoveAttribute(CANJWConstants.CANDURABILITY_STRING);
+                                    tree.SetFloat(CANJWConstants.CANDURABILITY_STRING, tmpValue);
                                 }
                                 else
                                 {
-                                    tree.SetFloat(CANJWConstants.CANDURABILITY_STRING, currentDurabilityBuffOnTree);
+                                    tree.SetFloat(CANJWConstants.CANDURABILITY_STRING, currentDurabilityBuff + tmpValue);
+                                }
+
+                                if (currentDurability > 0)
+                                {
+                                    currentDurability = (int)((float)currentDurability * (1 + tmpValue));
+                                    encrustable.Itemstack.Attributes.SetInt("durability", currentDurability);
                                 }
                             }
-                        }
-                    }
-                    for (int i = 0; i < newBuffNames.Length; i++)
-                    {
-                        string tmpName = newBuffNames[i];
-                        float tmpValue = newBuffValues[i];
 
-                        if (tmpName.Equals("candurability"))
+
+                        }
+                        if (!treeSocket.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_NAMES))
                         {
-                            float currentDurabilityBuff = tree.TryGetFloat(CANJWConstants.CANDURABILITY_STRING).GetValueOrDefault();
-                            if (currentDurabilityBuff == 0)
-                            {
-                                tree.SetFloat(CANJWConstants.CANDURABILITY_STRING, tmpValue);
-                            }
-                            else
-                            {
-                                tree.SetFloat(CANJWConstants.CANDURABILITY_STRING, currentDurabilityBuff + tmpValue);
-                            }
-
-                            if (currentDurability > 0)
-                            {
-                                currentDurability = (int)((float)currentDurability * (1 + tmpValue));
-                                encrustable.Itemstack.Attributes.SetInt("durability", currentDurability);
-                            }
+                            treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(newBuffNames);
+                            treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(newBuffValues);
                         }
-
-
+                        else
+                        {
+                            (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value = newBuffNames;
+                            (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value = newBuffValues;
+                        }
                     }
                     treeSocket.SetInt(CANJWConstants.GEM_BUFF_TYPE, (int)EnumGemBuffType.STATS_BUFF);
                     treeSocket.SetInt("size", gem_slot.Itemstack.Collectible.Attributes["canGemType"].AsInt());
                     treeSocket.SetString("gemtype", gem_slot.Itemstack.Collectible.Code.Path.Split('-').Last());
-                    
-                    if (!treeSocket.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_NAMES))
-                    {
-                        treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(newBuffNames);
-                        treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(newBuffValues);
-                    }
-                    else
-                    {
-                        (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value = newBuffNames;
-                        (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value = newBuffValues;
-                    }
+                                      
                     treeSocket.SetString(CANJWConstants.CUTTING_TYPE, cutGemTree.GetString(CANJWConstants.CUTTING_TYPE, "round"));
 
                     if (encrustable.Itemstack.Item is CANItemSimpleNecklace || encrustable.Itemstack.Item is CANItemHorusEye)

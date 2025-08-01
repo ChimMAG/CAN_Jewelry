@@ -18,7 +18,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace canjewelry.src.items
 {
-    public class CANItemEarrings : CANItemWearable, IWearableShapeSupplier, IAttachableToEntity
+    public class CANItemNadiyanNecklace : CANItemWearable, IWearableShapeSupplier, IAttachableToEntity
     {
         private Shape nowTesselatingShape;
         private ITextureAtlasAPI curAtlas;
@@ -28,6 +28,13 @@ namespace canjewelry.src.items
         public StatModifiers StatModifers;
         public override Size2i AtlasSize => curAtlas.Size;
         public int RequiresBehindSlots { get; set; }
+        public string Construction
+        {
+            get
+            {
+                return this.Variant["construction"];
+            }
+        }
         private Dictionary<int, MultiTextureMeshRef> meshrefs
         {
 
@@ -98,22 +105,32 @@ namespace canjewelry.src.items
         public void AddAllTypesToCreativeInventory()
         {
             List<JsonItemStack> list = new List<JsonItemStack>();
-            foreach (string arg in this.Attributes["variantGroups"].AsObject<Dictionary<string, string[]>>(null)["metal"])
+            if (this.Construction == "leather")
             {
-                list.Add(this.genJstack(string.Format("{{ metal: \"{0}\"}}", arg)));
+                foreach (string arg in this.Attributes["variantGroups"].AsObject<Dictionary<string, string[]>>(null)["leather"])
+                {
+                    list.Add(this.genJstack(string.Format("{{ leather: \"{0}\"}}", arg)));
+                }
+            }
+            else if(this.Construction == "metal")
+            {
+                foreach (string arg in this.Attributes["variantGroups"].AsObject<Dictionary<string, string[]>>(null)["metal"])
+                {
+                    list.Add(this.genJstack(string.Format("{{ metal: \"{0}\"}}", arg)));
+                }
             }
             this.CreativeInventoryStacks = new CreativeTabAndStackList[]
             {
-                new CreativeTabAndStackList
+            new CreativeTabAndStackList
+            {
+                Stacks = list.ToArray(),
+                Tabs = new string[]
                 {
-                    Stacks = list.ToArray(),
-                    Tabs = new string[]
-                    {
-                        "general",
-                        "items",
-                        "canjewelry"
-                    }
+                    "general",
+                    "items",
+                    "canjewelry"
                 }
+            }
             };
         }
         private JsonItemStack genJstack(string json)
@@ -132,8 +149,8 @@ namespace canjewelry.src.items
             JsonObject attrObj = stack.Collectible.Attributes;
             compGearShape = ((!attrObj["attachShape"].Exists) ? ((stack.Class == EnumItemClass.Item) ? stack.Item.Shape : stack.Block.Shape) : attrObj["attachShape"].AsObject<CompositeShape>(null, stack.Collectible.Code.Domain));
 
-            string eyeSide = stack.Attributes.GetString("clothescategory", "LeftEarrings");
-            AssetLocation shapePath = compGearShape.Base.CopyWithPath("shapes/" + compGearShape.Base.Path + (eyeSide == "LeftEarrings" ? "_left" : "") + ".json");
+           // string eyeSide = stack.Attributes.GetString("clothescategory", "LeftEarrings");
+            AssetLocation shapePath = compGearShape.Base.CopyWithPath("shapes/" + compGearShape.Base.Path + ".json");
 
             //AssetLocation shapePath = compGearShape.Base.CopyWithPath("shapes/" + compGearShape.Base.Path + ".json");
             gearShape = Vintagestory.API.Common.Shape.TryGet(api, shapePath);
@@ -154,9 +171,9 @@ namespace canjewelry.src.items
         {
             return true;
         }
-        /*dict["gem_1"] = new AssetLocation("canjewelry:item/gem/emerald.png");
-                dict["gem_2"] = new AssetLocation("canjewelry:item/gem/sapphire.png");
-                dict["gem_3"] = new AssetLocation("canjewelry:item/gem/citrine.png");*/
+        /*dict["can_necklace_gem_1"] = new AssetLocation("canjewelry:item/gem/emerald.png");
+                dict["can_necklace_gem_2"] = new AssetLocation("canjewelry:item/gem/sapphire.png");
+                dict["can_necklace_gem_3"] = new AssetLocation("canjewelry:item/gem/citrine.png");*/
         public void CollectTextures(ItemStack stack, Shape shape, string texturePrefixCode, Dictionary<string, CompositeTexture> intoDict)
         {
             if (this.api.Side is EnumAppSide.Server)
@@ -193,6 +210,12 @@ namespace canjewelry.src.items
         public void FillTextureDict(Dictionary<string, AssetLocation> dict, ItemStack itemStack)
         {
             int maxSocketNumber = EncrustableCB.GetMaxAmountSockets(itemStack);
+            if(maxSocketNumber == -1)
+            {
+                dict["can_necklace_gem_1"] = new AssetLocation("canjewelry:item/gem/emerald.png");
+                dict["can_necklace_gem_2"] = new AssetLocation("canjewelry:item/gem/lapislazuli.png");
+                dict["can_necklace_gem_3"] = new AssetLocation("canjewelry:item/gem/citrine.png");
+            }
             if (itemStack != null && itemStack.Attributes.HasAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING))
             {
                 var tree = itemStack.Attributes.GetTreeAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING);
@@ -230,19 +253,19 @@ namespace canjewelry.src.items
                         canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
                         if (assetPath != null)
                         {
-                            dict["gem_1"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                            dict["gem_4"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                            dict["can_necklace_gem_1"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                            dict["can_necklace_gem_4"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
                         }
                         else
                         {
-                            dict["gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
-                            dict["gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                            dict["can_necklace_gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                            dict["can_necklace_gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
                         }
                     }
                     else
                     {
-                        dict["gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
-                        dict["gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                        dict["can_necklace_gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                        dict["can_necklace_gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
                     }
                     if (tree.HasAttribute("slot1"))
                     {
@@ -251,16 +274,16 @@ namespace canjewelry.src.items
                         canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
                         if (assetPath != null)
                         {
-                            dict["gem_2"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                            dict["can_necklace_gem_2"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
                         }
                         else
                         {
-                            dict["gem_2"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                            dict["can_necklace_gem_2"] = new AssetLocation("canjewelry:item/gem/notvis.png");
                         }
                     }
                     else
                     {
-                        dict["gem_2"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                        dict["can_necklace_gem_2"] = new AssetLocation("canjewelry:item/gem/notvis.png");
                     }
                     if (tree.HasAttribute("slot2"))
                     {
@@ -269,16 +292,16 @@ namespace canjewelry.src.items
                         canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
                         if (assetPath != null)
                         {
-                            dict["gem_3"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                            dict["can_necklace_gem_3"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
                         }
                         else
                         {
-                            dict["gem_3"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                            dict["can_necklace_gem_3"] = new AssetLocation("canjewelry:item/gem/notvis.png");
                         }
                     }
                     else
                     {
-                        dict["gem_3"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                        dict["can_necklace_gem_3"] = new AssetLocation("canjewelry:item/gem/notvis.png");
                     }
                 }
                 else if (possibleGemsNumber == 2)
@@ -290,19 +313,19 @@ namespace canjewelry.src.items
                         canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
                         if (assetPath != null)
                         {
-                            dict["gem_1"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                            dict["gem_4"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                            dict["can_necklace_gem_1"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                            dict["can_necklace_gem_4"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
                         }
                         else
                         {
-                            dict["gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
-                            dict["gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                            dict["can_necklace_gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                            dict["can_necklace_gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
                         }
                     }
                     else
                     {
-                        dict["gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
-                        dict["gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                        dict["can_necklace_gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                        dict["can_necklace_gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
                     }
                     if (tree.HasAttribute("slot1"))
                     {
@@ -311,19 +334,19 @@ namespace canjewelry.src.items
                         canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
                         if (assetPath != null)
                         {
-                            dict["gem_2"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                            dict["gem_3"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                            dict["can_necklace_gem_2"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                            dict["can_necklace_gem_3"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
                         }
                         else
                         {
-                            dict["gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
-                            dict["gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                            dict["can_necklace_gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                            dict["can_necklace_gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
                         }
                     }
                     else
                     {
-                        dict["gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
-                        dict["gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                        dict["can_necklace_gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                        dict["can_necklace_gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
                     }
                 }
                 else if (possibleGemsNumber == 1)
@@ -335,25 +358,25 @@ namespace canjewelry.src.items
                         canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
                         if (assetPath != null)
                         {
-                            dict["gem_1"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                            dict["gem_2"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                            dict["gem_3"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                            dict["gem_4"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                            dict["can_necklace_gem_1"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                            dict["can_necklace_gem_2"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                            dict["can_necklace_gem_3"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                            dict["can_necklace_gem_4"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
                         }
                         else
                         {
-                            dict["gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
-                            dict["gem_2"] = new AssetLocation("canjewelry:item/gem/notvis.png");
-                            dict["gem_3"] = new AssetLocation("canjewelry:item/gem/notvis.png");
-                            dict["gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                            dict["can_necklace_gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                            dict["can_necklace_gem_2"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                            dict["can_necklace_gem_3"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                            dict["can_necklace_gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
                         }
                     }
                     else
                     {
-                        dict["gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
-                        dict["gem_2"] = new AssetLocation("canjewelry:item/gem/notvis.png");
-                        dict["gem_3"] = new AssetLocation("canjewelry:item/gem/notvis.png");
-                        dict["gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                        dict["can_necklace_gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                        dict["can_necklace_gem_2"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                        dict["can_necklace_gem_3"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                        dict["can_necklace_gem_4"] = new AssetLocation("canjewelry:item/gem/notvis.png");
                     }
 
                 }
@@ -367,14 +390,20 @@ namespace canjewelry.src.items
             }
             else
             {
-                dict["gem_1"] = new AssetLocation("canjewelry:item/gem/emerald.png");
-                dict["gem_2"] = new AssetLocation("canjewelry:item/gem/sapphire.png");
-                dict["gem_3"] = new AssetLocation("canjewelry:item/gem/citrine.png");
+                dict["can_necklace_gem_1"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                dict["can_necklace_gem_2"] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                dict["can_necklace_gem_3"] = new AssetLocation("canjewelry:item/gem/notvis.png");
             }
 
 
-
-            dict["metalearrings"] = new AssetLocation("block/metal/sheet/" + itemStack.Attributes.GetString("metal", "steel") + "1.png");
+            if (this.Construction == "leather")
+            {
+                dict["can_necklace_leather"] = new AssetLocation("block/leather/" + itemStack.Attributes.GetString("leather", "plain") + ".png");
+            }
+            else if(this.Construction == "metal")
+            {
+                dict["can_necklace_metal"] = new AssetLocation("block/metal/sheet/" + itemStack.Attributes.GetString("metal", "gold") + "1.png");
+            }
             dict["gems"] = new AssetLocation("canjewelry:item/gem/notvis.png");
             dict["plain"] = new AssetLocation("game:block/leather/plain");
         }
@@ -462,21 +491,13 @@ namespace canjewelry.src.items
             }*/
             if ((api as ICoreClientAPI).Settings.Bool["extendedDebugInfo"])
             {
-                string text;
-                if (inSlot.Itemstack.Attributes.HasAttribute("clothescategory"))
+                if (DressType == EnumCharacterDressType.Unknown)
                 {
-                    dsc.AppendLine(Lang.Get("Cloth Category: {0}", Lang.Get("canjewelry:clothcategory-" + inSlot.Itemstack.Attributes.GetString("clothescategory"))));
+                    dsc.AppendLine(Lang.Get("Cloth Category: Unknown"));
                 }
                 else
                 {
-                    if (DressType == EnumCharacterDressType.Unknown)
-                    {
-                        dsc.AppendLine(Lang.Get("Cloth Category: Unknown"));
-                    }
-                    else
-                    {
-                        dsc.AppendLine(Lang.Get("Cloth Category: {0}", Lang.Get("canjewelry:clothcategory-" + inSlot.Itemstack.ItemAttributes["clothescategory"].AsString())));
-                    }
+                    dsc.AppendLine(Lang.Get("Cloth Category: {0}", Lang.Get("clothcategory-" + inSlot.Itemstack.ItemAttributes["clothescategory"].AsString())));
                 }
             }
 
@@ -518,14 +539,8 @@ namespace canjewelry.src.items
         }
         private MeshData genMesh(ICoreClientAPI capi, ItemStack itemstack, ITexPositionSource texSource)
         {
-            //canjewelry.gems_textures.TryGetValue("diamond", out string assetPath);
-            // tmpTextures["gems"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
             ContainedTextureSource cnts = new ContainedTextureSource(this.api as ICoreClientAPI, curAtlas, new Dictionary<string, AssetLocation>(), string.Format("For render in shield {0}", this.Code));
             cnts.Textures.Clear();
-
-            // cnts.Textures["metal"] = itemstack.Item.Textures["metal"].Base;
-
-            //cnts.Textures["gems"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
 
             FillTextureDict(cnts.Textures, itemstack);
 
@@ -536,7 +551,7 @@ namespace canjewelry.src.items
         }
         public override string GetHeldItemName(ItemStack itemStack)
         {
-            return Lang.Get("game:material-" + itemStack.Attributes.GetString("metal", "default")) + Lang.Get("canjewelry:item-" + itemStack.Collectible.Code.Path.ToString());
+            return Lang.Get("canjewelry:item-" + itemStack.Collectible.Code.Path.ToString());
         }
         public bool IsAttachable(Entity toEntity, ItemStack itemStack)
         {

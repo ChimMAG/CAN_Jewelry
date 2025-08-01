@@ -13,8 +13,6 @@ namespace canjewelry.src.jewelry
     {
         internal bool ShouldRender;
 
-        internal bool ShouldRotateManual;
-
         internal bool ShouldRotateAutomated;
 
         public BEBehaviorMPConsumer mechPowerPart;

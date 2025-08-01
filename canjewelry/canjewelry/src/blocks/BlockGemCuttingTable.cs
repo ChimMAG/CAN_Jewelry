@@ -17,18 +17,12 @@ namespace canjewelry.src.blocks
     {
         WorldInteraction[] interactions;
         public ITexPositionSource tmpTextureSource;
-        //private ITexPositionSource ownTextureSource;
-        private ICoreClientAPI capi;
         private ITextureAtlasAPI curAtlas;
 
         public Size2i AtlasSize { get; set; }
         public Dictionary<string, AssetLocation> tmpAssets = new Dictionary<string, AssetLocation>();
         private TextureAtlasPosition getOrCreateTexPos(AssetLocation texturePath)
         {
-            /*if (texturePath == null)
-            {
-                var c3 = 3;
-            }*/
             TextureAtlasPosition texPos = curAtlas[texturePath];
             if (texPos == null)
             {

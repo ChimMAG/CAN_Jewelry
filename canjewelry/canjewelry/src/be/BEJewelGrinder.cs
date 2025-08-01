@@ -34,7 +34,6 @@ namespace canjewelry.src.jewelry
         private Dictionary<string, float> playersGrinding = new Dictionary<string, float>();
         private int quantityPlayersGrinding;
         private int nowOutputFace;
-        private bool beforeGrinding;
         private ITexPositionSource blockTexSource;
         public string Material => this.Block.LastCodePart();
         public float GrindSpeed
@@ -174,7 +173,7 @@ namespace canjewelry.src.jewelry
             if (api.Side != EnumAppSide.Client)
                 return;
             if ((api as ICoreClientAPI) != null)
-                this.blockTexSource = (api as ICoreClientAPI).Tesselator.GetTexSource(this.Block);
+                this.blockTexSource = (api as ICoreClientAPI).Tesselator.GetTextureSource(this.Block);
            this.renderer = new JewelGrinderTopRenderer(api as ICoreClientAPI, this.Pos, this.GenMesh("top"));
            this.renderer.mechPowerPart = this.mpc;
            if (this.automated)
@@ -267,7 +266,7 @@ namespace canjewelry.src.jewelry
             if (packetid < 1000)
             {
                 this.Inventory.InvNetworkUtil.HandleClientPacket(player, packetid, data);
-                this.Api.World.BlockAccessor.GetChunkAtBlockPos(this.Pos.X, this.Pos.Y, this.Pos.Z).MarkModified();
+                this.Api.World.BlockAccessor.GetChunkAtBlockPos(this.Pos).MarkModified();
             }
             else
             {
@@ -302,12 +301,11 @@ namespace canjewelry.src.jewelry
                 }
             }
         }
-
         public override void OnLoadCollectibleMappings(
           IWorldAccessor worldForResolve,
           Dictionary<int, AssetLocation> oldBlockIdMapping,
           Dictionary<int, AssetLocation> oldItemIdMapping,
-          int schematicSeed)
+          int schematicSeed, bool resolveImports)
         {
             foreach (ItemSlot itemSlot in this.Inventory)
             {

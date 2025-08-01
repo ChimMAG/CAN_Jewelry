@@ -93,36 +93,11 @@ namespace canjewelry.src.items
                 canjewelry.gems_textures.TryGetValue("diamond", out assetPath);
             }
             AssetLocation asset = canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location;
-            //canjewelry.gems_textures
 
-            /*while (true)
-            {
-                try
-                {
-                    capi.ItemTextureAtlas.GetOrInsertTexture(new AssetLocation(canjewelry.gems_textures[gemBase]), out var id, out tposMetal);
-                    tposMetal = capi.ItemTextureAtlas.GetPosition(capi.World.GetItem(new AssetLocation("canjewelry:gem-rough-normal-" + gemBase)), "gem");
-                }
-                catch 
-                {
-                    var c = 3;
-                }
-            }*/
-            //canjewelry.gems_textures_pngs.TryGetValue(gemBase, )
             capi.ItemTextureAtlas.GetOrInsertTexture(new AssetLocation(canjewelry.gems_textures_pngs[gemBase]), out var id, out tposMetal);
-            //tposMetal = capi.ItemTextureAtlas.GetPosition(capi.World.GetItem(new AssetLocation("canjewelry:gem-rough-normal-" + gemBase)), "gem");
-            //tposMetal = capi.ItemTextureAtlas.GetPosition(capi.World.GetItem(new AssetLocation("canjewelry:gem-rough-normal-" + gemBase)), "gem");
+
             tposSlag = capi.BlockTextureAtlas.GetPosition(capi.World.GetBlock(new AssetLocation("game:anvil-copper")), "ironbloom", false); ;
-            //tposMetal = tposMetal2;
-            /*if (workitemStack.Collectible.FirstCodePart(0) == "ironbloom")
-            {
-                tposSlag = capi.BlockTextureAtlas.GetPosition(capi.World.GetBlock(new AssetLocation("anvil-copper")), "ironbloom", false);
-                tposMetal = capi.BlockTextureAtlas.GetPosition(capi.World.GetBlock(new AssetLocation("ingotpile")), "iron", false);
-            }
-            else
-            {
-                tposMetal = capi.BlockTextureAtlas.GetPosition(capi.World.GetBlock(new AssetLocation("ingotpile")), workitemStack.Collectible.Variant["metal"], false);
-                tposSlag = tposMetal;
-            }*/
+
             MeshData metalVoxelMesh = CubeMeshUtil.GetCubeOnlyScaleXyz(0.03125f, 0.03125f, new Vec3f(0.03125f, 0.03125f, 0.03125f));
             CubeMeshUtil.SetXyzFacesAndPacketNormals(metalVoxelMesh);
             metalVoxelMesh.CustomBytes = new CustomMeshDataPartByte
@@ -138,7 +113,7 @@ namespace canjewelry.src.items
             }
             metalVoxelMesh.XyzFaces = (byte[])CubeMeshUtil.CubeFaceIndices.Clone();
             metalVoxelMesh.XyzFacesCount = 6;
-            metalVoxelMesh.Rgba.Fill(byte.MaxValue);
+            metalVoxelMesh.Rgba.Fill((byte)255);
             MeshData slagVoxelMesh = metalVoxelMesh.Clone();
             for (int j = 0; j < metalVoxelMesh.Uv.Length; j++)
             {

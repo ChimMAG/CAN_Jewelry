@@ -126,26 +126,6 @@ namespace canjewelry.src.cb
             else
             {
                 return null;
-                /*if (this.isBlisterSteel)
-                {
-                    return null;
-                }*/
-                if (!string.Equals(beGemCuttingTable.WorkItemStack.Collectible.Variant["metal"], stack.Collectible.Variant["metal"]))
-                {
-                    if (beGemCuttingTable.Api.Side == EnumAppSide.Client)
-                    {
-                        (beGemCuttingTable.Api as ICoreClientAPI).TriggerIngameError(this, "notequal", Lang.Get("Must be the same metal to add voxels", Array.Empty<object>()));
-                    }
-                    return null;
-                }
-                if (ItemIngot.AddVoxelsFromIngot(ref beGemCuttingTable.Voxels) == 0)
-                {
-                    if (beGemCuttingTable.Api.Side == EnumAppSide.Client)
-                    {
-                        (beGemCuttingTable.Api as ICoreClientAPI).TriggerIngameError(this, "requireshammering", Lang.Get("Try hammering down before adding additional voxels", Array.Empty<object>()));
-                    }
-                    return null;
-                }
             }
             return workItemStack;
         }

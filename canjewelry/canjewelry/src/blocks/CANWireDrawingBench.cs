@@ -317,7 +317,6 @@ namespace canjewelry.src.blocks
             }
             else
             {
-                facing = facing;
             }
             Block secondPlock = world.BlockAccessor.GetBlock(pos.AddCopy(facing));
             if (secondPlock is CANWireDrawingBench && secondPlock.LastCodePart(1) != headfoot)

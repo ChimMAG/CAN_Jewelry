@@ -129,7 +129,6 @@ namespace canjewelry.src.items
             Shape gearShape = null;
             CompositeShape compGearShape = null;
             JsonObject attrObj = stack.Collectible.Attributes;
-            float damageEffect = 0f;
             compGearShape = ((!attrObj["attachShape"].Exists) ? ((stack.Class == EnumItemClass.Item) ? stack.Item.Shape : stack.Block.Shape) : attrObj["attachShape"].AsObject<CompositeShape>(null, stack.Collectible.Code.Domain));
             AssetLocation shapePath = compGearShape.Base.CopyWithPath("shapes/" + compGearShape.Base.Path + ".json");
             gearShape = Vintagestory.API.Common.Shape.TryGet(api, shapePath);
@@ -144,87 +143,6 @@ namespace canjewelry.src.items
                 });
                 return null;
             }
-            return gearShape;
-            //gearShape.SubclassForStepParenting(texturePrefixCode, damageEffect);
-            HashSet<string> textureCodes = new HashSet<string>();
-            ShapeElement[] elements = gearShape.Elements;
-            for (int i = 0; i < elements.Length; i++)
-            {
-                elements[i].WalkRecursive(delegate (ShapeElement el)
-                {
-                    el.DamageEffect = damageEffect;
-                    ShapeElementFace[] facesResolved = el.FacesResolved;
-                    foreach (ShapeElementFace shapeElementFace in facesResolved)
-                    {
-                        if (shapeElementFace != null && shapeElementFace.Enabled && !shapeElementFace.Texture.Contains("silver"))
-                        {
-                            textureCodes.Add(shapeElementFace.Texture);
-                            shapeElementFace.Texture = texturePrefixCode + "-" + shapeElementFace.Texture;
-                        }
-                    }
-                });
-            }
-
-            if (gearShape.Textures != null)
-            {
-                KeyValuePair<string, int[]>[] array = gearShape.TextureSizes.ToArray();
-                gearShape.TextureSizes.Clear();
-                KeyValuePair<string, int[]>[] array2 = array;
-                for (int i = 0; i < array2.Length; i++)
-                {
-                    KeyValuePair<string, int[]> keyValuePair = array2[i];
-                    gearShape.TextureSizes[texturePrefixCode + "-" + keyValuePair.Key] = keyValuePair.Value;
-                    textureCodes.Remove(keyValuePair.Key);
-                }
-
-                foreach (string item in textureCodes)
-                {
-                    gearShape.TextureSizes[texturePrefixCode + "-" + item] = new int[2] { gearShape.TextureWidth, gearShape.TextureHeight };
-                }
-            }
-
-
-            string maskMetal = stack.Attributes.GetString("metal", null);
-            gearShape.Textures["canjewelry:canrottenkingmask-normal-silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
-            gearShape.Textures["rotten-king-mask"] = new AssetLocation("canjewelry:item/rottenking.png");
-            gearShape.Textures["rotten-king-cloth"] = new AssetLocation("canjewelry:item/rottenkingcloth.png");
-            gearShape.Textures["silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
-
-           Dictionary<string, AssetLocation> newdict = new Dictionary<string, AssetLocation>();
-            newdict["canjewelry:canrottenkingmask-normal-silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
-            newdict["silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
-            //"canjewelry:canrottenkingmask-normal-silver1"
-            newdict["rotten-king-mask"] = new AssetLocation("canjewelry:item/rottenking.png");
-            newdict["rotten-king-cloth"] = new AssetLocation("canjewelry:item/rottenkingcloth.png");
-            foreach (var val in newdict)
-            {
-                CompositeTexture ctex = new CompositeTexture() { Base = val.Value };
-
-                ICoreClientAPI capi = this.capi as ICoreClientAPI;
-
-                AssetLocation armorTexLoc = val.Value;
-
-                int textureSubId = 0;
-                TextureAtlasPosition texpos;
-
-                capi.EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
-                {
-                    IAsset texAsset = this.capi.Assets.TryGet(armorTexLoc.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
-                    if (texAsset != null)
-                    {
-                        return texAsset.ToBitmap(capi);
-                    }
-                    return null;
-                });
-
-                if (val.Key == null)
-                    continue;
-                ctex.Baked = new BakedCompositeTexture() { BakedName = armorTexLoc, TextureSubId = textureSubId };
-
-                ((EntityClientProperties)forEntity.SidedProperties).Textures[val.Key] = ctex;
-            }
-
-
             return gearShape;
         }
         public bool IsAttachable(ItemStack itemStack)
@@ -366,7 +284,7 @@ namespace canjewelry.src.items
         }
         public override void OnBeforeRender(ICoreClientAPI capi, ItemStack itemstack, EnumItemRenderTarget target, ref ItemRenderInfo renderinfo)
         {
-            if (target == EnumItemRenderTarget.HandFp)
+            if (target == EnumItemRenderTarget.HandTp)
             {
                 bool sneak = capi.World.Player.Entity.Controls.Sneak;
                 this.curOffY += ((sneak ? 0.4f : this.offY) - this.curOffY) * renderinfo.dt * 8f;

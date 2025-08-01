@@ -92,7 +92,7 @@ namespace canjewelry.src.jewelry
         }
         public override void OnBeforeRender(ICoreClientAPI capi, ItemStack itemstack, EnumItemRenderTarget target, ref ItemRenderInfo renderinfo)
         {
-            if (target == EnumItemRenderTarget.HandFp)
+            if (target == EnumItemRenderTarget.HandTp)
             {
                 /* bool sneak = capi.World.Player.Entity.Controls.Sneak;
                  this.curOffY += ((sneak ? 0.4f : this.offY) - this.curOffY) * renderinfo.dt * 8f;
@@ -124,61 +124,64 @@ namespace canjewelry.src.jewelry
         public override void GetHeldItemInfo(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
         {
             base.GetHeldItemInfo(inSlot, dsc, world, withDebugInfo);
-            if (inSlot.Itemstack.Attributes.HasAttribute(CANJWConstants.CUT_GEM_TREE))
+            if (!canjewelry.config.TurnOffBuffs)
             {
-                ITreeAttribute tree = inSlot.Itemstack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
-                string[] buffNames = (tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value;
-                float[] buffValues = (tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
-
-                for (int i = 0; i < buffNames.Length; i++)
+                if (inSlot.Itemstack.Attributes.HasAttribute(CANJWConstants.CUT_GEM_TREE))
                 {
-                    if (buffNames[i].Equals("maxhealthExtraPoints"))
+                    ITreeAttribute tree = inSlot.Itemstack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
+                    string[] buffNames = (tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value;
+                    float[] buffValues = (tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
+
+                    for (int i = 0; i < buffNames.Length; i++)
                     {
-                        dsc.Append(Lang.Get("canjewelry:buff-name-" + buffNames[i])).Append(" +" + buffValues[i].ToString());
-                        dsc.AppendLine();
+                        if (buffNames[i].Equals("maxhealthExtraPoints"))
+                        {
+                            dsc.Append(Lang.Get("canjewelry:buff-name-" + buffNames[i])).Append(" +" + buffValues[i].ToString());
+                            dsc.AppendLine();
+                        }
+                        else
+                        {
+                            if (canjewelry.config.gems_buffs.TryGetValue(buffNames[i], out var buffValuesDict))
+                            {
+                                dsc.Append(Lang.Get("canjewelry:buff-name-" + buffNames[i]));
+                                dsc.Append(buffValues[i] * 100 > 0 ? " +" + Math.Round(buffValues[i] * 100, 3) + "%" : " " + Math.Round(buffValues[i] * 100, 3) + "%");
+                                dsc.AppendLine();
+                            }
+                        }
+                    }
+                    return;
+                }
+                if (inSlot.Itemstack.Collectible.Attributes.KeyExists("canGemTypeToAttribute"))
+                {
+                    string buffName = inSlot.Itemstack.Collectible.Attributes["canGemTypeToAttribute"].ToString();
+                    if (buffName.Equals("maxhealthExtraPoints"))
+                    {
+                        if (canjewelry.config.gems_buffs.TryGetValue(buffName, out var buffValuesDict))
+                        {
+                            dsc.Append(Lang.Get("canjewelry:buff-name-" + buffName)).Append(" +" + buffValuesDict[inSlot.Itemstack.Collectible.Attributes["canGemType"].AsInt().ToString()]);
+                        }
+                    }
+                    else if (buffName.Equals("candurability"))
+                    {
+                        if (canjewelry.config.gems_buffs.TryGetValue(buffName, out var buffValuesDict))
+                        {
+                            float buffValue = buffValuesDict[inSlot.Itemstack.Collectible.Attributes["canGemType"].AsInt().ToString()] * 100;
+                            dsc.Append(Lang.Get("canjewelry:buff-name-" + buffName));
+                            dsc.Append(buffValue > 0 ? " +" + Math.Round(buffValue) + "%" : " " + Math.Round(buffValue) + "%");
+                        }
+
                     }
                     else
                     {
-                        if (canjewelry.config.gems_buffs.TryGetValue(buffNames[i], out var buffValuesDict))
+                        if (canjewelry.config.gems_buffs.TryGetValue(buffName, out var buffValuesDict))
                         {
-                            dsc.Append(Lang.Get("canjewelry:buff-name-" + buffNames[i]));
-                            dsc.Append(buffValues[i] * 100 > 0 ? " +" + Math.Round(buffValues[i] * 100, 3) + "%" : " " + Math.Round(buffValues[i] * 100, 3) + "%");
-                            dsc.AppendLine();
+                            float buffValue = buffValuesDict[inSlot.Itemstack.Collectible.Attributes["canGemType"].AsInt().ToString()] * 100;
+                            dsc.Append(Lang.Get("canjewelry:buff-name-" + buffName));
+                            dsc.Append(buffValue > 0 ? " +" + Math.Round(buffValue) + "%" : " " + Math.Round(buffValue) + "%");
                         }
-                    }
-                }              
-                return;
-            }
-            if (inSlot.Itemstack.Collectible.Attributes.KeyExists("canGemTypeToAttribute"))
-            {
-                string buffName = inSlot.Itemstack.Collectible.Attributes["canGemTypeToAttribute"].ToString();
-                if (buffName.Equals("maxhealthExtraPoints"))
-                {
-                    if (canjewelry.config.gems_buffs.TryGetValue(buffName, out var buffValuesDict))
-                    {
-                        dsc.Append(Lang.Get("canjewelry:buff-name-" + buffName)).Append(" +" + buffValuesDict[inSlot.Itemstack.Collectible.Attributes["canGemType"].AsInt().ToString()]);
-                    }
-                }
-                else if (buffName.Equals("candurability"))
-                {
-                    if (canjewelry.config.gems_buffs.TryGetValue(buffName, out var buffValuesDict))
-                    {
-                        float buffValue = buffValuesDict[inSlot.Itemstack.Collectible.Attributes["canGemType"].AsInt().ToString()] * 100;
-                        dsc.Append(Lang.Get("canjewelry:buff-name-" + buffName));
-                        dsc.Append(buffValue > 0 ? " +" + Math.Round(buffValue) + "%" : " " + Math.Round(buffValue) + "%");
-                    }
-
-                }
-                else
-                {
-                    if (canjewelry.config.gems_buffs.TryGetValue(buffName, out var buffValuesDict))
-                    {
-                        float buffValue = buffValuesDict[inSlot.Itemstack.Collectible.Attributes["canGemType"].AsInt().ToString()] * 100;
-                        dsc.Append(Lang.Get("canjewelry:buff-name-" + buffName));
-                        dsc.Append(buffValue > 0 ? " +" + Math.Round(buffValue) + "%" : " " + Math.Round(buffValue) + "%");
-                    }
 
 
+                    }
                 }
             }
         }

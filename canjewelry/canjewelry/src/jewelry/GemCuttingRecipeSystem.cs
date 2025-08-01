@@ -66,7 +66,6 @@ namespace canjewelry.src.jewelry
             public override bool ShouldLoad(EnumAppSide side)
             {
                 return true;
-                return base.ShouldLoad(side);
             }
             public override void Start(ICoreAPI api)
             {
@@ -113,7 +112,6 @@ namespace canjewelry.src.jewelry
                 {
                     return;
                 }
-                int num = 0;
                 foreach (KeyValuePair<AssetLocation, JToken> keyValuePair in many)
                 {
                     if(keyValuePair.Value is JArray)

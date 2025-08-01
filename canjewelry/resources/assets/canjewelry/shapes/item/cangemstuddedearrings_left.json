@@ -15,6 +15,12 @@
 		"seraph": [64,64]
 	},
 	"textures": {
+		"metalearrings": "canjewelry:item/gem/notvis",
+		"plain": "canjewelry:item/gem/notvis",
+		"gem_1": "canjewelry:item/gem/notvis",
+		"gem_2": "canjewelry:item/gem/notvis",
+		"gem_3": "canjewelry:item/gem/notvis",
+		"gem_4": "canjewelry:item/gem/notvis"
 	},
 	"elements": [
 		{

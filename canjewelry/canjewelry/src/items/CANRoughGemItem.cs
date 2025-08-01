@@ -38,10 +38,11 @@ namespace canjewelry.src.items
             ItemStack itemStack = inSlot.Itemstack;
 
             string gemType = itemStack.Collectible.Variant["gemtype"];
-            //string cuttingType = isTree.GetString(CANJWConstants.CUTTING_TYPE);
-           // ITreeAttribute tree = new TreeAttribute();
-           // tree.SetString(CANJWConstants.CUTTING_TYPE, cuttingType);
-           bool mainStatHeaderAdded = false;
+            if (canjewelry.config.TurnOffBuffs)
+            {
+                return;
+            }
+            bool mainStatHeaderAdded = false;
             if (canjewelry.config.PossibleGemBuffs.TryGetValue(gemType, out var possibleBuffs))
             {
                 foreach(var buffName in possibleBuffs)
@@ -253,26 +254,6 @@ namespace canjewelry.src.items
             else
             {
                 return null;
-                /*if (this.isBlisterSteel)
-                {
-                    return null;
-                }*/
-                if (!string.Equals(beGemCuttingTable.WorkItemStack.Collectible.Variant["metal"], stack.Collectible.Variant["metal"]))
-                {
-                    if (this.api.Side == EnumAppSide.Client)
-                    {
-                        (this.api as ICoreClientAPI).TriggerIngameError(this, "notequal", Lang.Get("Must be the same metal to add voxels", Array.Empty<object>()));
-                    }
-                    return null;
-                }
-                if (ItemIngot.AddVoxelsFromIngot(ref beGemCuttingTable.Voxels) == 0)
-                {
-                    if (this.api.Side == EnumAppSide.Client)
-                    {
-                        (this.api as ICoreClientAPI).TriggerIngameError(this, "requireshammering", Lang.Get("Try hammering down before adding additional voxels", Array.Empty<object>()));
-                    }
-                    return null;
-                }
             }
             return workItemStack;
         }

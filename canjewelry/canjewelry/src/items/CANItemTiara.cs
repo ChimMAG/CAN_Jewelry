@@ -49,21 +49,11 @@ namespace canjewelry.src.items
         private float curOffY;
 
         private ICoreClientAPI capi;
-
-        private ITextureAtlasAPI targetAtlas;
-
         private Dictionary<string, AssetLocation> tmpTextures = new Dictionary<string, AssetLocation>();
-
-        private Dictionary<string, Dictionary<string, int>> durabilityGains;
-
         public override TextureAtlasPosition this[string textureCode]
         {
             get
             {
-                if (!textureCode.Equals("seraph"))
-                {
-                    var c = 3;
-                }
                 if (this.tmpTextures.TryGetValue(textureCode, out var res))
                 {
                     return this.getOrCreateTexPos(res);
@@ -117,7 +107,6 @@ namespace canjewelry.src.items
             base.OnLoaded(api);
             this.curOffY = (this.offY = this.FpHandTransform.Translation.Y);
             this.capi = (api as ICoreClientAPI);
-            this.durabilityGains = this.Attributes["durabilityGains"].AsObject<Dictionary<string, Dictionary<string, int>>>(null);
             this.AddAllTypesToCreativeInventory();
 
             string value = Attributes["clothescategory"].AsString();
@@ -153,28 +142,6 @@ namespace canjewelry.src.items
                 }
             }
         }
-
-        public override void OnCreatedByCrafting(ItemSlot[] inSlots, ItemSlot outputSlot, GridRecipe byRecipe)
-        {
-            base.OnCreatedByCrafting(inSlots, outputSlot, byRecipe);
-           /* int socketLevel = 1;
-            if (inSlots[4].Itemstack != null && inSlots[4].Itemstack.Collectible.Attributes.KeyExists("levelOfSocket"))
-            {
-                socketLevel = inSlots[4].Itemstack.Collectible.Attributes["levelOfSocket"].AsInt();
-            }
-            ITreeAttribute socketSlotTree = new TreeAttribute();*/
-
-            /*socketSlotTree.SetInt("size", 0);
-            socketSlotTree.SetString("gemtype", "");
-            socketSlotTree.SetInt("sockettype", socketLevel);
-
-            ITreeAttribute socketEncrusted = new TreeAttribute();
-            socketEncrusted.SetInt("socketsnumber", 1);
-            socketEncrusted["slot" + 0] = socketSlotTree;
-            outputSlot.Itemstack.Attributes["canencrusted"] = socketEncrusted;*/
-            //add socket for gem with tier 3
-        }
-
         public void AddAllTypesToCreativeInventory()
         {
             List<JsonItemStack> stacks = new List<JsonItemStack>();
@@ -220,7 +187,7 @@ namespace canjewelry.src.items
 
         public override void OnBeforeRender(ICoreClientAPI capi, ItemStack itemstack, EnumItemRenderTarget target, ref ItemRenderInfo renderinfo)
         {
-            if (target == EnumItemRenderTarget.HandFp)
+            if (target == EnumItemRenderTarget.HandTp)
             {
                 bool sneak = capi.World.Player.Entity.Controls.Sneak;
                 this.curOffY += ((sneak ? 0.4f : this.offY) - this.curOffY) * renderinfo.dt * 8f;

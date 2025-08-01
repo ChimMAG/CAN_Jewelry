@@ -20,7 +20,6 @@ namespace canjewelry.src.items
     public class CANItemGemChisel : Item
     {
         public SkillItem[] ToolModes;
-        SkillItem addMatItem;
 
         public static bool carvingTime = DateTime.Now.Month == 10 || DateTime.Now.Month == 11;
         public static bool AllowHalloweenEvent = true;
@@ -69,8 +68,6 @@ namespace canjewelry.src.items
             {
                 ToolModes[i]?.Dispose();
             }
-
-            addMatItem?.Dispose();
         }
 
 
@@ -292,13 +289,7 @@ namespace canjewelry.src.items
             {
                 return null;
             }
-            /*if (!(forPlayer.Entity.World.BlockAccessor.GetBlock(blockSel.Position) is BlockClayForm))
-            {
-                return null;
-            }*/
             return this.ToolModes;
-
-            return null;
         }
 
         public override int GetToolMode(ItemSlot slot, IPlayer byPlayer, BlockSelection blockSel)

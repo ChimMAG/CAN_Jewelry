@@ -80,10 +80,6 @@ namespace canjewelry.src.be
         }
         private TextureAtlasPosition getOrCreateTexPos(AssetLocation texturePath)
         {
-            if (texturePath == null)
-            {
-                var c3 = 3;
-            }
             TextureAtlasPosition texPos = this.capi.BlockTextureAtlas[texturePath];
             if (texPos == null)
             {
@@ -91,7 +87,7 @@ namespace canjewelry.src.be
                 if (asset != null)
                 {
                     BitmapRef bitmap = asset.ToBitmap(this.capi);
-                    this.capi.BlockTextureAtlas.InsertTextureCached(texturePath, (IBitmap)bitmap, out int _, out texPos);
+                    this.capi.BlockTextureAtlas.GetOrInsertTexture(texturePath, out int _, out texPos, () => asset.ToBitmap(this.Api as ICoreClientAPI));
                 }
                 else
                 {
