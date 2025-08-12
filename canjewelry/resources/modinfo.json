@@ -4,8 +4,8 @@
   "name": "CAN Jewelry",
   "authors": [ "KenigVovan" ],
   "description": "Gems and jewelry with buffs.",
-    "contributors": [ "justOmi", "DarkPaapi", "Wailwolf" ],
-  "version": "0.4.23",
+    "contributors": [ "justOmi", "DarkPaapi", "Wailwolf", "FourLanguages", "sadCarb0ne", "ripls" ],
+  "version": "0.4.25",
   "dependencies": {
     "game": ""
   }
