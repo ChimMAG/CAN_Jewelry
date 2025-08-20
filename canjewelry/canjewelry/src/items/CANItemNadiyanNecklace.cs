@@ -415,7 +415,7 @@ namespace canjewelry.src.items
 
         public CompositeShape GetAttachedShape(ItemStack stack, string slotCode)
         {
-            return null;
+            return this.Shape;
         }
 
         public string[] GetDisableElements(ItemStack stack)
