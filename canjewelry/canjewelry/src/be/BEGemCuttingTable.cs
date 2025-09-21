@@ -3,14 +3,11 @@ using canjewelry.src.cb;
 using canjewelry.src.CB;
 using canjewelry.src.items;
 using canjewelry.src.jewelry;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
@@ -19,9 +16,6 @@ using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
-using Vintagestory.ServerMods;
-using static canjewelry.src.Config;
-using static canjewelry.src.OldConfig;
 
 namespace canjewelry.src.be
 {

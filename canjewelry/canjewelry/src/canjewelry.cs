@@ -104,7 +104,7 @@ namespace canjewelry.src
             capi = api;
             loadConfig(capi);
             AddCustomIcons();
-            harmonyInstance = new Harmony(harmonyID);
+            harmonyInstance = new Harmony(harmonyID + "_client");
 
             harmonyInstance.Patch(typeof(Vintagestory.API.Client.GuiElementItemSlotGridBase).GetMethod("ComposeSlotOverlays", BindingFlags.NonPublic | BindingFlags.Instance), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_ComposeSlotOverlays_Add_Socket_Overlays_Not_Draw_ItemDamage")));
 
@@ -136,7 +136,8 @@ namespace canjewelry.src
             capi.Event.LevelFinalize += () =>
             {
                 Item[] cut_gems_items = api.World.SearchItems(new AssetLocation("canjewelry:gem-cut-*"));
-
+                gems_textures = new();
+                gems_textures_pngs = new();
                 foreach (var gem in cut_gems_items)
                 {
                     //catch if not present?
@@ -186,8 +187,8 @@ namespace canjewelry.src
         public override void StartServerSide(ICoreServerAPI api)
         {
             base.StartServerSide(api);
-
-            harmonyInstance = new Harmony(harmonyID);
+            
+            harmonyInstance = new Harmony(harmonyID + "_server");
             sapi = api;
             loadConfig(sapi);
             config.InitColors();
@@ -267,8 +268,19 @@ namespace canjewelry.src
             base.Dispose();
             if (harmonyInstance != null)
             {
-                harmonyInstance.UnpatchAll(harmonyID);
+                harmonyInstance.UnpatchAll(harmonyID + "_client");
+                harmonyInstance.UnpatchAll(harmonyID + "_server");
             }
+            capi = null;
+            sapi = null;
+            serverChannel = null;
+            clientChannel = null;
+            config = null;
+            gems_textures?.Clear();
+            gems_textures = null;
+            gems_textures_pngs?.Clear();
+            gems_textures_pngs = null;
+            gemCuttingRecipes = null;
         }
         public void AddBehaviorAndSocketNumber(bool serverSide = true)
         {

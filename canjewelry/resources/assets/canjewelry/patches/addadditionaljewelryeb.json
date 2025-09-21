@@ -3,12 +3,14 @@
         "file": "game:entities/humanoid/player.json",
         "reason": "add",
         "path": "/server/behaviors/-",
-        "value": { "code": "playeradditionaljewelryinventory" }
+        "value": { "code": "playeradditionaljewelryinventory" },
+        "dependsOn": [ { "modid": "canjewelry" } ]
     },
     {
         "file": "game:entities/humanoid/player.json",
         "reason": "add",
         "path": "/client/behaviors/-",
-        "value": { "code": "playeradditionaljewelryinventory" }
+        "value": { "code": "playeradditionaljewelryinventory" },
+        "dependsOn": [ { "modid": "canjewelry" } ]
     }
 ]

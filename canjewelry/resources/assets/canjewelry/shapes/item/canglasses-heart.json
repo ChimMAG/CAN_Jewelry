@@ -10,7 +10,8 @@
 	"textureSizes": {
 	},
 	"textures": {
-		"canglasses_quartz": "/Users/koeni/Desktop/tex/canglasses_quartz"
+		"canglasses_quartz": "",
+		"can_glasses_metal": ""
 	},
 	"elements": [
 		{

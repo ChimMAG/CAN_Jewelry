@@ -97,7 +97,7 @@ namespace canjewelry.src.items
             List<JsonItemStack> stacks = new List<JsonItemStack>();
             Dictionary<string, string[]> vg = this.Attributes["variantGroups"].AsObject<Dictionary<string, string[]>>(null);
 
-            string[] loops = vg["metal"][0..2];
+            string[] loops = vg["metal"];
             foreach (string loop in loops)
             {
                 stacks.Add(this.genJstack(string.Format("{{ loop: \"{0}\"}}", loop)));            
@@ -155,8 +155,6 @@ namespace canjewelry.src.items
             foreach (var texture in tmpTextures)
             {
                 CompositeTexture ctex = new CompositeTexture() { Base = texture.Value };
-
-                //ICoreClientAPI capi = this.capi as ICoreClientAPI;
 
                 AssetLocation armorTexLoc = texture.Value;
 

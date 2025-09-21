@@ -154,9 +154,6 @@ namespace canjewelry.src.items
         {
             return true;
         }
-        /*dict["gem_1"] = new AssetLocation("canjewelry:item/gem/emerald.png");
-                dict["gem_2"] = new AssetLocation("canjewelry:item/gem/sapphire.png");
-                dict["gem_3"] = new AssetLocation("canjewelry:item/gem/citrine.png");*/
         public void CollectTextures(ItemStack stack, Shape shape, string texturePrefixCode, Dictionary<string, CompositeTexture> intoDict)
         {
             if (this.api.Side is EnumAppSide.Server)
@@ -451,15 +448,6 @@ namespace canjewelry.src.items
             base.GetHeldItemInfo(inSlot, dsc, world, withDebugInfo);
 
             string maskMetal = inSlot.Itemstack.Item.Variant.Get("loop", "steel");
-
-            /* if (gem != "none")
-            {
-                dsc.AppendLine(Lang.Get("canjewelry:necklace-parts-with-gem-held-info", Lang.Get("material-" + loop), Lang.Get("material-" + socket), gem));
-            }
-            else
-            {
-                dsc.AppendLine(Lang.Get("canjewelry:necklace-parts-without-gem-held-info", Lang.Get("material-" + loop), Lang.Get("material-" + socket)));
-            }*/
             if ((api as ICoreClientAPI).Settings.Bool["extendedDebugInfo"])
             {
                 string text;
@@ -518,15 +506,8 @@ namespace canjewelry.src.items
         }
         private MeshData genMesh(ICoreClientAPI capi, ItemStack itemstack, ITexPositionSource texSource)
         {
-            //canjewelry.gems_textures.TryGetValue("diamond", out string assetPath);
-            // tmpTextures["gems"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
             ContainedTextureSource cnts = new ContainedTextureSource(this.api as ICoreClientAPI, curAtlas, new Dictionary<string, AssetLocation>(), string.Format("For render in shield {0}", this.Code));
             cnts.Textures.Clear();
-
-            // cnts.Textures["metal"] = itemstack.Item.Textures["metal"].Base;
-
-            //cnts.Textures["gems"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-
             FillTextureDict(cnts.Textures, itemstack);
 
 

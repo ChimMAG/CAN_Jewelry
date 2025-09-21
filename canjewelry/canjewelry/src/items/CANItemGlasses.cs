@@ -98,8 +98,8 @@ namespace canjewelry.src.items
             Dictionary<string, string[]> vg = this.Attributes["variantGroups"].AsObject<Dictionary<string, string[]>>(null);
 
             Random r = new Random();
-            string[] loops = vg["metal"][0..2];
-            string[] glassTypes = vg["glass"][0..2];
+            string[] loops = vg["metal"];
+            string[] glassTypes = vg["glass"];
             foreach (string loop in loops)
             {
                 foreach (var glass in glassTypes)

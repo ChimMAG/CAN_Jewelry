@@ -238,15 +238,6 @@ namespace canjewelry.src.items
             base.GetHeldItemInfo(inSlot, dsc, world, withDebugInfo);
 
             string maskMetal = inSlot.Itemstack.Attributes.GetString("metal", null);
-
-            /* if (gem != "none")
-            {
-                dsc.AppendLine(Lang.Get("canjewelry:necklace-parts-with-gem-held-info", Lang.Get("material-" + loop), Lang.Get("material-" + socket), gem));
-            }
-            else
-            {
-                dsc.AppendLine(Lang.Get("canjewelry:necklace-parts-without-gem-held-info", Lang.Get("material-" + loop), Lang.Get("material-" + socket)));
-            }*/
             if ((api as ICoreClientAPI).Settings.Bool["extendedDebugInfo"])
             {
                 if (DressType == EnumCharacterDressType.Unknown)
@@ -486,14 +477,8 @@ namespace canjewelry.src.items
 
         private MeshData genMesh(ICoreClientAPI capi, ItemStack itemstack, ITexPositionSource texSource)
         {
-            //canjewelry.gems_textures.TryGetValue("diamond", out string assetPath);
-           // tmpTextures["gems"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
             ContainedTextureSource cnts = new ContainedTextureSource(this.api as ICoreClientAPI, curAtlas, new Dictionary<string, AssetLocation>(), string.Format("For render in shield {0}", this.Code));
             cnts.Textures.Clear();
-
-           // cnts.Textures["metal"] = itemstack.Item.Textures["metal"].Base;
-            
-            //cnts.Textures["gems"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
 
             FillTextureDict(cnts.Textures, itemstack);
 

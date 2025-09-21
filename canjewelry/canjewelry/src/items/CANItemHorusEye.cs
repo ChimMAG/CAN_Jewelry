@@ -152,22 +152,6 @@ namespace canjewelry.src.items
         public override void OnCreatedByCrafting(ItemSlot[] inSlots, ItemSlot outputSlot, GridRecipe byRecipe)
         {
             base.OnCreatedByCrafting(inSlots, outputSlot, byRecipe);
-            /*int socketLevel = 1;
-            if (inSlots[4].Itemstack != null && inSlots[4].Itemstack.Collectible.Attributes.KeyExists("levelOfSocket"))
-            {
-                socketLevel = inSlots[4].Itemstack.Collectible.Attributes["levelOfSocket"].AsInt();
-            }
-            ITreeAttribute socketSlotTree = new TreeAttribute();
-
-            socketSlotTree.SetInt("size", 0);
-            socketSlotTree.SetString("gemtype", "");
-            socketSlotTree.SetInt("sockettype", socketLevel);
-
-            ITreeAttribute socketEncrusted = new TreeAttribute();
-            socketEncrusted.SetInt("socketsnumber", 1);
-            socketEncrusted["slot" + 0] = socketSlotTree;
-            outputSlot.Itemstack.Attributes["canencrusted"] = socketEncrusted;*/
-            //add socket for gem with tier 3
         }
 
         public void AddAllTypesToCreativeInventory()
@@ -176,8 +160,8 @@ namespace canjewelry.src.items
             Dictionary<string, string[]> vg = this.Attributes["variantGroups"].AsObject<Dictionary<string, string[]>>(null);
             Random r = new Random();
 
-            string[] loops = vg["metal"][0..2];
-            string[] sockets = vg["silk"][0..2];
+            string[] loops = vg["metal"];
+            string[] sockets = vg["silk"];
             foreach (string loop in loops)
             {
                 foreach (string socket in sockets)

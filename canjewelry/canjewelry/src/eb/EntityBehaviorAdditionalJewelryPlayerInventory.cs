@@ -10,7 +10,7 @@ using Vintagestory.GameContent;
 
 namespace canjewelry.src.eb
 {
-    public class EntityBehaviorAdditionalJewelryPlayerInventory : EntityBehaviorTexturedClothing
+    public class EntityBehaviorAdditionalJewelryPlayerInventory : CANEntityBehaviorTexturedClothing
     {
         private bool slotModifiedRegistered;
         private float accum;
@@ -145,6 +145,7 @@ namespace canjewelry.src.eb
             {
                 entityShape = this.addGearToShape(entityShape, val.Value, "default", shapePathForLogging, ref shapeIsCloned, ref willDeleteElements, null);
             }
+            
             base.OnTesselation(ref entityShape, shapePathForLogging, ref shapeIsCloned, ref willDeleteElements);
         }
         public override void OnEntityDeath(DamageSource damageSourceForDeath)
