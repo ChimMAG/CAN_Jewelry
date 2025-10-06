@@ -25,6 +25,7 @@ using Vintagestory.Server;
 using canjewelry.src.inventories;
 using Cairo;
 using Vintagestory.API.MathTools;
+using canjewelry.src.harmony;
 
 namespace canjewelry.src
 {
@@ -37,8 +38,8 @@ namespace canjewelry.src
         internal static IServerNetworkChannel serverChannel;
         internal static IClientNetworkChannel clientChannel;
         public static Config config;
-        public static Dictionary<string, string> gems_textures = new Dictionary<string, string>();
-        public static Dictionary<string, string> gems_textures_pngs = new Dictionary<string, string>();
+        public static Dictionary<string, string> gems_textures;
+        public static Dictionary<string, string> gems_textures_pngs;
         public static List<GemCuttingRecipe> gemCuttingRecipes;
         public override void StartPre(ICoreAPI api)
         {
@@ -104,15 +105,7 @@ namespace canjewelry.src
             capi = api;
             loadConfig(capi);
             AddCustomIcons();
-            harmonyInstance = new Harmony(harmonyID + "_client");
-
-            harmonyInstance.Patch(typeof(Vintagestory.API.Client.GuiElementItemSlotGridBase).GetMethod("ComposeSlotOverlays", BindingFlags.NonPublic | BindingFlags.Instance), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_ComposeSlotOverlays_Add_Socket_Overlays_Not_Draw_ItemDamage")));
-
-            harmonyInstance.Patch(typeof(Vintagestory.API.Common.CollectibleObject).GetMethod("GetHeldItemInfo"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_GetHeldItemInfo")));
-
-            harmonyInstance.Patch(typeof(CharacterSystem).GetMethod("StartClientSide"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_CharacterSystem_StartClientSide")));
-
-            harmonyInstance.Patch(typeof(ItemChisel).GetMethod("OnHeldAttackStart"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_ItemChisel_OnHeldAttackStart")));
+            ClientPatcher.ApplyPatches(capi, harmonyID, ref harmonyInstance);
 
             clientChannel = api.Network.RegisterChannel("canjewelry");
             clientChannel.RegisterMessageType(typeof(SyncCANJewelryPacket));
@@ -187,20 +180,13 @@ namespace canjewelry.src
         public override void StartServerSide(ICoreServerAPI api)
         {
             base.StartServerSide(api);
-            
-            harmonyInstance = new Harmony(harmonyID + "_server");
+
+            ServerPatcher.ApplyPatches(api, harmonyID, ref harmonyInstance);
             sapi = api;
             loadConfig(sapi);
             config.InitColors();
             api.RegisterEntityBehaviorClass("cangembuffaffected", typeof(CANGemBuffAffected));
-            if (!canjewelry.config.TurnOffBuffs)
-            {
-                harmonyInstance.Patch(typeof(Vintagestory.Server.CoreServerEventManager).GetMethod("TriggerAfterActiveSlotChanged"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_TriggerAfterActiveSlotChanged")));
-            }
-            harmonyInstance.Patch(typeof(Vintagestory.API.Common.CollectibleObject).GetMethod("DamageItem"), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_CollectibleObject_DamageItem")));
-
-            harmonyInstance.Patch(typeof(ServerWorldPlayerData).GetMethod("ToPacketForOtherPlayers"), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_ServerWorldPlayerData_ToPacketForOtherPlayers")));
-
+            
             serverChannel = sapi.Network.RegisterChannel("canjewelry");
             serverChannel.RegisterMessageType(typeof(SyncCANJewelryPacket));
             api.Event.ServerRunPhase(EnumServerRunPhase.RunGame, () => AddBehaviorAndSocketNumber());

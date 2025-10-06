@@ -32,7 +32,7 @@ using Vintagestory.Common;
 using Vintagestory.GameContent;
 using Vintagestory.Server;
 
-namespace canjewelry.src
+namespace canjewelry.src.harmony
 {
     [HarmonyPatch]
     public class harmPatch
@@ -81,25 +81,25 @@ namespace canjewelry.src
                     ep.Stats.Set(attributeBuffName, "canencrusted", ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value + additionalValue, true);
                     if (additionalValue > 0)
                     {
-                        ep.Stats.Set(attributeBuffName, "canencrustedneg", (ep.Stats[attributeBuffName].ValuesByKey["canencrustedneg"].Value) - additionalValue, true);
+                        ep.Stats.Set(attributeBuffName, "canencrustedneg", ep.Stats[attributeBuffName].ValuesByKey["canencrustedneg"].Value - additionalValue, true);
                     }
                     else
                     {
-                        ep.Stats.Set(attributeBuffName, "canencrustedneg", (ep.Stats[attributeBuffName].ValuesByKey["canencrustedneg"].Value) + additionalValue, true);
+                        ep.Stats.Set(attributeBuffName, "canencrustedneg", ep.Stats[attributeBuffName].ValuesByKey["canencrustedneg"].Value + additionalValue, true);
                     }
                     //ep.Stats.Set(attributeBuffName, "canencrustedneg", ep.Stats[attributeBuffName].ValuesByKey["canencrustedneg"].Value + additionalValue, true);
                 }
                 //no neg part, add additional and add neg difference
-                else if (buffThreshold != 0 && additionalValue > 0 ?  Math.Abs(ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value + additionalValue) > buffThreshold : (ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value + additionalValue) < buffThreshold)
+                else if (buffThreshold != 0 && additionalValue > 0 ?  Math.Abs(ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value + additionalValue) > buffThreshold : ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value + additionalValue < buffThreshold)
                 {
                     ep.Stats.Set(attributeBuffName, "canencrusted", ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value + additionalValue, true);
                     if (additionalValue > 0)
                     {
-                        ep.Stats.Set(attributeBuffName, "canencrustedneg", -((ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value) - buffThreshold), true);
+                        ep.Stats.Set(attributeBuffName, "canencrustedneg", -(ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value - buffThreshold), true);
                     }
                     else
                     {
-                        ep.Stats.Set(attributeBuffName, "canencrustedneg", -(((ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value) - buffThreshold)), true);
+                        ep.Stats.Set(attributeBuffName, "canencrustedneg", -(ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value - buffThreshold), true);
                     }
                 }
                 //no neg part and under threshold
@@ -142,7 +142,7 @@ namespace canjewelry.src
          Catch active slot changed, also it catches moment when active change and we also flip slots. At that moment try_flip patch called as well
         
          */
-        public static void Postfix_TriggerAfterActiveSlotChanged(Vintagestory.Server.CoreServerEventManager __instance, IServerPlayer player,
+        public static void Postfix_TriggerAfterActiveSlotChanged(CoreServerEventManager __instance, IServerPlayer player,
             int fromSlot,
             int toSlot)
         {
@@ -292,7 +292,7 @@ namespace canjewelry.src
             }
         }
 
-        public static void Postfix_GetHeldItemInfo(Vintagestory.API.Common.CollectibleObject __instance, ItemSlot inSlot,
+        public static void Postfix_GetHeldItemInfo(CollectibleObject __instance, ItemSlot inSlot,
         StringBuilder dsc,
         IWorldAccessor world,
         bool withDebugInfo)
@@ -387,13 +387,13 @@ namespace canjewelry.src
                 float valueOrDefault = tree.TryGetFloat(CANJWConstants.CANDURABILITY_STRING).GetValueOrDefault();
                 if (valueOrDefault > 0f && __result > 1)
                 {
-                    __result = (int)((float)__result * (1f + valueOrDefault));
+                    __result = (int)(__result * (1f + valueOrDefault));
                 }
             }
         }
         public static void TryDropGems(Entity byEntity, ItemSlot itemslot)
         {
-            if (byEntity == null || (byEntity.Api != null && byEntity.Api.Side != EnumAppSide.Client))
+            if (byEntity == null || byEntity.Api != null && byEntity.Api.Side != EnumAppSide.Client)
             {
                 return;
             }
@@ -570,7 +570,7 @@ namespace canjewelry.src
                     .BeginClip(clipBounds)
                         .AddContainer(containerBounds, "scroll-content")
                     .EndClip()
-                    .AddVerticalScrollbar((float value)  =>
+                    .AddVerticalScrollbar((value)  =>
                     {
                         ElementBounds bounds = compo.GetContainer("scroll-content").Bounds;
                         bounds.fixedY = 5 - value;
@@ -623,7 +623,7 @@ namespace canjewelry.src
                 if (!found &&
                         codes[i].opcode == OpCodes.Ldloc_S && codes[i + 1].opcode == OpCodes.Callvirt && codes[i + 2].opcode == OpCodes.Ldstr && codes[i - 1].opcode == OpCodes.Brtrue_S)
                 {
-                    if((codes[i + 2].operand as string) == "backpack")
+                    if(codes[i + 2].operand as string == "backpack")
                     {
                         yield return new CodeInstruction(OpCodes.Ldloc_S, codes[i].operand);
                         yield return new CodeInstruction(OpCodes.Callvirt, codes[i + 1].operand);
