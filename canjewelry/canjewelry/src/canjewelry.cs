@@ -38,7 +38,7 @@ namespace canjewelry.src
         internal static IServerNetworkChannel serverChannel;
         internal static IClientNetworkChannel clientChannel;
         public static Config config;
-        public static Dictionary<string, string> gems_textures;
+        public static Dictionary<string, string> gems_textures = new();
         public static Dictionary<string, string> gems_textures_pngs;
         public static List<GemCuttingRecipe> gemCuttingRecipes;
         public override void StartPre(ICoreAPI api)
@@ -180,10 +180,11 @@ namespace canjewelry.src
         public override void StartServerSide(ICoreServerAPI api)
         {
             base.StartServerSide(api);
-
-            ServerPatcher.ApplyPatches(api, harmonyID, ref harmonyInstance);
             sapi = api;
             loadConfig(sapi);
+            ServerPatcher.ApplyPatches(api, harmonyID, ref harmonyInstance);
+           
+            
             config.InitColors();
             api.RegisterEntityBehaviorClass("cangembuffaffected", typeof(CANGemBuffAffected));
             
