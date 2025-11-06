@@ -108,7 +108,8 @@ namespace canjewelry.src.eb
         }
         public override void OnTesselation(ref Shape entityShape, string shapePathForLogging, ref bool shapeIsCloned, ref string[] willDeleteElements)
         {
-            IPlayer player = this.Player;
+            //return;
+            /*IPlayer player = this.Player;
             IInventory backPackInv = ((player != null) ? player.InventoryManager.GetOwnInventory("backpack") : null);
             Dictionary<string, ItemSlot> uniqueGear = new Dictionary<string, ItemSlot>();
             int i = 0;
@@ -144,7 +145,7 @@ namespace canjewelry.src.eb
             foreach (KeyValuePair<string, ItemSlot> val in uniqueGear)
             {
                 entityShape = this.addGearToShape(entityShape, val.Value, "default", shapePathForLogging, ref shapeIsCloned, ref willDeleteElements, null);
-            }
+            }*/
             
             base.OnTesselation(ref entityShape, shapePathForLogging, ref shapeIsCloned, ref willDeleteElements);
         }

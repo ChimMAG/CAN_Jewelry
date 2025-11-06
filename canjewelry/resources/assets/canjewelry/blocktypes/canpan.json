@@ -1190,11 +1190,17 @@
     "shape": { "base": "block/empty" },
     "doNotRenderAtLod2": true,
     "blockmaterial": "Wood",
-    "materialDensity": 450,
+    "materialDensity": 4500,
     "durabilityByType": {
         "*-steel": 200,
         "*-iron": 50,
-        "*-copper": 10
+        "*-meteoriciron": 50,
+        "*-copper": 10,
+        "*-tinbronze": 25,
+        "*-bismuthbronze": 25,
+        "*-blackbronze": 25,
+        "*-gold": 15,
+        "*-silver": 15
     },
     "randomizeRotations": true,
     "sideopaque": { "all": false },

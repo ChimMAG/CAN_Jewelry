@@ -142,7 +142,8 @@ namespace canjewelry.src.blocks
             {
                 return;
             }
-            string key = "canjewelry:pan-filled-" + blockMaterialCode + target.ToString();
+            string variant = this.Variant["metal"];
+            string key = "canjewelry:pan-filled-" + blockMaterialCode + target.ToString() + variant;
             renderinfo.ModelRef = ObjectCacheUtil.GetOrCreate<MultiTextureMeshRef>(capi, key, delegate
             {
                 AssetLocation shapeloc = new AssetLocation("canjewelry:shapes/block/filled.json");
@@ -297,6 +298,7 @@ namespace canjewelry.src.blocks
                     this.CreateDrop(byEntity, code);
                 }
                 this.RemoveMaterial(slot);
+
                 slot.Itemstack.Collectible.DamageItem(this.api.World, byEntity, slot);
                 slot.MarkDirty();
                 EntityBehaviorHunger behavior = byEntity.GetBehavior<EntityBehaviorHunger>();
