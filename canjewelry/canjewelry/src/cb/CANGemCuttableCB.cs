@@ -1,5 +1,6 @@
 ﻿using canjewelry.src.be;
 using canjewelry.src.items;
+using canjewelry.src.items.resource;
 using canjewelry.src.jewelry;
 using System;
 using System.Collections.Generic;

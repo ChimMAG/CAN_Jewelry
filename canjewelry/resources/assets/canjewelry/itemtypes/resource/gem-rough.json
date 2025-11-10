@@ -41,11 +41,11 @@
   ],
   "storageFlags": 5,
   "shape": { "base": "canjewelry:item/gem/{refinestate}/{quality}/gem" },
-  "texturesByType": {
-    "*": {
-      "gem": { "base": "canjewelry:item/gem/{gemtype}" }
-    }
-  },
+    "texturesByType": {
+        "*": {
+            "gem": { "base": "canjewelry:item/gem/{gemtype}" }
+        }
+    },
   "creativeinventory": {
     "general": [ "*" ],
     "items": [ "*" ],

@@ -1,6 +1,6 @@
 ﻿using Cairo;
 using canjewelry.src.be;
-using canjewelry.src.items;
+using canjewelry.src.items.resource;
 using canjewelry.src.jewelry;
 using Newtonsoft.Json.Linq;
 using System;

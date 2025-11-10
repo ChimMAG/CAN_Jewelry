@@ -1,0 +1,120 @@
+﻿[
+  {
+    "ingredientPattern": "D",
+    "ingredients": {
+      "D": {
+        "type": "item",
+        "code": "game:gem-*-rough",
+        "attributes": { "potential": "low" },
+        "name": "gem_type",
+        "allowedVariants": [
+            "berylaquamarine",
+            "berylbixbite",
+            "corundumruby",
+            "corundumsapphire",
+            "garnetalmandine",
+            "garnetandradite",
+            "garnetgrossular",
+            "garnetpyrope",
+            "garnetspessartine",
+            "garnetuvarovite",
+            "spinelred",
+            "topazamber",
+            "topazblue",
+            "topazpink",
+            "tourmalinerubellite",
+            "tourmalineschorl",
+            "tourmalineverdelite",
+            "tourmalinewatermelon"
+        ]
+      }
+    },
+    "name": "canlowtochippedrough",
+    "width": 1,
+    "height": 1,
+    "output": {
+      "type": "item",
+      "code": "canjewelry:gem-rough-chipped-{gem_type}",
+      "quantity": 1
+    }
+  },
+  {
+    "ingredientPattern": "D",
+    "ingredients": {
+      "D": {
+        "type": "item",
+        "code": "game:gem-*-rough",
+        "attributes": { "potential": "medium" },
+        "name": "gem_type",
+        "allowedVariants": [
+            "berylaquamarine",
+            "berylbixbite",
+            "corundumruby",
+            "corundumsapphire",
+            "garnetalmandine",
+            "garnetandradite",
+            "garnetgrossular",
+            "garnetpyrope",
+            "garnetspessartine",
+            "garnetuvarovite",
+            "spinelred",
+            "topazamber",
+            "topazblue",
+            "topazpink",
+            "tourmalinerubellite",
+            "tourmalineschorl",
+            "tourmalineverdelite",
+            "tourmalinewatermelon"
+        ]
+      }
+    },
+    "name": "canmediumtoflawedrough",
+    "width": 1,
+    "height": 1,
+    "output": {
+      "type": "item",
+      "code": "canjewelry:gem-rough-flawed-{gem_type}",
+      "quantity": 1
+    }
+  },
+  {
+    "ingredientPattern": "D",
+    "ingredients": {
+      "D": {
+        "type": "item",
+        "code": "game:gem-*-rough",
+        "attributes": { "potential": "high" },
+        "name": "gem_type",
+        "allowedVariants": [
+            "berylaquamarine",
+            "berylbixbite",
+            "corundumruby",
+            "corundumsapphire",
+            "garnetalmandine",
+            "garnetandradite",
+            "garnetgrossular",
+            "garnetpyrope",
+            "garnetspessartine",
+            "garnetuvarovite",
+            "spinelred",
+            "topazamber",
+            "topazblue",
+            "topazpink",
+            "tourmalinerubellite",
+            "tourmalineschorl",
+            "tourmalineverdelite",
+            "tourmalinewatermelon"
+        ]
+      }
+    },
+    "name": "canhightonormalrough",
+    "width": 1,
+    "height": 1,
+    "output": {
+      "type": "item",
+      "code": "canjewelry:gem-rough-normal-{gem_type}",
+      "quantity": 1
+    }
+
+  }
+]

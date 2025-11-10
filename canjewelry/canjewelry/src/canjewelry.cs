@@ -26,6 +26,7 @@ using canjewelry.src.inventories;
 using Cairo;
 using Vintagestory.API.MathTools;
 using canjewelry.src.harmony;
+using canjewelry.src.items.resource;
 
 namespace canjewelry.src
 {
@@ -95,9 +96,10 @@ namespace canjewelry.src
             api.RegisterBlockClass("CANBlockPan", typeof(CANBlockPan));
             api.RegisterBlockClass("BlockGemCuttingTable", typeof(BlockGemCuttingTable));
             api.RegisterEntityBehaviorClass("playeradditionaljewelryinventory", typeof(EntityBehaviorAdditionalJewelryPlayerInventory));
-           
-                     
-            
+
+            api.RegisterBlockClass("CANBlockPSContainer", typeof(CANBasePSContainer));
+            api.RegisterBlockEntityClass("CANBENecklaceStand", typeof(CANBENecklaceStand));
+
         }
         public override void StartClientSide(ICoreClientAPI api)
         {

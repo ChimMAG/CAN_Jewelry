@@ -53,6 +53,78 @@
     "item-gem-rough-flawed-topaz": "Medium rough topaz",
     "item-gem-rough-normal-topaz": "Great rough topaz",
 
+    "item-gem-rough-chipped-berylaquamarine": "Small rough aquamarine",
+    "item-gem-rough-flawed-berylaquamarine": "Medium rough aquamarine",
+    "item-gem-rough-normal-berylaquamarine": "Great rough aquamarine",
+
+    "item-gem-rough-chipped-berylbixbite": "Small rough bixbite",
+    "item-gem-rough-flawed-berylbixbite": "Medium rough bixbite",
+    "item-gem-rough-normal-berylbixbite": "Great rough bixbite",
+
+    "item-gem-rough-chipped-corundumruby": "Small rough ruby",
+    "item-gem-rough-flawed-corundumruby": "Medium rough ruby",
+    "item-gem-rough-normal-corundumruby": "Great rough ruby",
+
+    "item-gem-rough-chipped-corundumsapphire": "Small rough sapphire",
+    "item-gem-rough-flawed-corundumsapphire": "Medium rough sapphire",
+    "item-gem-rough-normal-corundumsapphire": "Great rough sapphire",
+
+    "item-gem-rough-chipped-garnetalmandine": "Small rough almandine",
+    "item-gem-rough-flawed-garnetalmandine": "Medium rough almandine",
+    "item-gem-rough-normal-garnetalmandine": "Great rough almandine",
+
+    "item-gem-rough-chipped-garnetandradite": "Small rough andradite",
+    "item-gem-rough-flawed-garnetandradite": "Medium rough andradite",
+    "item-gem-rough-normal-garnetandradite": "Great rough andradite",
+
+    "item-gem-rough-chipped-garnetgrossular": "Small rough grossular",
+    "item-gem-rough-flawed-garnetgrossular": "Medium rough grossular",
+    "item-gem-rough-normal-garnetgrossular": "Great rough grossular",
+
+    "item-gem-rough-chipped-garnetpyrope": "Small rough pyrope",
+    "item-gem-rough-flawed-garnetpyrope": "Medium rough pyrope",
+    "item-gem-rough-normal-garnetpyrope": "Great rough pyrope",
+
+    "item-gem-rough-chipped-garnetspessartine": "Small rough spessartine",
+    "item-gem-rough-flawed-garnetspessartine": "Medium rough spessartine",
+    "item-gem-rough-normal-garnetspessartine": "Great rough spessartine",
+
+    "item-gem-rough-chipped-garnetuvarovite": "Small rough uvarovite",
+    "item-gem-rough-flawed-garnetuvarovite": "Medium rough uvarovite",
+    "item-gem-rough-normal-garnetuvarovite": "Great rough uvarovite",
+
+    "item-gem-rough-chipped-spinelred": "Small rough red spinel",
+    "item-gem-rough-flawed-spinelred": "Medium rough red spinel",
+    "item-gem-rough-normal-spinelred": "Great rough red spinel",
+
+    "item-gem-rough-chipped-topazamber": "Small rough amber topaz",
+    "item-gem-rough-flawed-topazamber": "Medium rough amber topaz",
+    "item-gem-rough-normal-topazamber": "Great rough amber topaz",
+
+    "item-gem-rough-chipped-topazblue": "Small rough blue topaz",
+    "item-gem-rough-flawed-topazblue": "Medium rough blue topaz",
+    "item-gem-rough-normal-topazblue": "Great rough blue topaz",
+
+    "item-gem-rough-chipped-topazpink": "Small rough pink topaz",
+    "item-gem-rough-flawed-topazpink": "Medium rough pink topaz",
+    "item-gem-rough-normal-topazpink": "Great rough pink topaz",
+
+    "item-gem-rough-chipped-tourmalinerubellite": "Small rough rubellite",
+    "item-gem-rough-flawed-tourmalinerubellite": "Medium rough rubellite",
+    "item-gem-rough-normal-tourmalinerubellite": "Great rough rubellite",
+
+    "item-gem-rough-chipped-tourmalineschorl": "Small rough schorl",
+    "item-gem-rough-flawed-tourmalineschorl": "Medium rough schorl",
+    "item-gem-rough-normal-tourmalineschorl": "Great rough schorl",
+
+    "item-gem-rough-chipped-tourmalineverdelite": "Small rough verdelite",
+    "item-gem-rough-flawed-tourmalineverdelite": "Medium rough verdelite",
+    "item-gem-rough-normal-tourmalineverdelite": "Great rough verdelite",
+
+    "item-gem-rough-chipped-tourmalinewatermelon": "Small rough watermelon tourmaline",
+    "item-gem-rough-flawed-tourmalinewatermelon": "Medium rough watermelon tourmaline",
+    "item-gem-rough-normal-tourmalinewatermelon": "Great rough watermelon tourmaline",
+
     //Cut gems
 
     "item-gem-cut-exquisite-diamond": "Great cut diamond",

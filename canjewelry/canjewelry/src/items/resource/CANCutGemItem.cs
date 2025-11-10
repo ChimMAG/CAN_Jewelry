@@ -12,7 +12,7 @@ using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
-namespace canjewelry.src.jewelry
+namespace canjewelry.src.items.resource
 {
     public class CANCutGemItem: Item, IContainedMeshSource, ITexPositionSource
     {
@@ -22,25 +22,25 @@ namespace canjewelry.src.jewelry
         {
             get
             {
-                return this.getOrCreateTexPos(this.tmpTextures[textureCode]);
+                return getOrCreateTexPos(tmpTextures[textureCode]);
             }
         }
         protected TextureAtlasPosition getOrCreateTexPos(AssetLocation texturePath)
         {
-            TextureAtlasPosition texpos = this.targetAtlas[texturePath];
+            TextureAtlasPosition texpos = targetAtlas[texturePath];
             if (texpos == null)
             {
-                IAsset texAsset = this.api.Assets.TryGet(texturePath.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"), true);
+                IAsset texAsset = api.Assets.TryGet(texturePath.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"), true);
                 if (texAsset != null)
                 {
                     int num;
-                    this.targetAtlas.GetOrInsertTexture(texturePath, out num, out texpos, () => texAsset.ToBitmap(this.api as ICoreClientAPI), 0f);
+                    targetAtlas.GetOrInsertTexture(texturePath, out num, out texpos, () => texAsset.ToBitmap(api as ICoreClientAPI), 0f);
                 }
                 else
                 {
-                    this.api.World.Logger.Warning("For render in cut gem {0}, require texture {1}, but no such texture found.", new object[]
+                    api.World.Logger.Warning("For render in cut gem {0}, require texture {1}, but no such texture found.", new object[]
                     {
-                        this.Code,
+                        Code,
                         texturePath
                     });
                 }
@@ -51,20 +51,20 @@ namespace canjewelry.src.jewelry
         {
             get
             {
-                return this.targetAtlas.Size;
+                return targetAtlas.Size;
             }
         }
         private Dictionary<int, MultiTextureMeshRef> meshrefs
         {
             get
             {
-                return ObjectCacheUtil.GetOrCreate<Dictionary<int, MultiTextureMeshRef>>(this.api, "canlongswordsrefs", () => new Dictionary<int, MultiTextureMeshRef>());
+                return ObjectCacheUtil.GetOrCreate(api, "canlongswordsrefs", () => new Dictionary<int, MultiTextureMeshRef>());
             }
         }
         public MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos = null)
         {
             this.targetAtlas = targetAtlas;
-            this.tmpTextures.Clear();
+            tmpTextures.Clear();
 
             string cuttingType = "round";
             if (itemstack.Attributes.HasAttribute(CANJWConstants.CUT_GEM_TREE))
@@ -75,11 +75,11 @@ namespace canjewelry.src.jewelry
             
             Shape shapeCutGem = null;
 
-            shapeCutGem = (this.api as ICoreClientAPI).Assets.TryGet("canjewelry:shapes/item/gem/cut/" + this.Variant["quality"]+  "/gem_" + cuttingType  + ".json").ToObject<Shape>();
+            shapeCutGem = (api as ICoreClientAPI).Assets.TryGet("canjewelry:shapes/item/gem/cut/" + Variant["quality"]+  "/gem_" + cuttingType  + ".json").ToObject<Shape>();
             MeshData meshCutGem;
 
 
-            string gemBase = this.Variant["gemtype"];
+            string gemBase = Variant["gemtype"];
             if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
             {
                 canjewelry.gems_textures.TryGetValue("diamond", out assetPath);
@@ -101,11 +101,11 @@ namespace canjewelry.src.jewelry
                  renderinfo.Transform.Translation.Z = this.curOffY * 1.2f;*/
             }
             int meshrefid = itemstack.TempAttributes.GetInt("meshRefId", 0);
-            if (meshrefid == 0 || !this.meshrefs.TryGetValue(meshrefid, out renderinfo.ModelRef))
+            if (meshrefid == 0 || !meshrefs.TryGetValue(meshrefid, out renderinfo.ModelRef))
             {
-                int id = this.meshrefs.Count + 1;
-                MultiTextureMeshRef modelref = capi.Render.UploadMultiTextureMesh(this.GenMesh(itemstack, capi.ItemTextureAtlas));
-                renderinfo.ModelRef = (this.meshrefs[id] = modelref);
+                int id = meshrefs.Count + 1;
+                MultiTextureMeshRef modelref = capi.Render.UploadMultiTextureMesh(GenMesh(itemstack, capi.ItemTextureAtlas));
+                renderinfo.ModelRef = meshrefs[id] = modelref;
                 itemstack.TempAttributes.SetInt("meshRefId", id);
             }
             base.OnBeforeRender(capi, itemstack, target, ref renderinfo);
@@ -192,7 +192,7 @@ namespace canjewelry.src.jewelry
 
             return string.Concat(new string[]
             {
-                this.Code.ToShortString(),
+                Code.ToShortString(),
                 "-",
                 cuttingType
             });

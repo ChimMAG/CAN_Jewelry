@@ -474,17 +474,18 @@ namespace canjewelry.src.harmony
 
         public static void Postfix_CharacterSystem_StartClientSide(CharacterSystem __instance, ICoreClientAPI api, GuiDialogCharacterBase ___charDlg)
         {
+            int lastIndex = ___charDlg.Tabs.Count;
             ___charDlg.Tabs.Add(new GuiTab()
             {
                 Name = Lang.Get("canjewelry:stats-tab-name"),
-                DataInt = 2
+                DataInt = ___charDlg.Tabs.Count
             });
             ___charDlg.RenderTabHandlers.Add(new Action<GuiComposer>(composeStatsTab));
 
             ___charDlg.Tabs.Add(new GuiTab()
             {
                 Name = Lang.Get("canjewelry:additionaljewelry-tab-name"),
-                DataInt = 3
+                DataInt = ___charDlg.Tabs.Count
             });
             ___charDlg.RenderTabHandlers.Add(new Action<GuiComposer>(composeAdditionalJewelryTab));
         }

@@ -1,14 +1,13 @@
-﻿using canjewelry.src.be;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using canjewelry.src.be;
+using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
-using Vintagestory.Client.NoObf;
 using Vintagestory.GameContent;
 
 namespace canjewelry.src.blocks

@@ -13,7 +13,7 @@ using Vintagestory.API.Datastructures;
 using Vintagestory.GameContent;
 using static canjewelry.src.Config;
 
-namespace canjewelry.src.items
+namespace canjewelry.src.items.resource
 {
     public class CANRoughGemItem: Item
     {
@@ -112,7 +112,7 @@ namespace canjewelry.src.items
             return (from r in canjewelry.gemCuttingRecipes
                     where r.Ingredient.SatisfiesAsIngredient(stack, true)
                     orderby r.Output.ResolvedItemstack.Collectible.Code
-                    select r).ToList<GemCuttingRecipe>();
+                    select r).ToList();
         }
 
         public int GetRequiredGemCuttingTableTier(ItemStack stack)
@@ -230,11 +230,11 @@ namespace canjewelry.src.items
         }
         public ItemStack TryPlaceOn(ItemStack stack, BlockEntityGemCuttingTable beGemCuttingTable)
         {
-            if (!this.CanWork(stack))
+            if (!CanWork(stack))
             {
                 return null;
             }
-            Item item = this.api.World.GetItem(new AssetLocation("canjewelry:gemcuttingworkitem"));  //this.Variant["metal"]
+            Item item = api.World.GetItem(new AssetLocation("canjewelry:gemcuttingworkitem"));  //this.Variant["metal"]
             // + this.Variant["gemtype"]
             
             if (item == null)
@@ -243,13 +243,13 @@ namespace canjewelry.src.items
             }
             ItemStack workItemStack = new ItemStack(item, 1);
             ITreeAttribute gemItemAttribute = new TreeAttribute();
-            gemItemAttribute.SetString(CANJWConstants.GEM_TYPE_IN_SOCKET, this.Variant[CANJWConstants.GEM_TYPE_IN_SOCKET]);
-            gemItemAttribute.SetString(CANJWConstants.ENCRUSTED_GEM_SIZE, this.Variant["quality"]);
+            gemItemAttribute.SetString(CANJWConstants.GEM_TYPE_IN_SOCKET, Variant[CANJWConstants.GEM_TYPE_IN_SOCKET]);
+            gemItemAttribute.SetString(CANJWConstants.ENCRUSTED_GEM_SIZE, Variant["quality"]);
             workItemStack.Attributes = gemItemAttribute;
             //workItemStack.Collectible.SetTemperature(this.api.World, workItemStack, stack.Collectible.GetTemperature(this.api.World, stack), true);
             if (beGemCuttingTable.WorkItemStack == null)
             {
-                CANRoughGemItem.CreateVoxelsFromRoughGem(this.api, ref beGemCuttingTable.Voxels, false);
+                CreateVoxelsFromRoughGem(api, ref beGemCuttingTable.Voxels, false);
             }
             else
             {
