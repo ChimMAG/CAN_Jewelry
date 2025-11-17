@@ -1,24 +1,15 @@
-﻿using Cairo;
+﻿using System;
+using System.Collections.Generic;
 using canjewelry.src.be;
 using canjewelry.src.items.resource;
-using canjewelry.src.jewelry;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
-using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.Client.NoObf;
-using Vintagestory.Common;
-using Vintagestory.GameContent;
 
 namespace canjewelry.src.blocks
 {

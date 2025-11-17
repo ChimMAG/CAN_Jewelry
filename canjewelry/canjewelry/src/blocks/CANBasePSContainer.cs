@@ -15,7 +15,7 @@ namespace canjewelry.src.blocks
 {
     public class CANBasePSContainer : BlockContainer, IContainedMeshSource
     {
-        public const string PSAttributes = "PSAttributes";
+        public const string PSAttributes = "CANAttributes";
         public string WorldInteractionAttributeCheck = null;
         private string heldDescEntry;
 

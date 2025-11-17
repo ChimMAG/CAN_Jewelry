@@ -344,10 +344,5 @@ namespace canjewelry.src.blocks
                 });
             }
         }
-        public override void OnCreatedByCrafting(ItemSlot[] allInputslots, ItemSlot outputSlot, GridRecipe byRecipe)
-        {
-            base.OnCreatedByCrafting(allInputslots, outputSlot, byRecipe);
-        }
-
     }
 }

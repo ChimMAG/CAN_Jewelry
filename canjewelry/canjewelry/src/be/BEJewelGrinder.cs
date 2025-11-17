@@ -114,13 +114,6 @@ namespace canjewelry.src.jewelry
                 {
                     return this.getOrCreateTexPos(this.tmpTextures[textureCode]);
                 }
-                //var a = this.inventory[0].Itemstack.Item.Textures.TryGetValue(textureCode, out compositeTexture);
-                //var f = (this.Api as ICoreClientAPI).BlockTextureAtlas[compositeTexture.Base];
-                //var c = this.blockTexSource[textureCode];
-                //if(this.inventory[0].Itemstack != null && this.inventory[0].Itemstack.Item != null)
-                //textureCode = "metal";
-
-
                 return textureCode == "steel" && this.inventory[0].Itemstack != null && this.inventory[0].Itemstack.Item != null && this.inventory[0].Itemstack.Item.Textures.TryGetValue("metal", out compositeTexture)
                     ? (this.Api as ICoreClientAPI).ItemTextureAtlas[compositeTexture.Base]
                     : this.blockTexSource[textureCode];

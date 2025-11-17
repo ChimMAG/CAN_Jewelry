@@ -1,11 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -19,7 +15,6 @@ namespace canjewelry.src.items
 {
     public class CANItemRottenKingMask : CANItemWearable, IWearableShapeSupplier, IAttachableToEntity
     {
-        private Shape nowTesselatingShape;
         private ITextureAtlasAPI curAtlas;
         private ICoreClientAPI capi;
         private float offY;
@@ -144,10 +139,6 @@ namespace canjewelry.src.items
                 return null;
             }
             return gearShape;
-        }
-        public bool IsAttachable(ItemStack itemStack)
-        {
-            return true;
         }
 
         public void CollectTextures(ItemStack stack, Shape shape, string texturePrefixCode, Dictionary<string, CompositeTexture> intoDict)
@@ -317,13 +308,16 @@ namespace canjewelry.src.items
             meshData.RenderPassesAndExtraBits.Fill((short)1);
             return meshData;
         }
-        private MeshData genMesh(ICoreClientAPI capi, ItemStack itemstack, ITexPositionSource texSource)
+        public override MeshData genMesh(ICoreClientAPI capi, ItemStack itemstack, ITexPositionSource texSource)
         {
             string carcassus = itemstack.Attributes.GetString("metal", null);
+            this.tmpTextures.Clear();
             tmpTextures["silver1"] = new AssetLocation("block/metal/sheet/" + carcassus + "1.png");
             tmpTextures["rotten-king-mask"] = new AssetLocation("canjewelry:item/rottenking.png");
             tmpTextures["rotten-king-cloth"] = new AssetLocation("canjewelry:item/rottenkingcloth.png");
-
+            //this.tmpTextures.Clear();
+            //this.FillTextureDict(tmpTextures, itemstack);
+            return base.genMesh(capi, itemstack, texSource);
             ContainedTextureSource cnts = new ContainedTextureSource(this.api as ICoreClientAPI, curAtlas, new Dictionary<string, AssetLocation>(), string.Format("For render in shield {0}", this.Code));
             cnts.Textures.Clear();
 

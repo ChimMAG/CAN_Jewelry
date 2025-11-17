@@ -1,11 +1,9 @@
-﻿using canjewelry.src.be;
-using canjewelry.src.jewelry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
+using canjewelry.src.be;
+using canjewelry.src.jewelry;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;

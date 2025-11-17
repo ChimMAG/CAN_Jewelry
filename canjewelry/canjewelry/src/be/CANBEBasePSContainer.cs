@@ -22,7 +22,7 @@ namespace canjewelry.src.be
         public override string AttributeTransformCode => "on" + Block?.Code.FirstCodePart() + "Transform";
 
         public ITreeAttribute VariantAttributes { get; set; } = new TreeAttribute();
-        public virtual string[] AttributeCheck => ["ps" + GetType().Name.Replace("BE", "")];
+        public virtual string[] AttributeCheck => ["can" + GetType().Name.Replace("BE", "")];
 
         protected virtual string CantPlaceMessage => "";
         protected virtual InfoDisplayOptions InfoDisplay { get; set; } = InfoDisplayOptions.BySegment;

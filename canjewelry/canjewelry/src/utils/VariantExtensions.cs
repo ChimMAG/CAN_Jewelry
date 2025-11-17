@@ -32,7 +32,7 @@ namespace canjewelry.src.utils
                 }
             }
 
-            var stexSource = new ShapeTextureSource(capi, shape, "PS-TextureSource");
+            var stexSource = new ShapeTextureSource(capi, shape, "CAN-TextureSource");
 
             // Custom Textures
             if (stackWithAttributes.Attributes[CANBasePSContainer.PSAttributes] is ITreeAttribute tree && block.Attributes["variantTextures"].Exists)

@@ -2,25 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using HarmonyLib;
+using canjewelry.src.CB;
 using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
-using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
+using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
-using Vintagestory.API.Datastructures;
-using canjewelry.src.CB;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace canjewelry.src.items
 {
     public class CANItemEarrings : CANItemWearable, IWearableShapeSupplier, IAttachableToEntity
     {
-        private Shape nowTesselatingShape;
         private ITextureAtlasAPI curAtlas;
         private ICoreClientAPI capi;
         private float offY;
@@ -149,10 +145,6 @@ namespace canjewelry.src.items
                 return null;
             }
             return gearShape;
-        }
-        public bool IsAttachable(ItemStack itemStack)
-        {
-            return true;
         }
         public void CollectTextures(ItemStack stack, Shape shape, string texturePrefixCode, Dictionary<string, CompositeTexture> intoDict)
         {

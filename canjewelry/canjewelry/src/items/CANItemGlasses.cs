@@ -1,11 +1,8 @@
-﻿using canjewelry.src.CB;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -19,7 +16,6 @@ namespace canjewelry.src.items
 {
     public class CANItemGlasses: CANItemWearable, IWearableShapeSupplier, IAttachableToEntity
     {
-        private Shape nowTesselatingShape;
         private ITextureAtlasAPI curAtlas;
         private ICoreClientAPI capi;
         private float offY;
@@ -151,10 +147,6 @@ namespace canjewelry.src.items
             }
             return gearShape;
         }
-        public bool IsAttachable(ItemStack itemStack)
-        {
-            return true;
-        }
 
         public void CollectTextures(ItemStack stack, Shape shape, string texturePrefixCode, Dictionary<string, CompositeTexture> intoDict)
         {
@@ -220,11 +212,14 @@ namespace canjewelry.src.items
         public override string GetMeshCacheKey(ItemStack itemstack)
         {
             string metal = itemstack.Attributes.GetString("metal", null);
+            string glass = itemstack.Attributes.GetString("glass", null);
             return string.Concat(new string[]
             {
                 this.Code.ToShortString(),
                 "-",
-                metal
+                metal,
+                "-",
+                glass
             });
         }
         public override TextureAtlasPosition this[string textureCode]
@@ -325,98 +320,16 @@ namespace canjewelry.src.items
             dict["canglasses_quartz"] = new AssetLocation("block/glass/" + itemStack.Attributes.GetString("glass", "plain") + ".png");
         }
 
-        private MeshData genMesh(ICoreClientAPI capi, ItemStack itemstack, ITexPositionSource texSource)
+        public override MeshData genMesh(ICoreClientAPI capi, ItemStack itemstack, ITexPositionSource texSource)
         {
-            JsonObject attributes = itemstack.Collectible.Attributes;
-            EntityProperties entityType = capi.World.GetEntityType(new AssetLocation("player"));
-            Shape loadedShape = entityType.Client.LoadedShape;
-            AssetLocation @base = entityType.Client.Shape.Base;
-            Shape shape = new Shape
-            {
-                Elements = loadedShape.CloneElements(),
-                Animations = loadedShape.Animations,
-                AnimationsByCrc32 = loadedShape.AnimationsByCrc32,
-                //AttachmentPointsByCode = loadedShape.AttachmentPointsByCode,
-                JointsById = loadedShape.JointsById,
-                TextureWidth = loadedShape.TextureWidth,
-                TextureHeight = loadedShape.TextureHeight,
-                Textures = null
-            };
-            CompositeShape compositeShape = (attributes["attachShape"].Exists ? attributes["attachShape"].AsObject<CompositeShape>(null, itemstack.Collectible.Code.Domain) : ((itemstack.Class == EnumItemClass.Item) ? itemstack.Item.Shape : itemstack.Block.Shape));
-
-            if (compositeShape == null)
-            {
-                capi.World.Logger.Warning("Entity armor {0} {1} does not define a shape through either the shape property or the attachShape Attribute. Armor pieces will be invisible.", itemstack.Class, itemstack.Collectible.Code);
-                return null;
-            }
-
-            AssetLocation assetLocation = compositeShape.Base.CopyWithPath("shapes/" + compositeShape.Base.Path + ".json");
-            Shape shape2 = Vintagestory.API.Common.Shape.TryGet(capi, assetLocation);
-            //shape2.Elements[0].From = new double[] { shape2.Elements[0].From[0] + 1, shape2.Elements[0].From[1] + 1, shape2.Elements[0].From[2] + 1 };
-            if (shape2 == null)
-            {
-                capi.World.Logger.Warning("Entity wearable shape {0} defined in {1} {2} not found or errored, was supposed to be at {3}. Armor piece will be invisible.", compositeShape.Base, itemstack.Class, itemstack.Collectible.Code, assetLocation);
-                return null;
-            }
             this.tmpTextures.Clear();
-
-            string qurtzType = itemstack.Attributes.GetString("glass", "plain");
-            string carcassus = itemstack.Attributes.GetString("metal", "gold");
-            tmpTextures["can_glasses_metal"] = new AssetLocation("block/metal/sheet/" + carcassus + "1.png");
-            tmpTextures["canglasses_quartz"] = new AssetLocation("block/glass/" + qurtzType + ".png");
-
-
-            shape.Textures = shape2.Textures;
-
-
-            if (shape2.Textures.Count > 0 && shape2.TextureSizes.Count < shape2.Textures.Count)
-            {
-                shape2.TextureSizes.Clear();
-                foreach (KeyValuePair<string, AssetLocation> texture in shape2.Textures)
-                {
-                    shape2.TextureSizes.Add(texture.Key, new int[2] { shape2.TextureWidth, shape2.TextureHeight });
-                }
-            }
-
-            foreach (KeyValuePair<string, int[]> textureSize in shape2.TextureSizes)
-            {
-                shape.TextureSizes[textureSize.Key] = textureSize.Value;
-            }
-
-            ShapeElement[] elements = shape2.Elements;
-            foreach (ShapeElement shapeElement in elements)
-            {
-                if (shapeElement.StepParentName != null)
-                {
-                    ShapeElement elementByName = shape.GetElementByName(shapeElement.StepParentName);
-                    if (elementByName == null)
-                    {
-                        capi.World.Logger.Warning("Entity wearable shape {0} defined in {1} {2} requires step parent element with name {3}, but no such element was found in shape {3}. Will not be visible.", compositeShape.Base, itemstack.Class, itemstack.Collectible.Code, shapeElement.StepParentName, @base);
-                    }
-                    else if (elementByName.Children == null)
-                    {
-                        elementByName.Children = new ShapeElement[1] { shapeElement };
-                    }
-                    else
-                    {
-                        elementByName.Children = elementByName.Children.Append(shapeElement);
-                    }
-                }
-                else
-                {
-                    capi.World.Logger.Warning("Entity wearable shape element {0} in shape {1} defined in {2} {3} did not define a step parent element. Will not be visible.", shapeElement.Name, compositeShape.Base, itemstack.Class, itemstack.Collectible.Code);
-                }
-            }
-
-            nowTesselatingShape = shape;
-            capi.Tesselator.TesselateShapeWithJointIds("entity", shape, out var modeldata, this, new Vec3f());
-            nowTesselatingShape = null;
-            return modeldata;
+            this.FillTextureDict(tmpTextures, itemstack);
+            return base.genMesh(capi, itemstack, texSource);
         }
         public override string GetHeldItemName(ItemStack itemStack)
         {
             string carcassus = itemStack.Attributes.GetString("loop", "steel");
-            return Lang.Get("game:material-" + carcassus) + Lang.Get("canjewelry:item-monocle");
+            return Lang.Get("game:material-" + carcassus) + Lang.Get("canjewelry:item-glasses");
         }
         public override void OnCreatedByCrafting(ItemSlot[] allInputslots, ItemSlot outputSlot, GridRecipe byRecipe)
         {

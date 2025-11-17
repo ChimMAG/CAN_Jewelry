@@ -1,11 +1,8 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Metrics;
 using System.Linq;
-using System.Runtime.Intrinsics.Arm;
 using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -13,7 +10,6 @@ using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
-using Vintagestory.Client.NoObf;
 using Vintagestory.GameContent;
 
 namespace canjewelry.src.items
@@ -44,9 +40,6 @@ namespace canjewelry.src.items
         public int RequiresBehindSlots { get; set; }
 
         public StatModifiers StatModifers;
-
-        private Shape nowTesselatingShape;
-
         private float offY;
 
         private float curOffY;
@@ -146,12 +139,6 @@ namespace canjewelry.src.items
                 }
             }
         }
-
-        public override void OnCreatedByCrafting(ItemSlot[] inSlots, ItemSlot outputSlot, GridRecipe byRecipe)
-        {
-            base.OnCreatedByCrafting (inSlots, outputSlot, byRecipe);
-        }
-          
         public void AddAllTypesToCreativeInventory()
         {
             List<JsonItemStack> stacks = new List<JsonItemStack>();
@@ -432,11 +419,6 @@ namespace canjewelry.src.items
             Shape shape2 = Vintagestory.API.Common.Shape.TryGet(this.api, assetLocation);
             return shape2;       
         }
-        public bool IsAttachable(ItemStack itemStack)
-        {
-            return true;
-        }
-
         public void CollectTextures(ItemStack stack, Shape shape, string texturePrefixCode, Dictionary<string, CompositeTexture> intoDict)
         {
             if (this.api.Side is EnumAppSide.Server)

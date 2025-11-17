@@ -27,6 +27,7 @@ using Cairo;
 using Vintagestory.API.MathTools;
 using canjewelry.src.harmony;
 using canjewelry.src.items.resource;
+using canjewelry.src.utils;
 
 namespace canjewelry.src
 {
@@ -42,6 +43,8 @@ namespace canjewelry.src
         public static Dictionary<string, string> gems_textures = new();
         public static Dictionary<string, string> gems_textures_pngs;
         public static List<GemCuttingRecipe> gemCuttingRecipes;
+        private readonly Dictionary<string, RestrictionData> restrictions = [];
+        private readonly Dictionary<string, Dictionary<string, ModelTransform>> transformations = [];
         public override void StartPre(ICoreAPI api)
         {
             PlayerInventoryManager.defaultInventories = PlayerInventoryManager.defaultInventories.Append("additionaljewelrycharacter");
@@ -99,7 +102,7 @@ namespace canjewelry.src
 
             api.RegisterBlockClass("CANBlockPSContainer", typeof(CANBasePSContainer));
             api.RegisterBlockEntityClass("CANBENecklaceStand", typeof(CANBENecklaceStand));
-
+            api.RegisterBlockEntityClass("CANBEHeadStand", typeof(CANBEHeadStand));
         }
         public override void StartClientSide(ICoreClientAPI api)
         {
@@ -128,41 +131,135 @@ namespace canjewelry.src
                     BEJewelGrinder.gemTypeToColor[gemType] = color;
                 }
             }
-            capi.Event.LevelFinalize += () =>
+            ClientMain.ClassRegistry.RegisterInventoryClass("additionaljewelrycharacter", typeof(InventoryCharacterAdditionalJewelry));
+            api.Event.PlayerJoin += (IClientPlayer byPlayer) =>
             {
-                Item[] cut_gems_items = api.World.SearchItems(new AssetLocation("canjewelry:gem-cut-*"));
-                gems_textures = new();
-                gems_textures_pngs = new();
-                foreach (var gem in cut_gems_items)
+                if (byPlayer != null && capi.World.Player != null && byPlayer == capi.World.Player)
                 {
-                    //catch if not present?
-                    gems_textures.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":textures/" + gem.Textures["gem"].Base.Path);
-                    gems_textures_pngs.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":" + gem.Textures["gem"].Base.Path + ".png");
-                }
-                if (clientChannel.Connected)
-                {
-                    clientChannel.SendPacket(new SyncCANJewelryPacket()
+                    if (clientChannel.Connected)
                     {
-                        CompressedConfig = ""
-                    });
-                }
-                else
-                {
-                   
-                    canjewelry.sapi.Event.RegisterCallback((dt =>
-                    {
-                        if (clientChannel.Connected)
+                        clientChannel.SendPacket(new SyncCANJewelryPacket()
                         {
-                            clientChannel.SendPacket(new SyncCANJewelryPacket()
-                            {
-                                CompressedConfig = ""
-                            });
-                        }
+                            CompressedConfig = ""
+                        });
                     }
-                    ), 60 * 1000);
+                    else
+                    {
+                        canjewelry.sapi.Event.RegisterCallback((dt =>
+                        {
+                            if (clientChannel.Connected)
+                            {
+                                clientChannel.SendPacket(new SyncCANJewelryPacket()
+                                {
+                                    CompressedConfig = ""
+                                });
+                            }
+                        }
+                        ), 60 * 1000);
+                    }
                 }
             };
-            ClientMain.ClassRegistry.RegisterInventoryClass("additionaljewelrycharacter", typeof(InventoryCharacterAdditionalJewelry));
+            
+        }
+        public override void AssetsLoaded(ICoreAPI api)
+        {
+            base.AssetsLoaded(api);
+
+            if (api.Side == EnumAppSide.Server)
+            {
+                var restrictionGroupsServer = DiscoverRestrictionGroups(api);
+                LoadData(api, restrictionGroupsServer);
+            }
+
+           
+        }
+        public override void AssetsFinalize(ICoreAPI api)
+        {
+            base.AssetsFinalize(api);
+            foreach (CollectibleObject obj in api.World.Collectibles)
+            {
+                foreach (var restriction in restrictions)
+                {
+                    transformations.TryGetValue(restriction.Key, out var transformation);
+                    RestrictionsPatches.PatchCollectibleWhitelist(obj, restriction, transformation);
+                }
+            }
+            Item[] cut_gems_items = api.World.SearchItems(new AssetLocation("canjewelry:gem-cut-*"));
+            gems_textures = new();
+            gems_textures_pngs = new();
+            foreach (var gem in cut_gems_items)
+            {
+                //catch if not present?
+                gems_textures.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":textures/" + gem.Textures["gem"].Base.Path);
+                gems_textures_pngs.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":" + gem.Textures["gem"].Base.Path + ".png");
+            }
+            
+        }
+        private Dictionary<string, string[]> DiscoverRestrictionGroups(ICoreAPI api)
+        {
+            var restrictionGroups = new Dictionary<string, string[]>();
+            string basePath = "config/restrictions/";
+
+            var restrictionAssets = api.Assets.GetMany("config/restrictions", "canjewelry", false);
+
+            foreach (var asset in restrictionAssets)
+            {
+                string fullPath = asset.Location.Path;
+
+                string relativePath = fullPath[basePath.Length..];
+                string[] pathParts = relativePath.Split('/');
+
+                if (pathParts.Length >= 2)
+                {
+                    string folderName = pathParts[0];
+                    string fileName = pathParts[1];
+
+                    if (fileName.EndsWith(".json"))
+                    {
+                        fileName = fileName[..^5];
+                    }
+
+                    if (!restrictionGroups.TryGetValue(folderName, out string[] value))
+                    {
+                        value = [];
+                        restrictionGroups[folderName] = value;
+                    }
+
+                    var currentFiles = value.ToList();
+                    if (!currentFiles.Contains(fileName))
+                    {
+                        currentFiles.Add(fileName);
+                        restrictionGroups[folderName] = [.. currentFiles];
+                    }
+                }
+            }
+
+            // Remove folders that have no files
+            var foldersToRemove = restrictionGroups.Where(kvp => kvp.Value.Length == 0).Select(kvp => kvp.Key).ToList();
+            foreach (var folder in foldersToRemove)
+            {
+                restrictionGroups.Remove(folder);
+            }
+
+            return restrictionGroups;
+        }
+        private void LoadData(ICoreAPI api, Dictionary<string, string[]> restrictionGroups)
+        {
+            foreach (var (category, names) in restrictionGroups)
+            {
+                foreach (var name in names)
+                {
+                    string restrictionPath = $"canjewelry:config/restrictions/{category}/{name}.json".Replace("//", "/");
+                    string transformationPath = $"canjewelry:config/transformations/{category}/{name}.json".Replace("//", "/");
+
+                    restrictions[name] = api.LoadAsset<RestrictionData>(restrictionPath);
+
+                    if (api.Assets.Exists(transformationPath))
+                    {
+                        transformations[name] = api.LoadAsset<Dictionary<string, ModelTransform>>(transformationPath);
+                    }
+                }
+            }
         }
         public void AddCustomIcons()
         {

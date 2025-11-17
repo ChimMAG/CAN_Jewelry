@@ -1,16 +1,12 @@
-﻿using Cairo.Freetype;
-using canjewelry.src.be;
-using canjewelry.src.jewelry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Vintagestory.API.Client;
+using canjewelry.src.be;
+using canjewelry.src.jewelry;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
-using Vintagestory.GameContent;
 using static canjewelry.src.Config;
 
 namespace canjewelry.src.items.resource

@@ -58,7 +58,7 @@ namespace canjewelry.src.utils
         /// </summary>
         public static string GetMaterialNameLocalized(this ItemStack itemStack, bool includeParenthesis = true)
         {
-            if (itemStack.Attributes["PSAttributes"] is not ITreeAttribute tree)
+            if (itemStack.Attributes["CANAttributes"] is not ITreeAttribute tree)
                 return "";
 
             foreach (var pair in tree)
@@ -127,7 +127,7 @@ namespace canjewelry.src.utils
                 foreach (var prop in props.Variants)
                 {
                     string psAttributesJson = $"{{ \"{material}\": \"{prop.Code.Path}\" }}";
-                    string attributesJson = "{ \"PSAttributes\": " + psAttributesJson + " }";
+                    string attributesJson = "{ \"CANAttributes\": " + psAttributesJson + " }";
 
                     var jstack = new JsonItemStack()
                     {
@@ -142,7 +142,7 @@ namespace canjewelry.src.utils
             }
 
             block.CreativeInventoryStacks = [
-                new() { Stacks = [.. stacks], Tabs = ["general", "decorative", "purposefulstorage"]}
+                new() { Stacks = [.. stacks], Tabs = ["general", "decorative", "canjewelry"]}
             ];
         }
     }

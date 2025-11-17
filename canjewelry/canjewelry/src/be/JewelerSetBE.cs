@@ -166,7 +166,7 @@ namespace canjewelry.src.jewelry
             this.inventory.SlotModified += (int num) => {
                 if (this.inventory.Api.Side == EnumAppSide.Client)
                 {
-                    this.renameGui.SetupDialog();
+                    //this.renameGui.SetupDialog();
                 }
             };
 

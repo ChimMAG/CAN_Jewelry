@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
@@ -42,7 +39,7 @@ namespace canjewelry.src.utils
                 variantData.Item1.Elements = RemoveElements(variantData.Item1.Elements);
             }
 
-            capi.Tesselator.TesselateShape("PS-TesselateShape", variantData.Item1, out MeshData blockMesh, variantData.Item2);
+            capi.Tesselator.TesselateShape("CAN-TesselateShape", variantData.Item1, out MeshData blockMesh, variantData.Item2);
 
             float scale = block.Shape.Scale;
             if (scale != 1) blockMesh.Scale(new Vec3f(.5f, 0, .5f), scale, scale, scale);
@@ -76,7 +73,7 @@ namespace canjewelry.src.utils
             Shape shape = Api.Assets.TryGet(shapeLocation)?.ToObject<Shape>();
             if (shape == null) return null;
 
-            ITexPositionSource texSource = new ShapeTextureSource(capi, shape, "PS-SubstituteItemTexSource");
+            ITexPositionSource texSource = new ShapeTextureSource(capi, shape, "CAN-SubstituteItemTexSource");
 
             tesselator.TesselateShape(null, shape, out MeshData mesh, texSource);
             return mesh;
@@ -94,7 +91,7 @@ namespace canjewelry.src.utils
             Shape shape = Api.Assets.TryGet(shapeLocation)?.ToObject<Shape>();
             if (shape == null) return null;
 
-            ITexPositionSource texSource = new ShapeTextureSource(capi, shape, "PS-SubstituteItemTexSource");
+            ITexPositionSource texSource = new ShapeTextureSource(capi, shape, "CAN-SubstituteItemTexSource");
 
             if (texturesFromItems.Item != null)
             {
@@ -132,8 +129,8 @@ namespace canjewelry.src.utils
             if (shape == null) return null;
 
             // Handle texture source
-            ITexPositionSource texSource = new ShapeTextureSource(capi, shape, "PS-PartialContentMesh");
-            capi.Tesselator.TesselateShape("PS-TesselatePartial", shape, out MeshData itemMesh, texSource);
+            ITexPositionSource texSource = new ShapeTextureSource(capi, shape, "CAN-PartialContentMesh");
+            capi.Tesselator.TesselateShape("CAN-TesselatePartial", shape, out MeshData itemMesh, texSource);
 
             MeshData contentMesh = itemMesh.Clone();
             if (transformationMatrices?[0] != null)
@@ -174,7 +171,7 @@ namespace canjewelry.src.utils
 
                     if (utilShape == null)
                     {
-                        capi.Logger.Warning("[PurposefulStorage] non-existent utilShapeLoc passed. No content mesh will be generated.");
+                        capi.Logger.Warning("[CAN Jewelry] non-existent utilShapeLoc passed. No content mesh will be generated.");
                         return null;
                     }
 
@@ -182,7 +179,7 @@ namespace canjewelry.src.utils
                     var textures = contents[0].Item.Textures;
                     texSource = new ContainerTextureSource(capi, contents[0], textures.Values.FirstOrDefault());
 
-                    capi.Tesselator.TesselateShape("PS-TesselatePartialUtil", utilShape, out MeshData utilMesh, texSource);
+                    capi.Tesselator.TesselateShape("CAN-TesselatePartialUtil", utilShape, out MeshData utilMesh, texSource);
 
                     utilMesh.Translate(0, shapeHeight, 0);
                     contentMesh.AddMeshData(utilMesh);

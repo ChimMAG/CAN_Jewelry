@@ -1,10 +1,4 @@
 {
-	"editor": {
-		"backDropShape": "entity/humanoid/villager-male",
-		"collapsedPaths": "Root/hideme/chainback/string3,Root/hideme/chainback/chainR5,Root/hideme/chainback/string2,Root/hideme/chainback/string1,Root/hideme/chainback/string5,Root/hideme/chainback/string4,Root/hideme/chainback/chainL5",
-		"allAngles": true,
-		"entityTextureMode": false
-	},
 	"textureWidth": 8,
 	"textureHeight": 4,
 	"textureSizes": {
