@@ -190,19 +190,8 @@ namespace canjewelry.src.items
 
         public override string GetHeldItemName(ItemStack itemStack)
         {
-            string gem = itemStack.Attributes.GetString("1_gem", null);
-
-            if (gem != "none")
-            {
-                return "Tiara" + gem;
-            }
-            else
-            {
-                return "Tiara";
-            }
-
-
-
+            string variant = itemStack.Attributes.GetString("carcassus", "steel");
+            return Lang.Get("game:material-" + variant) + Lang.Get("canjewelry:item-tiara");
         }
 
         public override void GetHeldItemInfo(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)

@@ -13,15 +13,10 @@ namespace canjewelry.src.jewelry
     public class ProcessedGem : Item, ITexPositionSource, IContainedMeshSource
     {
         private float offY;
-
         private float curOffY;
-
         private ICoreClientAPI capi;
-
         private ITextureAtlasAPI targetAtlas;
-
         private Dictionary<string, AssetLocation> tmpTextures = new Dictionary<string, AssetLocation>();
-
         public TextureAtlasPosition this[string textureCode]
         {
             get
@@ -51,7 +46,6 @@ namespace canjewelry.src.jewelry
             }
             return texpos;
         }
-
         public Size2i AtlasSize
         {
             get
@@ -229,7 +223,6 @@ namespace canjewelry.src.jewelry
             }
             return "";          
         }
-
         public MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
         {
             return this.GenMesh(itemstack, targetAtlas);

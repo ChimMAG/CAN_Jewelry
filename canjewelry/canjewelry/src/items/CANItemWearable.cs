@@ -11,15 +11,13 @@ namespace canjewelry.src.items
     public class CANItemWearable : Item, IContainedMeshSource, ITexPositionSource
     {
         protected Shape nowTesselatingShape;
+        public static AssetLocation NotVisTexture;
         public virtual TextureAtlasPosition this[string textureCode] => throw new NotImplementedException();
-
         public virtual Size2i AtlasSize => throw new NotImplementedException();
-
         public virtual MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
         {
             throw new NotImplementedException();
         }
-
         public virtual string GetMeshCacheKey(ItemStack itemstack)
         {
             throw new NotImplementedException();

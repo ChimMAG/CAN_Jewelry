@@ -15,7 +15,7 @@
 		"onyx": [8,8]
 	},
 	"textures": {
-		"metalearrings": "canjewelry:item/gem/notvis",
+		"metalrings": "canjewelry:item/gem/notvis",
 		"plain": "canjewelry:item/gem/notvis",
 		"gem_1": "canjewelry:item/gem/notvis",
 		"gem_2": "canjewelry:item/gem/notvis",
@@ -95,27 +95,27 @@
 							"rotationOrigin": [ -0.1, 0.1, 0.3 ],
 							"faces": {
 								"north": {
-									"texture": "#metalearrings",
+									"texture": "#metalrings",
 									"uv": [ 12.5, 12.0, 13.0, 12.5 ]
 								},
 								"east": {
-									"texture": "#metalearrings",
+									"texture": "#metalrings",
 									"uv": [ 4.5, 7.5, 7.0, 8.0 ]
 								},
 								"south": {
-									"texture": "#metalearrings",
+									"texture": "#metalrings",
 									"uv": [ 9.0, 6.5, 9.5, 7.0 ]
 								},
 								"west": {
-									"texture": "#metalearrings",
+									"texture": "#metalrings",
 									"uv": [ 4.0, 13.0, 6.5, 13.5 ]
 								},
 								"up": {
-									"texture": "#metalearrings",
+									"texture": "#metalrings",
 									"uv": [ 11.0, 12.0, 11.5, 14.5 ]
 								},
 								"down": {
-									"texture": "#metalearrings",
+									"texture": "#metalrings",
 									"uv": [ 11.5, 5.0, 12.0, 7.5 ]
 								}
 							},
@@ -292,23 +292,23 @@
 									"rotationOrigin": [ 0.0, 0.3, 1.3 ],
 									"faces": {
 										"north": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 11.5, 8.5, 13.5, 9.0 ]
 										},
 										"south": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 12.0, 5.5, 14.0, 6.0 ]
 										},
 										"west": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 5.5, 15.0, 6.0, 15.5 ]
 										},
 										"up": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 5.0, 5.0, 7.0, 5.5 ]
 										},
 										"down": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 0.0, 0.0, 2.0, 0.5 ],
 											"windMode": [ -1, -1, -1, -1 ]
 										}
@@ -321,23 +321,23 @@
 									"rotationOrigin": [ 0.0, 0.3, 1.8 ],
 									"faces": {
 										"north": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 3.5, 8.5, 5.0, 9.0 ]
 										},
 										"south": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 5.5, 3.5, 7.0, 4.0 ]
 										},
 										"west": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 4.5, 14.5, 5.0, 15.0 ]
 										},
 										"up": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 3.5, 4.5, 5.0, 5.0 ]
 										},
 										"down": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 0.0, 0.0, 1.5, 0.5 ],
 											"windMode": [ -1, -1, -1, -1 ]
 										}
@@ -350,23 +350,23 @@
 									"rotationOrigin": [ 0.0, 0.3, 0.8 ],
 									"faces": {
 										"north": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 1.5, 5.5, 3.0, 6.0 ]
 										},
 										"south": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 11.0, 14.5, 12.5, 15.0 ]
 										},
 										"west": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 13.5, 10.5, 14.0, 11.0 ]
 										},
 										"up": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 4.0, 6.0, 5.5, 6.5 ]
 										},
 										"down": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 0.0, 0.0, 1.5, 0.5 ],
 											"windMode": [ -1, -1, -1, -1 ]
 										}
@@ -379,23 +379,23 @@
 									"rotationOrigin": [ 0.0, 0.3, 2.3 ],
 									"faces": {
 										"north": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 2.5, 7.0, 3.5, 7.5 ]
 										},
 										"south": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 6.5, 11.5, 7.5, 12.0 ]
 										},
 										"west": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 0.5, 5.0, 1.0, 5.5 ]
 										},
 										"up": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 10.0, 1.5, 11.0, 2.0 ]
 										},
 										"down": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 0.0, 0.0, 1.0, 0.5 ],
 											"windMode": [ -1, -1, -1, -1 ]
 										}
@@ -408,23 +408,23 @@
 									"rotationOrigin": [ 0.0, 0.3, 0.3 ],
 									"faces": {
 										"north": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 4.0, 11.5, 5.0, 12.0 ]
 										},
 										"south": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 1.5, 9.0, 2.5, 9.5 ]
 										},
 										"west": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 0.5, 7.5, 1.0, 8.0 ]
 										},
 										"up": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 2.5, 0.5, 3.5, 1.0 ]
 										},
 										"down": {
-											"texture": "#metalearrings",
+											"texture": "#metalrings",
 											"uv": [ 0.0, 0.0, 1.0, 0.5 ],
 											"windMode": [ -1, -1, -1, -1 ]
 										}

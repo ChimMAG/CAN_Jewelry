@@ -1,33 +1,31 @@
-﻿using canjewelry.src.CB;
-using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using Cairo;
+using canjewelry.src.bb;
+using canjewelry.src.be;
+using canjewelry.src.blocks;
+using canjewelry.src.cb;
+using canjewelry.src.CB;
+using canjewelry.src.eb;
+using canjewelry.src.harmony;
+using canjewelry.src.inventories;
+using canjewelry.src.items;
+using canjewelry.src.items.resource;
+using canjewelry.src.jewelry;
+using canjewelry.src.utils;
+using HarmonyLib;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
+using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
-using Vintagestory.GameContent;
-using canjewelry.src.blocks;
-using Newtonsoft.Json;
 using Vintagestory.API.Util;
-using Newtonsoft.Json.Linq;
-using canjewelry.src.jewelry;
-using canjewelry.src.items;
-using canjewelry.src.eb;
-using canjewelry.src.be;
-using canjewelry.src.bb;
-using canjewelry.src.cb;
 using Vintagestory.Client.NoObf;
 using Vintagestory.Common;
 using Vintagestory.Server;
-using canjewelry.src.inventories;
-using Cairo;
-using Vintagestory.API.MathTools;
-using canjewelry.src.harmony;
-using canjewelry.src.items.resource;
-using canjewelry.src.utils;
 
 namespace canjewelry.src
 {
@@ -95,6 +93,7 @@ namespace canjewelry.src
             api.RegisterItemClass("CANItemEarrings", typeof(CANItemEarrings));
             api.RegisterItemClass("CANItemNadiyanNecklace", typeof(CANItemNadiyanNecklace));
             api.RegisterItemClass("CANItemGlasses", typeof(CANItemGlasses));
+           // api.RegisterItemClass("CANItemRing", typeof(CANItemRing));
 
             api.RegisterBlockClass("CANBlockPan", typeof(CANBlockPan));
             api.RegisterBlockClass("BlockGemCuttingTable", typeof(BlockGemCuttingTable));
@@ -170,8 +169,7 @@ namespace canjewelry.src
                 var restrictionGroupsServer = DiscoverRestrictionGroups(api);
                 LoadData(api, restrictionGroupsServer);
             }
-
-           
+            CANItemWearable.NotVisTexture = new AssetLocation("canjewelry:item/gem/notvis.png");
         }
         public override void AssetsFinalize(ICoreAPI api)
         {
@@ -367,6 +365,7 @@ namespace canjewelry.src
             gems_textures_pngs?.Clear();
             gems_textures_pngs = null;
             gemCuttingRecipes = null;
+            CANItemWearable.NotVisTexture = null;
         }
         public void AddBehaviorAndSocketNumber(bool serverSide = true)
         {

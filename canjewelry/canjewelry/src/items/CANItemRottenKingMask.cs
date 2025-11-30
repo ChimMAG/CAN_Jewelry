@@ -315,19 +315,7 @@ namespace canjewelry.src.items
             tmpTextures["silver1"] = new AssetLocation("block/metal/sheet/" + carcassus + "1.png");
             tmpTextures["rotten-king-mask"] = new AssetLocation("canjewelry:item/rottenking.png");
             tmpTextures["rotten-king-cloth"] = new AssetLocation("canjewelry:item/rottenkingcloth.png");
-            //this.tmpTextures.Clear();
-            //this.FillTextureDict(tmpTextures, itemstack);
-            return base.genMesh(capi, itemstack, texSource);
-            ContainedTextureSource cnts = new ContainedTextureSource(this.api as ICoreClientAPI, curAtlas, new Dictionary<string, AssetLocation>(), string.Format("For render in shield {0}", this.Code));
-            cnts.Textures.Clear();
-
-            cnts.Textures["silver1"] = new AssetLocation("block/metal/sheet/" + carcassus + "1.png");
-            cnts.Textures["rotten-king-mask"] = new AssetLocation("canjewelry:item/rottenking.png");
-            cnts.Textures["rotten-king-cloth"] = new AssetLocation("canjewelry:item/rottenkingcloth.png");
-
-            MeshData mesh;
-            this.capi.Tesselator.TesselateItem(this, out mesh, cnts);
-            return mesh;
+            return base.genMesh(capi, itemstack, texSource);         
         }
         public override string GetHeldItemName(ItemStack itemStack)
         {

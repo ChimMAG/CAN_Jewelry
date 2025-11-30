@@ -16,7 +16,7 @@ using Vintagestory.GameContent;
 
 namespace canjewelry.src.items
 {
-    public class CANItemEarrings : CANItemWearable, IWearableShapeSupplier, IAttachableToEntity
+    public class CANItemRing : CANItemWearable, IWearableShapeSupplier, IAttachableToEntity
     {
         private ITextureAtlasAPI curAtlas;
         private ICoreClientAPI capi;
@@ -29,7 +29,7 @@ namespace canjewelry.src.items
         {
             get
             {
-                return ObjectCacheUtil.GetOrCreate<Dictionary<int, MultiTextureMeshRef>>(this.api, "canearringsmeshrefs", () => new Dictionary<int, MultiTextureMeshRef>());
+                return ObjectCacheUtil.GetOrCreate<Dictionary<int, MultiTextureMeshRef>>(this.api, "canringsmeshrefs", () => new Dictionary<int, MultiTextureMeshRef>());
             }
         }
         public EnumCharacterDressType DressType { get; private set; }
@@ -358,13 +358,13 @@ namespace canjewelry.src.items
             {
                 dict["gem_1"] = new AssetLocation("canjewelry:item/gem/emerald.png");
                 dict["gem_2"] = new AssetLocation("canjewelry:item/gem/sapphire.png");
-                dict["gem_3"] = new AssetLocation("canjewelry:item/gem/citrine.png");
+                dict["gem_3"] = new AssetLocation("canjewelry:item/gem/sapphire.png");
             }
 
 
 
             dict["metalrings"] = new AssetLocation("block/metal/sheet/" + itemStack.Attributes.GetString("metal", "steel") + "1.png");
-            dict["gems"] = NotVisTexture;
+            dict["brass"] = new AssetLocation("game:block/metal/plate/tinbronze");
             dict["canearingsbase"] = new AssetLocation("game:block/leather/plain");
         }
 

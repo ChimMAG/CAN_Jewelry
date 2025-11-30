@@ -1,13 +1,13 @@
 ﻿{
-    "code": "canearrings",
-    "class": "CANItemEarrings",
+    "code": "canring",
+    "class": "CANItemRing",
     "storageFlags": 128,
 
     "attributes": {
         "handbook": {
-            "groupBy": [ "canearrings-*" ]
+            "groupBy": [ "canring-*" ]
         },
-        "clothescategory": "leftearrings",
+        "clothescategory": "LeftPalm",
         "rackable": true,
         "wearableAttachment": true,
         "groundStorageTransformByType": {
@@ -38,7 +38,7 @@
     "variantgroups": [
         {
             "code": "construction",
-            "states": [ "gemstuddedearrings", "keys" ]
+            "states": [ "simple" ]
         }
     ],
 
@@ -48,8 +48,7 @@
         }
     },
     "shapeByType": {
-        "*-gemstuddedearrings": { "base": "canjewelry:item/cangemstuddedearrings" },
-        "*-keys": { "base": "canjewelry:item/canearrings-keys" }
+        "*-simple": { "base": "canjewelry:item/canring" }
     },
     "fpHandTransform": {
         "translation": {
@@ -70,23 +69,24 @@
         "scale": 1.00
     },
     "tpHandTransformByType": {
-        "*-gemstuddedearrings": {
-            "translation": {
-                "x": 0.3,
-                "y": 0.36,
-                "z": 0.36
-            },
-            "rotation": {
-                "x": 41,
-                "y": -63,
-                "z": -42
-            },
-            "origin": {
-                "x": 0.55,
-                "y": -5,
-                "z": -0.35
-            },
-            "scale": 0.72
+        "*-simple": {
+                "translation": {
+                    "x": 0.30000004,
+                    "y": 0.36000007,
+                    "z": 0.36000007
+                },
+                "rotation": {
+                    "x": -180,
+                    "y": 90,
+                    "z": -180
+                },
+                "origin": {
+                    "x": 0.86,
+                    "y": 2.5,
+                    "z": -0.05
+                },
+                "scale": 1.69
+            
         },
         "*-keys": {
             "translation": {
@@ -109,41 +109,18 @@
         }
     },
     "guiTransformByType": {
-        "*-gemstuddedearrings": {
-            "translation": {
-                "x": -5,
-                "y": -8.8,
-                "z": 1
-            },
+        "*-simple": {
             "rotation": {
-                "x": -20,
-                "y": -174,
-                "z": -176
+                "x": -180,
+                "y": -116,
+                "z": -20
             },
             "origin": {
-                "x": 0.48,
-                "y": 1.78,
+                "x": 0.5,
+                "y": 0.65,
                 "z": 0.3
             },
-            "scale": 6
-        },
-        "*-keys": {
-            "translation": {
-                "x": -5,
-                "y": -8.8,
-                "z": 1
-            },
-            "rotation": {
-                "x": -20,
-                "y": -174,
-                "z": -176
-            },
-            "origin": {
-                "x": 0.48,
-                "y": 1.78,
-                "z": 0.3
-            },
-            "scale": 6        
+            "scale": 6         
         }
     },
     "groundTransformByType": {
@@ -165,23 +142,24 @@
             },
             "scale": 6
         },
-        "*-keys": {
+        "*-simple": {
             "translation": {
                 "x": 0,
-                "y": -0.05,
+                "y": 0,
                 "z": 0
             },
             "rotation": {
-                "x": 77,
-                "y": -69,
-                "z": -6
+                "x": 90,
+                "y": 0,
+                "z": 180
             },
             "origin": {
-                "x": 0.27,
-                "y": 0.2,
-                "z": 0.05
+                "x": 0.5,
+                "y": 0.5,
+                "z": 0.83
             },
-            "scale": 6         
+            "scale": 6
+            
         }       
     }
 }

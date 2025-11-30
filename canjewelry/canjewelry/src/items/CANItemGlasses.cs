@@ -25,7 +25,6 @@ namespace canjewelry.src.items
         public int RequiresBehindSlots { get; set; }
         private Dictionary<int, MultiTextureMeshRef> meshrefs
         {
-
             get
             {
                 return ObjectCacheUtil.GetOrCreate<Dictionary<int, MultiTextureMeshRef>>(this.api, "canmonoclemeshrefs", () => new Dictionary<int, MultiTextureMeshRef>());
