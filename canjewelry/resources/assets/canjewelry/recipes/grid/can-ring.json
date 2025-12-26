@@ -1,0 +1,42 @@
+[
+    {
+        "ingredientPattern": "E",
+        "ingredients": {
+            "E": {
+                "type": "item",
+                "code": "canjewelry:canring-simple"
+            }
+        },
+        "name": "can-canearrings-change-side",
+        "width": 1,
+        "height": 1,
+        "output": {
+            "type": "item",
+            "code": "canjewelry:canring-simple",
+            "quantity": 1
+        }
+    },
+    {
+        "ingredientPattern": "W_W,_W_",
+        "ingredients": {
+            "W": {
+                "type": "item",
+                "code": "canjewelry:canwirehank-*",
+                "name": "metal-type",
+                "allowedVariants": [ "tinbronze", "bismuthbronze", "blackbronze", "gold", "silver", "iron", "meteoriciron", "steel", "copper" ]
+            }
+        },
+        "name": "can-canring-simple-crafts",
+        "width": 3,
+        "height": 2,
+        "output": {
+            "type": "item",
+            "code": "canjewelry:canring-simple",
+            "quantity": 1,
+            "attributes": {
+                "metal": "{metal-type}"
+            }
+        }
+
+    }
+]

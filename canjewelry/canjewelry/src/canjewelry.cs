@@ -93,7 +93,7 @@ namespace canjewelry.src
             api.RegisterItemClass("CANItemEarrings", typeof(CANItemEarrings));
             api.RegisterItemClass("CANItemNadiyanNecklace", typeof(CANItemNadiyanNecklace));
             api.RegisterItemClass("CANItemGlasses", typeof(CANItemGlasses));
-           // api.RegisterItemClass("CANItemRing", typeof(CANItemRing));
+            api.RegisterItemClass("CANItemRing", typeof(CANItemRing));
 
             api.RegisterBlockClass("CANBlockPan", typeof(CANBlockPan));
             api.RegisterBlockClass("BlockGemCuttingTable", typeof(BlockGemCuttingTable));

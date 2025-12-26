@@ -202,7 +202,7 @@ namespace canjewelry.src.items
         public void FillTextureDict(Dictionary<string, AssetLocation> dict, ItemStack itemStack)
         {
             string carcassus = itemStack.Attributes.GetString("loop", "steel");
-            dict["bracelets1"] = new AssetLocation("block/metal/sheet/" + carcassus + "1.png");
+            dict["bracelets1"] = new AssetLocation("block/metal/ingot/" + carcassus + ".png");
             dict["gems"] = new AssetLocation("canjewelry:item/gem/notvis.png");
         }
         #endregion

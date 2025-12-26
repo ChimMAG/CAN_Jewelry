@@ -153,7 +153,7 @@ namespace canjewelry.src.items
                 return;
             }
 
-            FillTextureDict(tmpTextures, stack);
+            FillTextureDict(tmpTextures, stack, texturePrefixCode);
 
             foreach (var texture in tmpTextures)
             {
@@ -179,180 +179,36 @@ namespace canjewelry.src.items
                 intoDict[texture.Key] = ctex;
             }
         }
-        public void FillTextureDict(Dictionary<string, AssetLocation> dict, ItemStack itemStack)
+        public void FillTextureDict(Dictionary<string, AssetLocation> dict, ItemStack itemStack, string texturePrefixCode = "")
         {
             int maxSocketNumber = EncrustableCB.GetMaxAmountSockets(itemStack);
             if (itemStack != null && itemStack.Attributes.HasAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING))
             {
                 var tree = itemStack.Attributes.GetTreeAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING);
                 int possibleGemsNumber = maxSocketNumber;
-                if (possibleGemsNumber >= 4)
+
+                for (int i = 0; i < possibleGemsNumber; i++)
                 {
-                    for (int i = 0; i < possibleGemsNumber; i++)
+                    if (tree.HasAttribute("slot" + i))
                     {
-                        if (tree.HasAttribute("slot" + i))
+                        ITreeAttribute treeSocket = tree.GetTreeAttribute("slot" + i);
+                        string gemType = treeSocket.GetString("gemtype");
+                        canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
+                        if (assetPath != null)
                         {
-                            ITreeAttribute treeSocket = tree.GetTreeAttribute("slot" + i);
-                            string gemType = treeSocket.GetString("gemtype");
-                            canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
-                            if (assetPath != null)
-                            {
-                                dict["gem_" + (i + 1)] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                            }
-                            else
-                            {
-                                dict["gem_" + (i + 1)] = NotVisTexture;
-                            }
+                            dict["gem_" + (i + 1)] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
                         }
                         else
                         {
                             dict["gem_" + (i + 1)] = NotVisTexture;
                         }
                     }
-                }
-                else if (possibleGemsNumber == 3)
-                {
-                    if (tree.HasAttribute("slot0"))
-                    {
-                        ITreeAttribute treeSocket = tree.GetTreeAttribute("slot0");
-                        string gemType = treeSocket.GetString("gemtype");
-                        canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
-                        if (assetPath != null)
-                        {
-                            dict["gem_1"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                            dict["gem_4"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                        }
-                        else
-                        {
-                            dict["gem_1"] = NotVisTexture   ;
-                            dict["gem_4"] = NotVisTexture;
-                        }
-                    }
                     else
                     {
-                        dict["gem_1"] = NotVisTexture;
-                        dict["gem_4"] = NotVisTexture;
-                    }
-                    if (tree.HasAttribute("slot1"))
-                    {
-                        ITreeAttribute treeSocket = tree.GetTreeAttribute("slot1");
-                        string gemType = treeSocket.GetString("gemtype");
-                        canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
-                        if (assetPath != null)
-                        {
-                            dict["gem_2"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                        }
-                        else
-                        {
-                            dict["gem_2"] = NotVisTexture;
-                        }
-                    }
-                    else
-                    {
-                        dict["gem_2"] = NotVisTexture;
-                    }
-                    if (tree.HasAttribute("slot2"))
-                    {
-                        ITreeAttribute treeSocket = tree.GetTreeAttribute("slot2");
-                        string gemType = treeSocket.GetString("gemtype");
-                        canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
-                        if (assetPath != null)
-                        {
-                            dict["gem_3"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                        }
-                        else
-                        {
-                            dict["gem_3"] = NotVisTexture;
-                        }
-                    }
-                    else
-                    {
-                        dict["gem_3"] = NotVisTexture;
+                        dict["gem_" + (i + 1)] = NotVisTexture;
                     }
                 }
-                else if (possibleGemsNumber == 2)
-                {
-                    if (tree.HasAttribute("slot0"))
-                    {
-                        ITreeAttribute treeSocket = tree.GetTreeAttribute("slot0");
-                        string gemType = treeSocket.GetString("gemtype");
-                        canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
-                        if (assetPath != null)
-                        {
-                            dict["gem_1"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                            dict["gem_4"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                        }
-                        else
-                        {
-                            dict["gem_1"] = NotVisTexture;
-                            dict["gem_4"] = NotVisTexture;
-                        }
-                    }
-                    else
-                    {
-                        dict["gem_1"] = NotVisTexture;
-                        dict["gem_4"] = NotVisTexture;
-                    }
-                    if (tree.HasAttribute("slot1"))
-                    {
-                        ITreeAttribute treeSocket = tree.GetTreeAttribute("slot1");
-                        string gemType = treeSocket.GetString("gemtype");
-                        canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
-                        if (assetPath != null)
-                        {
-                            dict["gem_2"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                            dict["gem_3"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                        }
-                        else
-                        {
-                            dict["gem_1"] = NotVisTexture;
-                            dict["gem_4"] = NotVisTexture;
-                        }
-                    }
-                    else
-                    {
-                        dict["gem_1"] = NotVisTexture;
-                        dict["gem_4"] = NotVisTexture;
-                    }
-                }
-                else if (possibleGemsNumber == 1)
-                {
-                    if (tree.HasAttribute("slot0"))
-                    {
-                        ITreeAttribute treeSocket = tree.GetTreeAttribute("slot0");
-                        string gemType = treeSocket.GetString("gemtype");
-                        canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
-                        if (assetPath != null)
-                        {
-                            dict["gem_1"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                            dict["gem_2"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                            dict["gem_3"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                            dict["gem_4"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-                        }
-                        else
-                        {
-                            dict["gem_1"] = NotVisTexture;
-                            dict["gem_2"] = NotVisTexture;
-                            dict["gem_3"] = NotVisTexture;
-                            dict["gem_4"] = NotVisTexture;
-                        }
-                    }
-                    else
-                    {
-                        dict["gem_1"] = NotVisTexture;
-                        dict["gem_2"] = NotVisTexture;
-                        dict["gem_3"] = NotVisTexture;
-                        dict["gem_4"] = NotVisTexture;
-                    }
-
-                }
-                else
-                {
-                    for (int i = 1; i < 5; i++)
-                    {
-                        dict["gem_" + i] = NotVisTexture;
-                    }
-                }
+                
             }
             else
             {
@@ -363,9 +219,9 @@ namespace canjewelry.src.items
 
 
 
-            dict["metalrings"] = new AssetLocation("block/metal/sheet/" + itemStack.Attributes.GetString("metal", "steel") + "1.png");
-            dict["gems"] = NotVisTexture;
-            dict["canearingsbase"] = new AssetLocation("game:block/leather/plain");
+            dict[texturePrefixCode + "metalrings"] = new AssetLocation("block/metal/ingot/" + itemStack.Attributes.GetString("metal", "steel") + ".png");
+            dict[texturePrefixCode + "gems"] = NotVisTexture;
+            dict[texturePrefixCode + "canearingsbase"] = new AssetLocation("game:block/leather/plain");
         }
 
         public string GetCategoryCode(ItemStack stack)
@@ -394,12 +250,15 @@ namespace canjewelry.src.items
         }
         public override string GetMeshCacheKey(ItemStack itemstack)
         {
-            string metal = itemstack.Item.Variant.Get("loop", "steel");
+            string metal = itemstack.Attributes.GetString("metal", "steel");
+            string side = itemstack.Attributes.GetString("clothescategory", "LeftEarrings");
             return string.Concat(new string[]
             {
                 this.Code.ToShortString(),
                 "-",
-                metal
+                metal,
+                "-",
+                side
             });
         }
         public override TextureAtlasPosition this[string textureCode]

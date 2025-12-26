@@ -468,7 +468,7 @@ namespace canjewelry.src.items
         {
             string carcassus = itemstack.Attributes.GetString("loop", "steel");
             this.tmpTextures.Clear();
-            tmpTextures["brass"] = new AssetLocation("block/metal/sheet/" + carcassus + "1.png");
+            tmpTextures["brass"] = new AssetLocation("block/metal/ingot/" + carcassus + ".png");
             string qurtzType = itemstack.Attributes.GetString("glasstype", "red");
             tmpTextures["quartzglass"] = new AssetLocation("block/glass/" + qurtzType + ".png");
             this.FillTextureDict(tmpTextures, itemstack);

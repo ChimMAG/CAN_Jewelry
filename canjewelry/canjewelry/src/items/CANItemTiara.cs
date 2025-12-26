@@ -269,7 +269,7 @@ namespace canjewelry.src.items
         public void FillTextureDict(Dictionary<string, AssetLocation> newdict, ItemStack stack)
         {
             string carcassus = stack.Attributes.GetString("carcassus", "steel");
-            newdict["carcassus"] = new AssetLocation("block/metal/sheet/" + carcassus + "1.png");
+            newdict["carcassus"] = new AssetLocation("block/metal/ingot/" + carcassus + ".png");
             int maxSocketNumber = EncrustableCB.GetMaxAmountSockets(stack);
             if (maxSocketNumber == 1)
             {

@@ -206,8 +206,8 @@ namespace canjewelry.src.items
             if (construction == "normal-neck")
             {
                 //new AssetLocation("canjewelry:item/gem/notvis.png");
-                tmpTextures["loop"] = new AssetLocation("block/metal/sheet/" + loop + "1.png");
-                tmpTextures["socket"] = new AssetLocation("block/metal/plate/" + socket + ".png");
+                tmpTextures["loop"] = new AssetLocation("block/metal/ingot/" + loop + ".png");
+                tmpTextures["socket"] = new AssetLocation("block/metal/ingot/" + socket + ".png");
 
 
                 if (!canjewelry.gems_textures.TryGetValue(gem, out string assetPath))
