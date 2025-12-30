@@ -416,10 +416,15 @@
     "clothcategory-LeftEarrings": "LeftEarrings",
     "clothcategory-RightEarrings": "RightEarrings",
     "clothcategory-Nose": "Nose",
-    "item-canearrings-keys": " Earrings-Keys",
-    "item-canearrings-gemstuddedearrings": " Gem Studded Earrings",
+    "item-canearrings-left-keys": " Earrings-Keys",
+    "item-canearrings-right-keys": " Earrings-Keys",
+    "item-canearrings-left-gemstuddedearrings": " Gem Studded Earrings",
+    "item-canearrings-right-gemstuddedearrings": " Gem Studded Earrings",
     "item-cannadiyannecklace-leather": "Cannadiyan leather necklace",
     "item-cannadiyannecklace-metal": "Cannadiyan metal necklace",
     "block-canheadstand-*": "Headwear display",
-    "block-cannecklacestand-*": "Necklacewear display"
+    "block-cannecklacestand-*": "Necklacewear display",
+    "item-canring": " ring",
+    "clothcategory-RightPalm": "RightPalm",
+    "clothcategory-LeftPalm": "LeftPalm"
 }

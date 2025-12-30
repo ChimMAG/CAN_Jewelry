@@ -9,7 +9,9 @@
 		"pendants1": [16,16]
 	},
 	"textures": {
-		"malachite": "/Users/koeni/source/repos/CAN_Jewelry/canjewelry/resources/assets/canjewelry/textures/item/gem/malachite"
+		"malachite": "game:block/metal/plate/steel",
+		"socket": "game:block/metal/plate/steel",
+		"loop": "game:block/metal/plate/steel"
 	},
 	"elements": [
 		{

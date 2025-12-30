@@ -4,15 +4,35 @@
         "ingredients": {
             "E": {
                 "type": "item",
-                "code": "canjewelry:canearrings-gemstuddedearrings"
+                "code": "canjewelry:canearrings-right-gemstuddedearrings"
             }
         },
-        "name": "can-canearrings-change-side",
+        "name": "can-canearrings-change-side-right-to-left",
         "width": 1,
         "height": 1,
+        "copyAttributesFrom": "E",
         "output": {
             "type": "item",
-            "code": "canjewelry:canearrings-gemstuddedearrings",
+            "code": "canjewelry:canearrings-left-gemstuddedearrings",
+            "quantity": 1
+        }
+
+    },
+    {
+        "ingredientPattern": "E",
+        "ingredients": {
+            "E": {
+                "type": "item",
+                "code": "canjewelry:canearrings-left-gemstuddedearrings"
+            }
+        },
+        "name": "can-canearrings-change-side-left-to-right",
+        "width": 1,
+        "height": 1,
+        "copyAttributesFrom": "E",
+        "output": {
+            "type": "item",
+            "code": "canjewelry:canearrings-right-gemstuddedearrings",
             "quantity": 1
         }
 
@@ -33,7 +53,7 @@
         "height": 2,
         "output": {
             "type": "item",
-            "code": "canjewelry:canearrings-gemstuddedearrings",
+            "code": "canjewelry:canearrings-right-gemstuddedearrings",
             "quantity": 1,
             "attributes": {
                 "metal": "{metal-type}"

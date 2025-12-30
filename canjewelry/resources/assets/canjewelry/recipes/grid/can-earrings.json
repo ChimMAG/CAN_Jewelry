@@ -4,15 +4,34 @@
         "ingredients": {
             "E": {
                 "type": "item",
-                "code": "canjewelry:canearrings-keys"
+                "code": "canjewelry:canearrings-right-keys"
             }
         },
-        "name": "can-canearrings-change-side",
+        "name": "can-canearrings-change-side-right-to-left",
         "width": 1,
         "height": 1,
+        "copyAttributesFrom": "E",
         "output": {
             "type": "item",
-            "code": "canjewelry:canearrings-keys",
+            "code": "canjewelry:canearrings-left-keys",
+            "quantity": 1
+        }
+    },
+    {
+        "ingredientPattern": "E",
+        "ingredients": {
+            "E": {
+                "type": "item",
+                "code": "canjewelry:canearrings-left-keys"
+            }
+        },
+        "name": "can-canearrings-change-side-left-to-right",
+        "width": 1,
+        "height": 1,
+        "copyAttributesFrom": "E",
+        "output": {
+            "type": "item",
+            "code": "canjewelry:canearrings-right-keys",
             "quantity": 1
         }
     },
@@ -37,7 +56,7 @@
         "height": 2,
         "output": {
             "type": "item",
-            "code": "canjewelry:canearrings-keys",
+            "code": "canjewelry:canearrings-right-keys",
             "quantity": 1,
             "attributes": {
                 "metal": "{metal-type}"

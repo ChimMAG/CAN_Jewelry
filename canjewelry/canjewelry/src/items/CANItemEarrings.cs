@@ -128,8 +128,8 @@ namespace canjewelry.src.items
             JsonObject attrObj = stack.Collectible.Attributes;
             compGearShape = ((!attrObj["attachShape"].Exists) ? ((stack.Class == EnumItemClass.Item) ? stack.Item.Shape : stack.Block.Shape) : attrObj["attachShape"].AsObject<CompositeShape>(null, stack.Collectible.Code.Domain));
 
-            string eyeSide = stack.Attributes.GetString("clothescategory", "LeftEarrings");
-            AssetLocation shapePath = compGearShape.Base.CopyWithPath("shapes/" + compGearShape.Base.Path + (eyeSide == "LeftEarrings" ? "_left" : "") + ".json");
+            string eyeSide = stack.Collectible.Variant["side"];
+            AssetLocation shapePath = compGearShape.Base.CopyWithPath("shapes/" + compGearShape.Base.Path + ".json");
 
             //AssetLocation shapePath = compGearShape.Base.CopyWithPath("shapes/" + compGearShape.Base.Path + ".json");
             gearShape = Vintagestory.API.Common.Shape.TryGet(api, shapePath);
@@ -182,6 +182,8 @@ namespace canjewelry.src.items
         public void FillTextureDict(Dictionary<string, AssetLocation> dict, ItemStack itemStack, string texturePrefixCode = "")
         {
             int maxSocketNumber = EncrustableCB.GetMaxAmountSockets(itemStack);
+            string side = itemStack.Collectible.Variant["side"];
+            string prefix = side == "left" ? "left_" : "";
             if (itemStack != null && itemStack.Attributes.HasAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING))
             {
                 var tree = itemStack.Attributes.GetTreeAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING);
@@ -196,32 +198,33 @@ namespace canjewelry.src.items
                         canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
                         if (assetPath != null)
                         {
-                            dict["gem_" + (i + 1)] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
+                            dict[prefix + "gem_" + (i + 1)] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
                         }
                         else
                         {
-                            dict["gem_" + (i + 1)] = NotVisTexture;
+                            dict[prefix + "gem_" + (i + 1)] = NotVisTexture;
                         }
                     }
                     else
                     {
-                        dict["gem_" + (i + 1)] = NotVisTexture;
+                        dict[prefix + "gem_" + (i + 1)] = NotVisTexture;
                     }
                 }
                 
             }
             else
             {
-                dict["gem_1"] = new AssetLocation("canjewelry:item/gem/emerald.png");
-                dict["gem_2"] = new AssetLocation("canjewelry:item/gem/sapphire.png");
-                dict["gem_3"] = new AssetLocation("canjewelry:item/gem/citrine.png");
+                dict[prefix + "gem_1"] = new AssetLocation("canjewelry:item/gem/emerald.png");
+                dict[prefix + "gem_2"] = new AssetLocation("canjewelry:item/gem/sapphire.png");
+                dict[prefix + "gem_3"] = new AssetLocation("canjewelry:item/gem/citrine.png");
             }
 
 
 
-            dict[texturePrefixCode + "metalrings"] = new AssetLocation("block/metal/ingot/" + itemStack.Attributes.GetString("metal", "steel") + ".png");
-            dict[texturePrefixCode + "gems"] = NotVisTexture;
-            dict[texturePrefixCode + "canearingsbase"] = new AssetLocation("game:block/leather/plain");
+            dict[prefix + "metalearrings"] = new AssetLocation("block/metal/ingot/" + itemStack.Attributes.GetString("metal", "steel") + ".png");
+            dict[prefix + "gems"] = NotVisTexture;
+            dict[prefix + "canearingsbase"] = new AssetLocation("game:block/leather/plain");
+            dict[prefix + "plain"] = new AssetLocation("game:block/leather/plain");
         }
 
         public string GetCategoryCode(ItemStack stack)
@@ -368,31 +371,6 @@ namespace canjewelry.src.items
         public bool IsAttachable(Entity toEntity, ItemStack itemStack)
         {
             return true;
-        }
-        public override void OnCreatedByCrafting(ItemSlot[] allInputslots, ItemSlot outputSlot, GridRecipe byRecipe)
-        {
-            if (byRecipe.Name.Path == "can-canearrings-change-side")
-            {
-                ItemSlot monocleSlot = allInputslots.FirstOrDefault(sl => !sl.Empty);
-                if (monocleSlot != null)
-                {
-                    foreach (var attr in monocleSlot.Itemstack.Attributes)
-                    {
-                        outputSlot.Itemstack.Attributes[attr.Key] = attr.Value;
-                    }
-                    if (outputSlot.Itemstack.Attributes.HasAttribute("clothescategory"))
-                    {
-                        outputSlot.Itemstack.Attributes.SetString("clothescategory", outputSlot.Itemstack.Attributes.GetString("clothescategory") == "LeftEarrings" ? "RightEarrings" : "LeftEarrings");
-                    }
-                    else
-                    {
-                        outputSlot.Itemstack.Attributes.SetString("clothescategory", "RightEarrings");
-                    }
-                    return;
-                }
-            }
-            base.OnCreatedByCrafting(allInputslots, outputSlot, byRecipe);
-
         }
     }
 }

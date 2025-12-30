@@ -8,11 +8,6 @@
 	"textureWidth": 16,
 	"textureHeight": 16,
 	"textureSizes": {
-		"gold": [16,16],
-		"ruby": [8,8],
-		"diamond": [8,8],
-		"onyx": [8,8],
-		"seraph": [64,64]
 	},
 	"textures": {
 		"metalrings": "canjewelry:item/gem/notvis",

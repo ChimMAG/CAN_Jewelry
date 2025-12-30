@@ -197,7 +197,7 @@ namespace canjewelry.src.be
             this.secondsPassed = 0f;
         }
         public override void OnReceivedServerPacket(int packetid, byte[] data)
-        {
+        {         
             if (packetid == 1010)
             {
                 this.startWiringAnim();

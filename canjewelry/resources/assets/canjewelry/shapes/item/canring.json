@@ -10,7 +10,9 @@
 	"textureSizes": {
 	},
 	"textures": {
-		"gem_3": "/Users/koeni/Desktop/tex/gem_3"
+		"brass": "game:block/metal/plate/steel",
+		"plain": "canjewelry:item/gem/notvis",
+		"gem_1": "canjewelry:item/gem/notvis"
 	},
 	"elements": [
 		{
