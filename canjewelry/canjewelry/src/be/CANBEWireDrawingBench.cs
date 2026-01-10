@@ -1,23 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Vintagestory.API.Common.Entities;
+using canjewelry.src.blocks;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
-using Vintagestory.GameContent;
 using Vintagestory.API.Server;
-using System.Collections;
-using canjewelry.src.blocks;
-using System.Reflection.Metadata;
-using Vintagestory.API.Config;
-using Vintagestory.API.Client;
-using canjewelry.src.inventories;
 using Vintagestory.API.Util;
-using Vintagestory.Client.NoObf;
-using static canjewelry.src.OldConfig;
+using Vintagestory.GameContent;
 
 namespace canjewelry.src.be
 {
@@ -80,10 +70,6 @@ namespace canjewelry.src.be
         }
         private TextureAtlasPosition getOrCreateTexPos(AssetLocation texturePath)
         {
-            if (texturePath == null)
-            {
-                var c3 = 3;
-            }
             TextureAtlasPosition texPos = this.capi.BlockTextureAtlas[texturePath];
             if (texPos == null)
             {
@@ -91,7 +77,7 @@ namespace canjewelry.src.be
                 if (asset != null)
                 {
                     BitmapRef bitmap = asset.ToBitmap(this.capi);
-                    this.capi.BlockTextureAtlas.InsertTextureCached(texturePath, (IBitmap)bitmap, out int _, out texPos);
+                    this.capi.BlockTextureAtlas.GetOrInsertTexture(texturePath, out int _, out texPos, () => asset.ToBitmap(this.Api as ICoreClientAPI));
                 }
                 else
                 {
@@ -211,7 +197,7 @@ namespace canjewelry.src.be
             this.secondsPassed = 0f;
         }
         public override void OnReceivedServerPacket(int packetid, byte[] data)
-        {
+        {         
             if (packetid == 1010)
             {
                 this.startWiringAnim();

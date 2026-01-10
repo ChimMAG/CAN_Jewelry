@@ -1,37 +1,26 @@
-﻿using Cairo;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
+using System.Text;
+using Cairo;
 using canjewelry.src.be;
 using canjewelry.src.cb;
 using canjewelry.src.CB;
 using canjewelry.src.eb;
-using canjewelry.src.gui;
-using canjewelry.src.items;
 using HarmonyLib;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
-using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
-using Vintagestory.Client.NoObf;
-using Vintagestory.Common;
 using Vintagestory.GameContent;
 using Vintagestory.Server;
 
-namespace canjewelry.src
+namespace canjewelry.src.harmony
 {
     [HarmonyPatch]
     public class harmPatch
@@ -80,25 +69,25 @@ namespace canjewelry.src
                     ep.Stats.Set(attributeBuffName, "canencrusted", ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value + additionalValue, true);
                     if (additionalValue > 0)
                     {
-                        ep.Stats.Set(attributeBuffName, "canencrustedneg", (ep.Stats[attributeBuffName].ValuesByKey["canencrustedneg"].Value) - additionalValue, true);
+                        ep.Stats.Set(attributeBuffName, "canencrustedneg", ep.Stats[attributeBuffName].ValuesByKey["canencrustedneg"].Value - additionalValue, true);
                     }
                     else
                     {
-                        ep.Stats.Set(attributeBuffName, "canencrustedneg", (ep.Stats[attributeBuffName].ValuesByKey["canencrustedneg"].Value) + additionalValue, true);
+                        ep.Stats.Set(attributeBuffName, "canencrustedneg", ep.Stats[attributeBuffName].ValuesByKey["canencrustedneg"].Value + additionalValue, true);
                     }
                     //ep.Stats.Set(attributeBuffName, "canencrustedneg", ep.Stats[attributeBuffName].ValuesByKey["canencrustedneg"].Value + additionalValue, true);
                 }
                 //no neg part, add additional and add neg difference
-                else if (buffThreshold != 0 && additionalValue > 0 ?  Math.Abs(ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value + additionalValue) > buffThreshold : (ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value + additionalValue) < buffThreshold)
+                else if (buffThreshold != 0 && additionalValue > 0 ?  Math.Abs(ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value + additionalValue) > buffThreshold : ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value + additionalValue < buffThreshold)
                 {
                     ep.Stats.Set(attributeBuffName, "canencrusted", ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value + additionalValue, true);
                     if (additionalValue > 0)
                     {
-                        ep.Stats.Set(attributeBuffName, "canencrustedneg", -((ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value) - buffThreshold), true);
+                        ep.Stats.Set(attributeBuffName, "canencrustedneg", -(ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value - buffThreshold), true);
                     }
                     else
                     {
-                        ep.Stats.Set(attributeBuffName, "canencrustedneg", -(((ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value) - buffThreshold)), true);
+                        ep.Stats.Set(attributeBuffName, "canencrustedneg", -(ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value - buffThreshold), true);
                     }
                 }
                 //no neg part and under threshold
@@ -141,7 +130,7 @@ namespace canjewelry.src
          Catch active slot changed, also it catches moment when active change and we also flip slots. At that moment try_flip patch called as well
         
          */
-        public static void Postfix_TriggerAfterActiveSlotChanged(Vintagestory.Server.CoreServerEventManager __instance, IServerPlayer player,
+        public static void Postfix_TriggerAfterActiveSlotChanged(CoreServerEventManager __instance, IServerPlayer player,
             int fromSlot,
             int toSlot)
         {
@@ -291,7 +280,7 @@ namespace canjewelry.src
             }
         }
 
-        public static void Postfix_GetHeldItemInfo(Vintagestory.API.Common.CollectibleObject __instance, ItemSlot inSlot,
+        public static void Postfix_GetHeldItemInfo(CollectibleObject __instance, ItemSlot inSlot,
         StringBuilder dsc,
         IWorldAccessor world,
         bool withDebugInfo)
@@ -306,59 +295,60 @@ namespace canjewelry.src
                 {
                     dsc.Append(Lang.Get("canjewelry:item-can-have-n-sockets", canHaveNsocketsMore)).Append("\n");
                 }
-                
-                for (int i = 0; i < maxSocketsNumber; i++)
+                if (!canjewelry.config.TurnOffBuffs)
                 {
-                    var treeSlot = tree.GetTreeAttribute("slot" + i);
-                    if(treeSlot == null)
+                    for (int i = 0; i < maxSocketsNumber; i++)
                     {
-                        continue;
-                    }
-                    dsc.Append("<font color=\"#").Append(canjewelry.config.socketTiersColors[treeSlot.GetAsInt("sockettype") - 1]).Append("\"></font>").Append(Lang.Get("canjewelry:item-socket-tier", treeSlot.GetAsInt("sockettype")));
-                   // dsc.Append("<font color=\"" + canjewelry.config.socketTiersColors[2] + "\"><icon name=wpCircle></icon></font>" +  Lang.Get("canjewelry:item-socket-tier", treeSlot.GetAsInt("sockettype")));
-                    dsc.Append("\n");
-                    if(treeSlot.GetString("gemtype") != "")
-                    {
-                        if (treeSlot.HasAttribute("attributeBuff"))
+                        var treeSlot = tree.GetTreeAttribute("slot" + i);
+                        if (treeSlot == null)
                         {
-
-
-                            if (treeSlot.GetString("attributeBuff").Equals("maxhealthExtraPoints"))
-                            {
-                                dsc.Append(Lang.Get("canjewelry:socket-has-attribute", i, treeSlot.GetFloat("attributeBuffValue"))).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString("attributeBuff")));
-                            }
-                            else
-                            {
-                                dsc.Append(Lang.Get("canjewelry:socket-has-attribute-percent", i, treeSlot.GetFloat("attributeBuffValue") * 100)).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString("attributeBuff")));
-                            }
-                            dsc.AppendLine();
+                            continue;
                         }
-                        else
+                        dsc.Append("<font color=\"#").Append(canjewelry.config.socketTiersColors[treeSlot.GetAsInt("sockettype") - 1]).Append("\"></font>").Append(Lang.Get("canjewelry:item-socket-tier", treeSlot.GetAsInt("sockettype")));
+                        // dsc.Append("<font color=\"" + canjewelry.config.socketTiersColors[2] + "\"><icon name=wpCircle></icon></font>" +  Lang.Get("canjewelry:item-socket-tier", treeSlot.GetAsInt("sockettype")));
+                        dsc.Append("\n");
+                        if (treeSlot.GetString("gemtype") != "")
                         {
-                            string[] buffNames = (treeSlot[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value;
-                            float[] buffValues = (treeSlot[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
-
-                            for (int j = 0; j < buffNames.Length; j++)
+                            if (treeSlot.HasAttribute("attributeBuff"))
                             {
-                                if (buffNames[j].Equals("maxhealthExtraPoints"))
+
+
+                                if (treeSlot.GetString("attributeBuff").Equals("maxhealthExtraPoints"))
                                 {
-                                    dsc.Append(Lang.Get("canjewelry:buff-name-" + buffNames[j])).Append(" +" + buffValues[j].ToString());
-                                    dsc.AppendLine();
+                                    dsc.Append(Lang.Get("canjewelry:socket-has-attribute", i, treeSlot.GetFloat("attributeBuffValue"))).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString("attributeBuff")));
                                 }
                                 else
                                 {
-                                    if (canjewelry.config.gems_buffs.TryGetValue(buffNames[j], out var buffValuesDict))
+                                    dsc.Append(Lang.Get("canjewelry:socket-has-attribute-percent", i, treeSlot.GetFloat("attributeBuffValue") * 100)).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString("attributeBuff")));
+                                }
+                                dsc.AppendLine();
+                            }
+                            else
+                            {
+                                string[] buffNames = (treeSlot[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute).value;
+                                float[] buffValues = (treeSlot[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
+
+                                for (int j = 0; j < buffNames.Length; j++)
+                                {
+                                    if (buffNames[j].Equals("maxhealthExtraPoints"))
                                     {
-                                        dsc.Append(Lang.Get("canjewelry:buff-name-" + buffNames[j]));
-                                        dsc.Append(buffValues[j] * 100 > 0 ? " +" + Math.Round(buffValues[j] * 100, 3) + "%" : " " + Math.Round(buffValues[j] * 100, 3) + "%");
+                                        dsc.Append(Lang.Get("canjewelry:buff-name-" + buffNames[j])).Append(" +" + buffValues[j].ToString());
                                         dsc.AppendLine();
+                                    }
+                                    else
+                                    {
+                                        if (canjewelry.config.gems_buffs.TryGetValue(buffNames[j], out var buffValuesDict))
+                                        {
+                                            dsc.Append(Lang.Get("canjewelry:buff-name-" + buffNames[j]));
+                                            dsc.Append(buffValues[j] * 100 > 0 ? " +" + Math.Round(buffValues[j] * 100, 3) + "%" : " " + Math.Round(buffValues[j] * 100, 3) + "%");
+                                            dsc.AppendLine();
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-
             }
             //if item has cutom variant handling or just normal canhavenumbersocket parameter, just print it in item's info
             else if(itemstack.ItemAttributes != null && 
@@ -372,82 +362,6 @@ namespace canjewelry.src
                 }
             }
         }
-
-        //Prefix_GetDrops
-        public static bool Prefix_GetDrops(Vintagestory.API.Common.Block __instance, IWorldAccessor world, BlockPos pos, IPlayer byPlayer, ref ItemStack[] __result, float dropQuantityMultiplier = 1f)
-        {
-            var f = 3;
-
-            bool flag = false;
-            List<ItemStack> list = new List<ItemStack>();
-            BlockBehavior[] blockBehaviors = __instance.BlockBehaviors;
-            foreach (BlockBehavior obj in blockBehaviors)
-            {
-                EnumHandling handling = EnumHandling.PassThrough;
-                ItemStack[] drops = obj.GetDrops(world, pos, byPlayer, ref dropQuantityMultiplier, ref handling);
-                if (drops != null)
-                {
-                    list.AddRange(drops);
-                }
-
-                switch (handling)
-                {
-                    case EnumHandling.PreventSubsequent:
-                        return false;
-                    case EnumHandling.PreventDefault:
-                        flag = true;
-                        break;
-                }
-            }
-
-            if (flag)
-            {
-                return false;
-            }
-
-            if (__instance.Drops == null)
-            {
-                return false;
-            }
-
-            List<ItemStack> list2 = new List<ItemStack>();
-            for (int j = 0; j < __instance.Drops.Length; j++)
-            {
-                BlockDropItemStack blockDropItemStack = __instance.Drops[j];
-                if (blockDropItemStack.Tool.HasValue && (byPlayer == null || blockDropItemStack.Tool != byPlayer.InventoryManager.ActiveTool))
-                {
-                    continue;
-                }
-
-                float num = 1f;
-                if (blockDropItemStack.DropModbyStat != null)
-                {
-                    num = byPlayer.Entity.Stats.GetBlended(blockDropItemStack.DropModbyStat);
-                }
-
-                ItemStack itemStack = __instance.Drops[j].GetNextItemStack(dropQuantityMultiplier * num);
-                if (itemStack != null)
-                {
-                    if (itemStack.Collectible is IResolvableCollectible resolvableCollectible)
-                    {
-                        DummySlot dummySlot = new DummySlot(itemStack);
-                        resolvableCollectible.Resolve(dummySlot, world);
-                        itemStack = dummySlot.Itemstack;
-                    }
-
-                    list2.Add(itemStack);
-                    if (__instance.Drops[j].LastDrop)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            list2.AddRange(list);
-            __result = list2.ToArray();
-            return false;
-        }
-
         public static void Postfix_CollectibleObject_GetMaxDurability(ref int __result, ItemStack itemstack)
         {
             if(itemstack != null)
@@ -461,13 +375,13 @@ namespace canjewelry.src
                 float valueOrDefault = tree.TryGetFloat(CANJWConstants.CANDURABILITY_STRING).GetValueOrDefault();
                 if (valueOrDefault > 0f && __result > 1)
                 {
-                    __result = (int)((float)__result * (1f + valueOrDefault));
+                    __result = (int)(__result * (1f + valueOrDefault));
                 }
             }
         }
         public static void TryDropGems(Entity byEntity, ItemSlot itemslot)
         {
-            if (byEntity == null || (byEntity.Api != null && byEntity.Api.Side != EnumAppSide.Client))
+            if (byEntity == null || byEntity.Api != null && byEntity.Api.Side != EnumAppSide.Client)
             {
                 return;
             }
@@ -548,12 +462,20 @@ namespace canjewelry.src
 
         public static void Postfix_CharacterSystem_StartClientSide(CharacterSystem __instance, ICoreClientAPI api, GuiDialogCharacterBase ___charDlg)
         {
+            int lastIndex = ___charDlg.Tabs.Count;
             ___charDlg.Tabs.Add(new GuiTab()
             {
                 Name = Lang.Get("canjewelry:stats-tab-name"),
-                DataInt = 2
+                DataInt = ___charDlg.Tabs.Count
             });
-            ___charDlg.RenderTabHandlers.Add(new Action<GuiComposer>(composeProgressTab));
+            ___charDlg.RenderTabHandlers.Add(new Action<GuiComposer>(composeStatsTab));
+
+            ___charDlg.Tabs.Add(new GuiTab()
+            {
+                Name = Lang.Get("canjewelry:additionaljewelry-tab-name"),
+                DataInt = ___charDlg.Tabs.Count
+            });
+            ___charDlg.RenderTabHandlers.Add(new Action<GuiComposer>(composeAdditionalJewelryTab));
         }
         public static void Postfix_ItemChisel_OnHeldAttackStart(ItemChisel __instance, ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, ref EnumHandHandling handling)
         {
@@ -614,7 +536,7 @@ namespace canjewelry.src
             }
             return cellElements;
         }
-        private static void composeProgressTab(GuiComposer compo)
+        private static void composeStatsTab(GuiComposer compo)
         {
             var mainBounds = ElementBounds.Fixed(0.0, 35.0, 355.0, 250);
             var textBounds = mainBounds.FlatCopy();
@@ -623,7 +545,6 @@ namespace canjewelry.src
             int insetWidth = (int)mainBounds.fixedWidth;
             int insetHeight = (int)mainBounds.fixedHeight;
             int rowHeight = 25;
-            int rowCount = 40;
 
             //compo.AddRichtext("hello", CairoFont.WhiteDetailText().WithLineHeightMultiplier(1.15).WithFontSize(16), mainBounds);
 
@@ -638,7 +559,7 @@ namespace canjewelry.src
                     .BeginClip(clipBounds)
                         .AddContainer(containerBounds, "scroll-content")
                     .EndClip()
-                    .AddVerticalScrollbar((float value)  =>
+                    .AddVerticalScrollbar((value)  =>
                     {
                         ElementBounds bounds = compo.GetContainer("scroll-content").Bounds;
                         bounds.fixedY = 5 - value;
@@ -661,6 +582,56 @@ namespace canjewelry.src
 
             return;
         }
+        private static void composeAdditionalJewelryTab(GuiComposer compo)
+        {
+            var mainBounds = ElementBounds.Fixed(0.0, 35.0, 355.0, 10);
+            var textBounds = mainBounds.FlatCopy();
 
+            //compo.AddStaticText("hello", CairoFont.WhiteDetailText(), textBounds);
+            var invBounds = textBounds.BelowCopy(20, 0).WithFixedSize(350, 250);
+            IInventory additionalJewelryInv = canjewelry.capi.World.Player.InventoryManager.GetOwnInventory("additionaljewelrycharacter");
+            
+            compo.AddItemSlotGrid(additionalJewelryInv, new Action<object>(SendInvPacket), 6, invBounds, "invBounds");
+            compo.Compose();
+        }
+        protected static void SendInvPacket(object packet)
+        {
+            canjewelry.capi.Network.SendPacketClient(packet);
+        }
+        public static IEnumerable<CodeInstruction> Transpiler_ServerWorldPlayerData_ToPacketForOtherPlayers(IEnumerable<CodeInstruction> instructions, ILGenerator il)
+        {
+            bool found = false;
+            bool foundSec = false;
+            var codes = new List<CodeInstruction>(instructions);
+            
+            Label returnLabelContinue = il.DefineLabel();
+
+            for (int i = 0; i < codes.Count; i++)
+            {
+
+                if (!found &&
+                        codes[i].opcode == OpCodes.Ldloc_S && codes[i + 1].opcode == OpCodes.Callvirt && codes[i + 2].opcode == OpCodes.Ldstr && codes[i - 1].opcode == OpCodes.Brtrue_S)
+                {
+                    if(codes[i + 2].operand as string == "backpack")
+                    {
+                        yield return new CodeInstruction(OpCodes.Ldloc_S, codes[i].operand);
+                        yield return new CodeInstruction(OpCodes.Callvirt, codes[i + 1].operand);
+                        yield return new CodeInstruction(OpCodes.Ldstr, "additionaljewelrycharacter");
+                        yield return new CodeInstruction(OpCodes.Call, codes[i + 3].operand);
+                        yield return new CodeInstruction(OpCodes.Brtrue_S, returnLabelContinue);
+                        found = true;
+                    }                
+                }
+
+                if (!foundSec &&
+                       codes[i].opcode == OpCodes.Ldloc_0 && codes[i + 1].opcode == OpCodes.Ldloc_S && codes[i + 2].opcode == OpCodes.Castclass && codes[i - 1].opcode == OpCodes.Brfalse_S)
+                {
+                    codes[i].labels.Add(returnLabelContinue);
+                    foundSec = true;
+                }
+
+                yield return codes[i];
+            }
+        }
     }
 }

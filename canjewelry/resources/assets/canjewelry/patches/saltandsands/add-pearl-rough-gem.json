@@ -1,0 +1,32 @@
+[
+    {
+        "file": "canjewelry:itemtypes/resource/gem-rough.json",
+        "op": "addeach",
+        "path": "/variantgroups/2/states/-",
+        "value": [
+            "pearl"
+        ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ],
+        "side": "server"
+    },
+    {
+        "file": "canjewelry:itemtypes/resource/gem-rough.json",
+        "op": "addmerge",
+        "path": "/texturesByType",
+        "value": {
+            "*-pearl": {
+                "gem": { "base": "saltandsands:item/pearls" }
+            }
+        },
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ],
+        "side": "server"
+    }
+]

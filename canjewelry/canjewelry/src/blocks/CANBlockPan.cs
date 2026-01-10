@@ -1,11 +1,7 @@
-﻿using canjewelry.src.utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using canjewelry.src.utils;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
@@ -70,29 +66,6 @@ namespace canjewelry.src.blocks
                 WorldInteraction worldInteraction = new WorldInteraction();
                 worldInteraction.ActionLangCode = "heldhelp-pan";
                 worldInteraction.MouseButton = EnumMouseButton.Right;
-                InteractionMatcherDelegate shouldApply;
-               /* if ((shouldApply = <> 9__2) == null)
-                {
-                    shouldApply = (<> 9__2 = delegate (WorldInteraction wi, BlockSelection bs, EntitySelection es)
-                    {
-                        ItemStack stack = (api as ICoreClientAPI).World.Player.InventoryManager.ActiveHotbarSlot.Itemstack;
-                        return this.GetBlockMaterialCode(stack) != null;
-                    });
-                }*/
-                /*
-                 public override WorldInteraction[] GetHeldInteractionHelp(ItemSlot inSlot) => new WorldInteraction[3]
-                {
-                  new WorldInteraction()
-                  {
-                    ActionLangCode = "heldhelp-fill",
-                    MouseButton = EnumMouseButton.Right,
-                    ShouldApply = (InteractionMatcherDelegate) ((wi, bs, es) => (double) this.GetCurrentLitres(this.api.World, inSlot.Itemstack) < (double)   
-                    this.CapacityLitres)
-                  },
-                 
-                 
-                 */
-                //worldInteraction.ShouldApply = shouldApply;
                 array[num] = worldInteraction;
                 return array;
             });
@@ -152,7 +125,6 @@ namespace canjewelry.src.blocks
         }
         public void SetMaterial(ItemSlot slot, string materialCode)
         {
-
             slot.Itemstack.Attributes.SetString("materialBlockCode", materialCode);
         }
         public void RemoveMaterial(ItemSlot slot)
@@ -166,7 +138,8 @@ namespace canjewelry.src.blocks
             {
                 return;
             }
-            string key = "canjewelry:pan-filled-" + blockMaterialCode + target.ToString();
+            string variant = this.Variant["metal"];
+            string key = "canjewelry:pan-filled-" + blockMaterialCode + target.ToString() + variant;
             renderinfo.ModelRef = ObjectCacheUtil.GetOrCreate<MultiTextureMeshRef>(capi, key, delegate
             {
                 AssetLocation shapeloc = new AssetLocation("canjewelry:shapes/block/filled.json");
@@ -182,6 +155,11 @@ namespace canjewelry.src.blocks
         }
         public override void OnHeldInteractStart(ItemSlot slot, EntityAgent byEntity, BlockSelection blockSel, EntitySelection entitySel, bool firstEvent, ref EnumHandHandling handling)
         {
+            if (byEntity.Controls.ShiftKey)
+            {
+                base.OnHeldInteractStart(slot, byEntity, blockSel, entitySel, firstEvent, ref handling);
+                return;
+            }
             handling = EnumHandHandling.PreventDefault;
             if (!firstEvent)
             {
@@ -316,6 +294,8 @@ namespace canjewelry.src.blocks
                     this.CreateDrop(byEntity, code);
                 }
                 this.RemoveMaterial(slot);
+
+                slot.Itemstack.Collectible.DamageItem(this.api.World, byEntity, slot);
                 slot.MarkDirty();
                 EntityBehaviorHunger behavior = byEntity.GetBehavior<EntityBehaviorHunger>();
                 if (behavior == null)

@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using canjewelry.src.be;
 using canjewelry.src.CB;
 using canjewelry.src.inventories;
 using canjewelry.src.items;
-using canjewelry.src.utils;
+using canjewelry.src.items.resource;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
@@ -170,7 +166,7 @@ namespace canjewelry.src.jewelry
             this.inventory.SlotModified += (int num) => {
                 if (this.inventory.Api.Side == EnumAppSide.Client)
                 {
-                    this.renameGui.SetupDialog();
+                    //this.renameGui.SetupDialog();
                 }
             };
 

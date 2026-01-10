@@ -1,148 +1,148 @@
 ﻿{
-  "code": "canrottenkingmask",
-  "class": "CANItemRottenKingMask",
-  "storageFlags": 128,
+    "code": "canrottenkingmask",
+    "class": "CANItemRottenKingMask",
+    "storageFlags": 128,
 
-  "attributes": {
-    "disableElements": [ "Hair tile upper part", "ponytailhigh", "ponytaillow", "Hair", "hideme", "sidehigh", "sidelow", "bangs" ],
-    "handbook": {
-      "groupBy": [ "canrottenkingmask-*" ]
+    "attributes": {
+        "disableElements": [ "Hair tile upper part", "ponytailhigh", "ponytaillow", "Hair", "hideme", "sidehigh", "sidelow", "bangs" ],
+        "handbook": {
+            "groupBy": [ "canrottenkingmask-*" ]
+        },
+        "clothescategory": "face",
+        "rackable": true,
+        "wearableAttachment": true,
+        "groundStorageTransformByType": {
+            "*": {
+                "translation": {
+                    "x": -0.42,
+                    "y": -0.45,
+                    "z": -0.045
+                },
+                "rotation": {
+                    "x": 21,
+                    "y": 179,
+                    "z": -90
+                },
+                "scale": 1
+            }
+        },
+        "variantGroups": {
+            "metal": [ "tinbronze", "bismuthbronze", "blackbronze", "gold", "silver", "iron", "meteoriciron", "steel" ]
+        },
+        "allowedVariants": [
+            {
+                "construction": "normal",
+                "metal": "*"
+            }
+        ]
     },
-    "clothescategory": "face",
-    "rackable": true,
-    "wearableAttachment": true,
-    "groundStorageTransformByType": {
-      "*": {
+    "variantgroups": [
+        {
+            "code": "construction",
+            "states": [ "normal" ]
+        }
+    ],
+
+    "texturesByType": {
+        "*": {
+            "seraph": { "base": "game:block/transparent" }
+        }
+    },
+    "shapeByType": {
+        "normal-neck": { "base": "canjewelry:item/rottenkingmask" },
+        "*": { "base": "canjewelry:item/rottenkingmask" }
+    },
+    "fpHandTransform": {
         "translation": {
-          "x": -0.42,
-          "y": -0.45,
-          "z": -0.045
+            "x": 0,
+            "y": 0.3,
+            "z": 0.3
         },
         "rotation": {
-          "x": 21,
-          "y": 179,
-          "z": -90
+            "x": 65,
+            "y": -81,
+            "z": 67
         },
-        "scale": 1
-      }
+        "origin": {
+            "x": 0.1,
+            "y": -0.9,
+            "z": 0.5
+        },
+        "scale": 1.00
     },
-    "variantGroups": {
-      "metal": [ "tinbronze", "bismuthbronze", "blackbronze", "gold", "silver", "iron", "meteoriciron", "steel" ]
+    "tpHandTransform": {
+        "translation": {
+            "x": 0.3,
+            "y": 0.36,
+            "z": 0.36
+        },
+        "rotation": {
+            "x": 30,
+            "y": -58,
+            "z": -36
+        },
+        "origin": {
+            "x": 0.7,
+            "y": -5,
+            "z": 0
+        },
+        "scale": 0.72
     },
-    "allowedVariants": [
-      {
-        "construction": "normal",
-        "metal": "*"
-      }
-    ]
-  },
-  "variantgroups": [
-    {
-      "code": "construction",
-      "states": [ "normal" ]
+    "guiTransform": {
+        "translation": {
+            "x": -5,
+            "y": -8.8,
+            "z": 1
+        },
+        "rotation": {
+            "x": 113,
+            "y": -86,
+            "z": -46
+        },
+        "origin": {
+            "x": 0.45,
+            "y": 1.7298,
+            "z": 0.54
+        },
+        "scale": 2.94
+    },
+    "groundTransformByType": {
+        "*-copper-torc": {
+            "translation": {
+                "x": 0,
+                "y": 0.05,
+                "z": 0
+            },
+            "rotation": {
+                "x": 0,
+                "y": 0,
+                "z": -180
+            },
+            "origin": {
+                "x": 0.5,
+                "y": 1.5,
+                "z": 0.5
+            },
+            "scale": 3.06
+        },
+        "*": {
+            "translation": {
+                "x": 0,
+                "y": -0.05,
+                "z": 0
+            },
+            "rotation": {
+                "x": 0,
+                "y": 0,
+                "z": -90
+            },
+            "origin": {
+                "x": 0.5,
+                "y": 1.5,
+                "z": 0.5
+            },
+            "scale": 3.06
+        }
     }
-  ],
-
-  "texturesByType": {
-    "*": {
-      "seraph": { "base": "game:block/transparent" }
-    }
-  },
-  "shapeByType": {
-    "normal-neck": { "base": "canjewelry:item/rottenkingmask" },
-    "*": { "base": "canjewelry:item/rottenkingmask" }
-  },
-  "fpHandTransform": {
-    "translation": {
-      "x": 0,
-      "y": 0.3,
-      "z": 0.3
-    },
-    "rotation": {
-      "x": 65,
-      "y": -81,
-      "z": 67
-    },
-    "origin": {
-      "x": 0.1,
-      "y": -0.9,
-      "z": 0.5
-    },
-    "scale": 1.00
-  },
-  "tpHandTransform": {
-    "translation": {
-      "x": -1.1,
-      "y": -0.75,
-      "z": -1.24
-    },
-    "rotation": {
-      "x": 30,
-      "y": -68,
-      "z": -36
-    },
-    "origin": {
-      "x": 0.5,
-      "y": 1.4,
-      "z": 0.5
-    },
-    "scale": 0.72
-  },
-  "guiTransform": {
-    "translation": {
-      "x": -5,
-      "y": -8.8,
-      "z": 1
-    },
-    "rotation": {
-      "x": 113,
-      "y": -86,
-      "z": -53
-    },
-    "origin": {
-      "x": 0.45,
-      "y": 0.1299,
-      "z": 0.24
-    },
-    "scale": 2.88
-  },
-  "groundTransformByType": {
-    "*-copper-torc": {
-      "translation": {
-        "x": 0,
-        "y": 0.05,
-        "z": 0
-      },
-      "rotation": {
-        "x": 0,
-        "y": 0,
-        "z": -180
-      },
-      "origin": {
-        "x": 0.5,
-        "y": 1.5,
-        "z": 0.5
-      },
-      "scale": 3.06
-    },
-    "*": {
-      "translation": {
-        "x": 0,
-        "y": -0.05,
-        "z": 0
-      },
-      "rotation": {
-        "x": 0,
-        "y": 0,
-        "z": -90
-      },
-      "origin": {
-        "x": 0.5,
-        "y": 1.5,
-        "z": 0.5
-      },
-      "scale": 3.06
-    }
-  }
 
 }

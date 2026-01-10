@@ -10,7 +10,9 @@
 	},
 	"textures": {
 		"pendants1": "game:block/metal/plate/steel",
-		"metal": "game:block/metal/plate/steel"
+		"metal": "game:block/metal/plate/steel",
+		"silk": "canjewelry:item/gem/notvis",
+		"gem": "canjewelry:item/gem/notvis"
 	},
 	"elements": [
 		{

@@ -1,25 +1,21 @@
-﻿using HarmonyLib;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using canjewelry.src.CB;
+using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
-using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
+using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
-using Vintagestory.API.Datastructures;
-using canjewelry.src.CB;
 
 namespace canjewelry.src.items
 {
     public class CANItemCoronet: CANItemWearable, IWearableShapeSupplier, IAttachableToEntity
     {
-        private Shape nowTesselatingShape;
         private ITextureAtlasAPI curAtlas;
         private ICoreClientAPI capi;
         private float offY;
@@ -168,7 +164,7 @@ namespace canjewelry.src.items
 
         public CompositeShape GetAttachedShape(ItemStack stack, string slotCode)
         {
-            return null;
+            return this.Shape;
         }
 
         public string[] GetDisableElements(ItemStack stack)
@@ -187,7 +183,7 @@ namespace canjewelry.src.items
         }
         public override string GetMeshCacheKey(ItemStack itemstack)
         {
-            string metal = itemstack.Attributes.GetString("metal", null);
+            string metal = itemstack.Item.Variant["loop"];
             return string.Concat(new string[]
             {
                 this.Code.ToShortString(),
@@ -238,15 +234,6 @@ namespace canjewelry.src.items
             base.GetHeldItemInfo(inSlot, dsc, world, withDebugInfo);
 
             string maskMetal = inSlot.Itemstack.Attributes.GetString("metal", null);
-
-            /* if (gem != "none")
-            {
-                dsc.AppendLine(Lang.Get("canjewelry:necklace-parts-with-gem-held-info", Lang.Get("material-" + loop), Lang.Get("material-" + socket), gem));
-            }
-            else
-            {
-                dsc.AppendLine(Lang.Get("canjewelry:necklace-parts-without-gem-held-info", Lang.Get("material-" + loop), Lang.Get("material-" + socket)));
-            }*/
             if ((api as ICoreClientAPI).Settings.Bool["extendedDebugInfo"])
             {
                 if (DressType == EnumCharacterDressType.Unknown)
@@ -262,7 +249,7 @@ namespace canjewelry.src.items
         }
         public override void OnBeforeRender(ICoreClientAPI capi, ItemStack itemstack, EnumItemRenderTarget target, ref ItemRenderInfo renderinfo)
         {
-            if (target == EnumItemRenderTarget.HandFp)
+            if (target == EnumItemRenderTarget.HandTp)
             {
                 bool sneak = capi.World.Player.Entity.Controls.Sneak;
                 this.curOffY += ((sneak ? 0.4f : this.offY) - this.curOffY) * renderinfo.dt * 8f;
@@ -483,24 +470,11 @@ namespace canjewelry.src.items
             dict["metal"] = itemStack.Item.Textures["metal"].Base;
             dict["gems"] = new AssetLocation("canjewelry:item/gem/notvis.png");
         }
-
-        private MeshData genMesh(ICoreClientAPI capi, ItemStack itemstack, ITexPositionSource texSource)
+        public override MeshData genMesh(ICoreClientAPI capi, ItemStack itemstack, ITexPositionSource texSource)
         {
-            //canjewelry.gems_textures.TryGetValue("diamond", out string assetPath);
-           // tmpTextures["gems"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-            ContainedTextureSource cnts = new ContainedTextureSource(this.api as ICoreClientAPI, curAtlas, new Dictionary<string, AssetLocation>(), string.Format("For render in shield {0}", this.Code));
-            cnts.Textures.Clear();
-
-           // cnts.Textures["metal"] = itemstack.Item.Textures["metal"].Base;
-            
-            //cnts.Textures["gems"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
-
-            FillTextureDict(cnts.Textures, itemstack);
-
-
-            MeshData mesh;
-            this.capi.Tesselator.TesselateItem(this, out mesh, cnts);
-            return mesh;
+            this.tmpTextures.Clear();
+            this.FillTextureDict(tmpTextures, itemstack);
+            return base.genMesh(capi, itemstack, texSource);
         }
         public override string GetHeldItemName(ItemStack itemStack)
         {

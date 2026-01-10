@@ -1,9 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
@@ -17,15 +13,10 @@ namespace canjewelry.src.jewelry
     public class ProcessedGem : Item, ITexPositionSource, IContainedMeshSource
     {
         private float offY;
-
         private float curOffY;
-
         private ICoreClientAPI capi;
-
         private ITextureAtlasAPI targetAtlas;
-
         private Dictionary<string, AssetLocation> tmpTextures = new Dictionary<string, AssetLocation>();
-
         public TextureAtlasPosition this[string textureCode]
         {
             get
@@ -55,7 +46,6 @@ namespace canjewelry.src.jewelry
             }
             return texpos;
         }
-
         public Size2i AtlasSize
         {
             get
@@ -128,7 +118,7 @@ namespace canjewelry.src.jewelry
         }
         public override void OnBeforeRender(ICoreClientAPI capi, ItemStack itemstack, EnumItemRenderTarget target, ref ItemRenderInfo renderinfo)
         {
-            if (target == EnumItemRenderTarget.HandFp)
+            if (target == EnumItemRenderTarget.HandTp)
             {
                 bool sneak = capi.World.Player.Entity.Controls.Sneak;
                 this.curOffY += ((sneak ? 0.4f : this.offY) - this.curOffY) * renderinfo.dt * 8f;
@@ -233,7 +223,6 @@ namespace canjewelry.src.jewelry
             }
             return "";          
         }
-
         public MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
         {
             return this.GenMesh(itemstack, targetAtlas);

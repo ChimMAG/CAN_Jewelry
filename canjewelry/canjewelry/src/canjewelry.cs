@@ -1,24 +1,31 @@
-﻿using canjewelry.src.CB;
-using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using Cairo;
+using canjewelry.src.bb;
+using canjewelry.src.be;
+using canjewelry.src.blocks;
+using canjewelry.src.cb;
+using canjewelry.src.CB;
+using canjewelry.src.eb;
+using canjewelry.src.harmony;
+using canjewelry.src.inventories;
+using canjewelry.src.items;
+using canjewelry.src.items.resource;
+using canjewelry.src.jewelry;
+using canjewelry.src.utils;
+using HarmonyLib;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Datastructures;
+using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
-using Vintagestory.GameContent;
-using canjewelry.src.blocks;
-using Newtonsoft.Json;
 using Vintagestory.API.Util;
-using Newtonsoft.Json.Linq;
-using canjewelry.src.jewelry;
-using canjewelry.src.items;
-using canjewelry.src.eb;
-using canjewelry.src.be;
-using canjewelry.src.bb;
-using canjewelry.src.cb;
+using Vintagestory.Client.NoObf;
+using Vintagestory.Common;
+using Vintagestory.Server;
 
 namespace canjewelry.src
 {
@@ -31,9 +38,16 @@ namespace canjewelry.src
         internal static IServerNetworkChannel serverChannel;
         internal static IClientNetworkChannel clientChannel;
         public static Config config;
-        public static Dictionary<string, string> gems_textures = new Dictionary<string, string>();
-        public static Dictionary<string, string> gems_textures_pngs = new Dictionary<string, string>();
+        public static Dictionary<string, string> gems_textures = new();
+        public static Dictionary<string, string> gems_textures_pngs;
         public static List<GemCuttingRecipe> gemCuttingRecipes;
+        private readonly Dictionary<string, RestrictionData> restrictions = [];
+        private readonly Dictionary<string, Dictionary<string, ModelTransform>> transformations = [];
+        public override void StartPre(ICoreAPI api)
+        {
+            PlayerInventoryManager.defaultInventories = PlayerInventoryManager.defaultInventories.Append("additionaljewelrycharacter");
+            base.StartPre(api);
+        }
         public override void Start(ICoreAPI api)
         {
             base.Start(api);
@@ -75,25 +89,27 @@ namespace canjewelry.src
             api.RegisterItemClass("CANItemGemCuttingWorkItem", typeof(CANItemGemCuttingWorkItem));
             api.RegisterItemClass("CANItemGemChisel", typeof(CANItemGemChisel));
             api.RegisterItemClass("CANItemHorusEye", typeof(CANItemHorusEye));
-
+            api.RegisterItemClass("CANItemNoseRing", typeof(CANItemNoseRing));
+            api.RegisterItemClass("CANItemEarrings", typeof(CANItemEarrings));
+            api.RegisterItemClass("CANItemNadiyanNecklace", typeof(CANItemNadiyanNecklace));
+            api.RegisterItemClass("CANItemGlasses", typeof(CANItemGlasses));
+            api.RegisterItemClass("CANItemRing", typeof(CANItemRing));
 
             api.RegisterBlockClass("CANBlockPan", typeof(CANBlockPan));
             api.RegisterBlockClass("BlockGemCuttingTable", typeof(BlockGemCuttingTable));
+            api.RegisterEntityBehaviorClass("playeradditionaljewelryinventory", typeof(EntityBehaviorAdditionalJewelryPlayerInventory));
+
+            api.RegisterBlockClass("CANBlockPSContainer", typeof(CANBasePSContainer));
+            api.RegisterBlockEntityClass("CANBENecklaceStand", typeof(CANBENecklaceStand));
+            api.RegisterBlockEntityClass("CANBEHeadStand", typeof(CANBEHeadStand));
         }
         public override void StartClientSide(ICoreClientAPI api)
         {
             base.StartClientSide(api);
             capi = api;
             loadConfig(capi);
-            harmonyInstance = new Harmony(harmonyID);
-
-            harmonyInstance.Patch(typeof(Vintagestory.API.Client.GuiElementItemSlotGridBase).GetMethod("ComposeSlotOverlays", BindingFlags.NonPublic | BindingFlags.Instance), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_ComposeSlotOverlays_Add_Socket_Overlays_Not_Draw_ItemDamage")));
-
-            harmonyInstance.Patch(typeof(Vintagestory.API.Common.CollectibleObject).GetMethod("GetHeldItemInfo"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_GetHeldItemInfo")));
-
-            harmonyInstance.Patch(typeof(CharacterSystem).GetMethod("StartClientSide"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_CharacterSystem_StartClientSide")));
-
-            harmonyInstance.Patch(typeof(ItemChisel).GetMethod("OnHeldAttackStart"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_ItemChisel_OnHeldAttackStart")));
+            AddCustomIcons();
+            ClientPatcher.ApplyPatches(capi, harmonyID, ref harmonyInstance);
 
             clientChannel = api.Network.RegisterChannel("canjewelry");
             clientChannel.RegisterMessageType(typeof(SyncCANJewelryPacket));
@@ -114,73 +130,161 @@ namespace canjewelry.src
                     BEJewelGrinder.gemTypeToColor[gemType] = color;
                 }
             }
-            capi.Event.LevelFinalize += () =>
+            ClientMain.ClassRegistry.RegisterInventoryClass("additionaljewelrycharacter", typeof(InventoryCharacterAdditionalJewelry));
+            api.Event.PlayerJoin += (IClientPlayer byPlayer) =>
             {
-                Item[] cut_gems_items = api.World.SearchItems(new AssetLocation("canjewelry:gem-cut-*"));
-
-                foreach (var gem in cut_gems_items)
+                if (byPlayer != null && capi.World.Player != null && byPlayer == capi.World.Player)
                 {
-                    //catch if not present?
-                    gems_textures.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":textures/" + gem.Textures["gem"].Base.Path);
-                    gems_textures_pngs.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":" + gem.Textures["gem"].Base.Path + ".png");
-                }
-                if (clientChannel.Connected)
-                {
-                    clientChannel.SendPacket(new SyncCANJewelryPacket()
+                    if (clientChannel.Connected)
                     {
-                        CompressedConfig = ""
-                    });
-                }
-                else
-                {
-                   
-                    canjewelry.sapi.Event.RegisterCallback((dt =>
-                    {
-                        if (clientChannel.Connected)
+                        clientChannel.SendPacket(new SyncCANJewelryPacket()
                         {
-                            clientChannel.SendPacket(new SyncCANJewelryPacket()
-                            {
-                                CompressedConfig = ""
-                            });
-                        }
+                            CompressedConfig = ""
+                        });
                     }
-                    ), 60 * 1000);
+                    else
+                    {
+                        canjewelry.sapi.Event.RegisterCallback((dt =>
+                        {
+                            if (clientChannel.Connected)
+                            {
+                                clientChannel.SendPacket(new SyncCANJewelryPacket()
+                                {
+                                    CompressedConfig = ""
+                                });
+                            }
+                        }
+                        ), 60 * 1000);
+                    }
                 }
             };
+            
         }
-        /*public void PlayerChatDelegate(IServerPlayer byPlayer, int channelId, ref string message, ref string data, BoolRef consumed)
+        public override void AssetsLoaded(ICoreAPI api)
         {
-            var c = 3;
-            var now = DateTime.Now;
-            var cc = byPlayer.Entity.Api.ModLoader.GetModSystem<Th3Essentials.Th3Essentials>();
+            base.AssetsLoaded(api);
 
-            var ccc = typeof(Th3Essentials.Th3Essentials).GetMember("config",  BindingFlags.Static);
-            if(!string.IsNullOrEmpty("war"))
+            if (api.Side == EnumAppSide.Server)
             {
-                var c2 = 3;
+                var restrictionGroupsServer = DiscoverRestrictionGroups(api);
+                LoadData(api, restrictionGroupsServer);
             }
-            //var f = Th3Essentials.Th3Essentials;
-            message = $"{now.TimeOfDay.ToString("hh\\:mm")}: {message}";
+            CANItemWearable.NotVisTexture = new AssetLocation("canjewelry:item/gem/notvis.png");
+        }
+        public override void AssetsFinalize(ICoreAPI api)
+        {
+            base.AssetsFinalize(api);
+            foreach (CollectibleObject obj in api.World.Collectibles)
+            {
+                foreach (var restriction in restrictions)
+                {
+                    transformations.TryGetValue(restriction.Key, out var transformation);
+                    RestrictionsPatches.PatchCollectibleWhitelist(obj, restriction, transformation);
+                }
+            }
+            Item[] cut_gems_items = api.World.SearchItems(new AssetLocation("canjewelry:gem-cut-*"));
+            gems_textures = new();
+            gems_textures_pngs = new();
+            foreach (var gem in cut_gems_items)
+            {
+                //catch if not present?
+                gems_textures.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":textures/" + gem.Textures["gem"].Base.Path);
+                gems_textures_pngs.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":" + gem.Textures["gem"].Base.Path + ".png");
+            }
+            
+        }
+        private Dictionary<string, string[]> DiscoverRestrictionGroups(ICoreAPI api)
+        {
+            var restrictionGroups = new Dictionary<string, string[]>();
+            string basePath = "config/restrictions/";
 
-        }*/
+            var restrictionAssets = api.Assets.GetMany("config/restrictions", "canjewelry", false);
+
+            foreach (var asset in restrictionAssets)
+            {
+                string fullPath = asset.Location.Path;
+
+                string relativePath = fullPath[basePath.Length..];
+                string[] pathParts = relativePath.Split('/');
+
+                if (pathParts.Length >= 2)
+                {
+                    string folderName = pathParts[0];
+                    string fileName = pathParts[1];
+
+                    if (fileName.EndsWith(".json"))
+                    {
+                        fileName = fileName[..^5];
+                    }
+
+                    if (!restrictionGroups.TryGetValue(folderName, out string[] value))
+                    {
+                        value = [];
+                        restrictionGroups[folderName] = value;
+                    }
+
+                    var currentFiles = value.ToList();
+                    if (!currentFiles.Contains(fileName))
+                    {
+                        currentFiles.Add(fileName);
+                        restrictionGroups[folderName] = [.. currentFiles];
+                    }
+                }
+            }
+
+            // Remove folders that have no files
+            var foldersToRemove = restrictionGroups.Where(kvp => kvp.Value.Length == 0).Select(kvp => kvp.Key).ToList();
+            foreach (var folder in foldersToRemove)
+            {
+                restrictionGroups.Remove(folder);
+            }
+
+            return restrictionGroups;
+        }
+        private void LoadData(ICoreAPI api, Dictionary<string, string[]> restrictionGroups)
+        {
+            foreach (var (category, names) in restrictionGroups)
+            {
+                foreach (var name in names)
+                {
+                    string restrictionPath = $"canjewelry:config/restrictions/{category}/{name}.json".Replace("//", "/");
+                    string transformationPath = $"canjewelry:config/transformations/{category}/{name}.json".Replace("//", "/");
+
+                    restrictions[name] = api.LoadAsset<RestrictionData>(restrictionPath);
+
+                    if (api.Assets.Exists(transformationPath))
+                    {
+                        transformations[name] = api.LoadAsset<Dictionary<string, ModelTransform>>(transformationPath);
+                    }
+                }
+            }
+        }
+        public void AddCustomIcons()
+        {
+            List<string> iconList = new List<string> { "nose-side", "drop-earrings", "eye-left", "eye-right", "nose",
+            "earrings-right", "earrings-left", "palm-right", "palm-left"};
+            foreach (var icon in iconList)
+            {
+                capi.Gui.Icons.CustomIcons["canjewelry:" + icon] = delegate (Context ctx, int x, int y, float w, float h, double[] rgba)
+                {
+                    AssetLocation location = new AssetLocation("canjewelry:textures/icons/" + icon + ".svg");
+                    IAsset svgAsset = capi.Assets.TryGet(location, true);
+                    int value = ColorUtil.ColorFromRgba(44, 44, 44, 204);
+                    capi.Gui.DrawSvg(svgAsset, ctx.GetTarget() as ImageSurface, x, y, (int)w, (int)h, new int?(value));
+                };
+            }
+        }
         public override void StartServerSide(ICoreServerAPI api)
         {
             base.StartServerSide(api);
-
-            //api.Event.PlayerChat += PlayerChatDelegate;
-
-            harmonyInstance = new Harmony(harmonyID);
             sapi = api;
             loadConfig(sapi);
+            ServerPatcher.ApplyPatches(api, harmonyID, ref harmonyInstance);
+           
+            
             config.InitColors();
             api.RegisterEntityBehaviorClass("cangembuffaffected", typeof(CANGemBuffAffected));
-
-            harmonyInstance.Patch(typeof(Vintagestory.Server.CoreServerEventManager).GetMethod("TriggerAfterActiveSlotChanged"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_TriggerAfterActiveSlotChanged")));
-
-            harmonyInstance.Patch(typeof(Vintagestory.API.Common.CollectibleObject).GetMethod("DamageItem"), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_CollectibleObject_DamageItem")));
-
-            //harmonyInstance.Patch(typeof(Vintagestory.API.Common.Block).GetMethod("GetDrops"), prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_GetDrops")));
-
+            
             serverChannel = sapi.Network.RegisterChannel("canjewelry");
             serverChannel.RegisterMessageType(typeof(SyncCANJewelryPacket));
             api.Event.ServerRunPhase(EnumServerRunPhase.RunGame, () => AddBehaviorAndSocketNumber());
@@ -227,16 +331,19 @@ namespace canjewelry.src
                     block.Drops = block.Drops.Append(blockDropsToAdd.ToArray());
                 }
             }
-            //var c = api.ModLoader.GetModSystem<Timeswitch>();
+            ServerMain.ClassRegistry.RegisterInventoryClass("additionaljewelrycharacter", typeof(InventoryCharacterAdditionalJewelry));
         }
         public void OnPlayerNowPlaying(IServerPlayer byPlayer)
         {
-            var plBeh = byPlayer.Entity.GetBehavior<CANGemBuffAffected>();
-            if (plBeh != null)
+            if (!canjewelry.config.TurnOffBuffs)
             {
-                if(!plBeh.initialized)
+                var plBeh = byPlayer.Entity.GetBehavior<CANGemBuffAffected>();
+                if (plBeh != null)
                 {
-                    plBeh.TryToAddSlotModified();
+                    if (!plBeh.initialized)
+                    {
+                        plBeh.TryToAddSlotModified();
+                    }
                 }
             }
         }
@@ -245,8 +352,20 @@ namespace canjewelry.src
             base.Dispose();
             if (harmonyInstance != null)
             {
-                harmonyInstance.UnpatchAll(harmonyID);
+                harmonyInstance.UnpatchAll(harmonyID + "_client");
+                harmonyInstance.UnpatchAll(harmonyID + "_server");
             }
+            capi = null;
+            sapi = null;
+            serverChannel = null;
+            clientChannel = null;
+            config = null;
+            gems_textures?.Clear();
+            gems_textures = null;
+            gems_textures_pngs?.Clear();
+            gems_textures_pngs = null;
+            gemCuttingRecipes = null;
+            CANItemWearable.NotVisTexture = null;
         }
         public void AddBehaviorAndSocketNumber(bool serverSide = true)
         {
@@ -415,7 +534,7 @@ namespace canjewelry.src
             {
                 oldConfig = api.LoadModConfig<OldConfig>(this.Mod.Info.ModID + ".json");
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
             }
@@ -433,7 +552,7 @@ namespace canjewelry.src
                     api.StoreModConfig<OldConfig>(oldConfig, this.Mod.Info.ModID + "_old.json");
                     api.StoreModConfig<Config>(config, this.Mod.Info.ModID + ".json");
                 }
-                catch(Exception e)
+                catch(Exception)
                 {
 
                 }

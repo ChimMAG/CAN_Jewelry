@@ -5,6 +5,7 @@ using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
 using canjewelry.src.inventories;
+using canjewelry.src.items.resource;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
@@ -34,7 +35,6 @@ namespace canjewelry.src.jewelry
         private Dictionary<string, float> playersGrinding = new Dictionary<string, float>();
         private int quantityPlayersGrinding;
         private int nowOutputFace;
-        private bool beforeGrinding;
         private ITexPositionSource blockTexSource;
         public string Material => this.Block.LastCodePart();
         public float GrindSpeed
@@ -114,13 +114,6 @@ namespace canjewelry.src.jewelry
                 {
                     return this.getOrCreateTexPos(this.tmpTextures[textureCode]);
                 }
-                //var a = this.inventory[0].Itemstack.Item.Textures.TryGetValue(textureCode, out compositeTexture);
-                //var f = (this.Api as ICoreClientAPI).BlockTextureAtlas[compositeTexture.Base];
-                //var c = this.blockTexSource[textureCode];
-                //if(this.inventory[0].Itemstack != null && this.inventory[0].Itemstack.Item != null)
-                //textureCode = "metal";
-
-
                 return textureCode == "steel" && this.inventory[0].Itemstack != null && this.inventory[0].Itemstack.Item != null && this.inventory[0].Itemstack.Item.Textures.TryGetValue("metal", out compositeTexture)
                     ? (this.Api as ICoreClientAPI).ItemTextureAtlas[compositeTexture.Base]
                     : this.blockTexSource[textureCode];
@@ -174,7 +167,7 @@ namespace canjewelry.src.jewelry
             if (api.Side != EnumAppSide.Client)
                 return;
             if ((api as ICoreClientAPI) != null)
-                this.blockTexSource = (api as ICoreClientAPI).Tesselator.GetTexSource(this.Block);
+                this.blockTexSource = (api as ICoreClientAPI).Tesselator.GetTextureSource(this.Block);
            this.renderer = new JewelGrinderTopRenderer(api as ICoreClientAPI, this.Pos, this.GenMesh("top"));
            this.renderer.mechPowerPart = this.mpc;
            if (this.automated)
@@ -267,7 +260,7 @@ namespace canjewelry.src.jewelry
             if (packetid < 1000)
             {
                 this.Inventory.InvNetworkUtil.HandleClientPacket(player, packetid, data);
-                this.Api.World.BlockAccessor.GetChunkAtBlockPos(this.Pos.X, this.Pos.Y, this.Pos.Z).MarkModified();
+                this.Api.World.BlockAccessor.GetChunkAtBlockPos(this.Pos).MarkModified();
             }
             else
             {
@@ -302,12 +295,11 @@ namespace canjewelry.src.jewelry
                 }
             }
         }
-
         public override void OnLoadCollectibleMappings(
           IWorldAccessor worldForResolve,
           Dictionary<int, AssetLocation> oldBlockIdMapping,
           Dictionary<int, AssetLocation> oldItemIdMapping,
-          int schematicSeed)
+          int schematicSeed, bool resolveImports)
         {
             foreach (ItemSlot itemSlot in this.Inventory)
             {
@@ -494,7 +486,7 @@ namespace canjewelry.src.jewelry
             {
                 return;
             }
-            if(!this.playersGrinding.ContainsKey(player.PlayerUID) || (double)this.GrindSpeed < 0.3)
+            if(!this.playersGrinding.ContainsKey(player.PlayerUID) || (double)this.GrindSpeed < canjewelry.config.minGrinderProcessingSpeed)
             {
                return;
             }
@@ -581,6 +573,7 @@ namespace canjewelry.src.jewelry
                         {
                             activeItemStack.Attributes.RemoveAttribute("cangrindlayerinfo");
                             cutGemTree.SetBool(CANJWConstants.GEM_FULL_PROCESSED, true);
+                            activeSlot.MarkDirty();
                             return;
                         }
                         itree.SetInt("grindtype", itree.GetInt("grindtype") + 1);

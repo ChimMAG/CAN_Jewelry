@@ -1,1284 +1,1300 @@
 {
-  "code": "canpan",
-  "class": "CANBlockPan",
-  "behaviors": [
-    { "name": "SneakPlacing" },
-    {
-      "name": "UnstableFalling",
-      "properties": {
-        "attachmentArea": {
-          "x1": 5,
-          "y1": 0,
-          "z1": 5,
-          "x2": 10,
-          "y2": 0,
-          "z2": 10
-        }
-      }
+    "code": "canpan",
+    "class": "CANBlockPan",
+    "behaviors": [
+        { "name": "SneakPlacing" },
+        {
+            "name": "UnstableFalling",
+            "properties": {
+                "attachmentArea": {
+                    "x1": 5,
+                    "y1": 0,
+                    "z1": 5,
+                    "x2": 10,
+                    "y2": 0,
+                    "z2": 10
+                }
+            }
+        },
+        {
+            "name": "GroundStorable",
+            "properties": { "layout": "SingleCenter" }
+        },
+        { "name": "Unplaceable" }, // The ground storable obsoletes this being a block. Should be an item, but is kept a block for backwards compatibility
+        { "name": "RightClickPickup" }
+    ],
+    "maxStackSize": 1,
+    "textures": {
+        "iron": { "base": "game:block/metal/ingot/{metal}" }
     },
-    { "name": "RightClickPickup" }
-  ],
-  "maxStackSize": 1,
-  "textures": {
-    "iron": { "base": "game:block/metal/ingot/{metal}" }
-  },
-  "attributes": {
-    "panningDrops": {
-      "game:rock-suevite": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-diamond",
-          "chance": {
-            "avg": 0.2,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-diamond",
-          "chance": {
-            "avg": 0.3,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-diamond",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
+    "attributes": {
+        "panningDrops": {
+            "game:rock-suevite": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-diamond",
+                    "chance": {
+                        "avg": 0.2,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-diamond",
+                    "chance": {
+                        "avg": 0.3,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-diamond",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                }
+            ],
+            //
+            "@(ore|crystalizedore)-bountiful-hematite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-corundum",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-corundum",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-corundum",
+                    "chance": {
+                        "avg": 0.8,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-rich-hematite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-corundum",
+                    "chance": {
+                        "avg": 0.2,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-corundum",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-corundum",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-medium-hematite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-corundum",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-corundum",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-poor-hematite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-corundum",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                }
+            ],
+            //
+            "@(ore|crystalizedore)-bountiful-malachite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-malachite",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-malachite",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-malachite",
+                    "chance": {
+                        "avg": 0.8,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-rich-malachite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-malachite",
+                    "chance": {
+                        "avg": 0.2,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-malachite",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-malachite",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-medium-malachite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-malachite",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-malachite",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-poor-malachite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-malachite",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                }
+            ],
+            //
+            "@(ore|crystalizedore)-bountiful-bismuthinite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-lapislazuli",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-lapislazuli",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-lapislazuli",
+                    "chance": {
+                        "avg": 0.8,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-rich-bismuthinite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-lapislazuli",
+                    "chance": {
+                        "avg": 0.2,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-lapislazuli",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-lapislazuli",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-medium-bismuthinite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-lapislazuli",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-lapislazuli",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-poor-bismuthinite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-lapislazuli",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                }
+            ],
+            //
+            "@(ore|crystalizedore)-bountiful-cassiterite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-olivine",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-olivine",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-olivine",
+                    "chance": {
+                        "avg": 0.8,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-rich-cassiterite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-olivine",
+                    "chance": {
+                        "avg": 0.2,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-olivine",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-olivine",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-medium-cassiterite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-olivine",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-olivine",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-poor-cassiterite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-olivine",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                }
+            ],
+            //
+            "@(ore|crystalizedore)-bountiful-sphalerite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-fluorite",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-fluorite",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-fluorite",
+                    "chance": {
+                        "avg": 0.8,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-rich-sphalerite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-fluorite",
+                    "chance": {
+                        "avg": 0.2,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-fluorite",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-fluorite",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-medium-sphalerite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-fluorite",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-fluorite",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-poor-sphalerite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-fluorite",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                }
+            ],
+            //
+            "@(ore|crystalizedore)-bountiful-quartz_nativesilver-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-quartz",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-quartz",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-quartz",
+                    "chance": {
+                        "avg": 0.8,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-rich-quartz_nativesilver-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-quartz",
+                    "chance": {
+                        "avg": 0.2,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-quartz",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-quartz",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-medium-quartz_nativesilver-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-quartz",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-quartz",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-poor-quartz_nativesilver-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-quartz",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                }
+            ],
+            //
+            "@(ore|crystalizedore)-bountiful-quartz_nativegold-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-quartz",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-quartz",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-quartz",
+                    "chance": {
+                        "avg": 0.8,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-rich-quartz_nativegold-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-quartz",
+                    "chance": {
+                        "avg": 0.2,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-quartz",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-quartz",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-medium-quartz_nativegold-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-quartz",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-quartz",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-poor-quartz_nativegold-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-quartz",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                }
+            ],
+            //
+            "@(ore|crystalizedore)-bountiful-limonite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-uranium",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-uranium",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-uranium",
+                    "chance": {
+                        "avg": 0.8,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-rich-limonite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-uranium",
+                    "chance": {
+                        "avg": 0.2,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-uranium",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-uranium",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-medium-limonite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-uranium",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-uranium",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-poor-limonite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-uranium",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                }
+            ],
+            //
+            "@(ore|crystalizedore)-bountiful-ilmenite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-diamond",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-diamond",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-diamond",
+                    "chance": {
+                        "avg": 0.8,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-emerald",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-emerald",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-emerald",
+                    "chance": {
+                        "avg": 0.8,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-rich-ilmenite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-diamond",
+                    "chance": {
+                        "avg": 0.2,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-diamond",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-diamond",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-emerald",
+                    "chance": {
+                        "avg": 0.2,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-emerald",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-emerald",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-medium-ilmenite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-diamond",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-diamond",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-emerald",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-emerald",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-poor-ilmenite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-diamond",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-emerald",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                }
+            ],
+            //
+            "@(ore|crystalizedore)-bountiful-nativecopper-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-ruby",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-ruby",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-ruby",
+                    "chance": {
+                        "avg": 0.8,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-rich-nativecopper-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-ruby",
+                    "chance": {
+                        "avg": 0.2,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-ruby",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-ruby",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-medium-nativecopper-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-ruby",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-ruby",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-poor-nativecopper-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-ruby",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                }
+            ],
+            //
+            "@(ore|crystalizedore)-bountiful-magnetite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-citrine",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-citrine",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-citrine",
+                    "chance": {
+                        "avg": 0.8,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-rich-magnetite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-citrine",
+                    "chance": {
+                        "avg": 0.2,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-citrine",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-citrine",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-medium-magnetite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-citrine",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-citrine",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-poor-magnetite-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-citrine",
+                    "chance": {
+                        "avg": 0.4,
+                        "var": 0
+                    }
+                }
+            ],
+            //
+            "@(ore|crystalizedore)-bountiful-uranium-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-uranium",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-uranium",
+                    "chance": {
+                        "avg": 0.75,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-uranium",
+                    "chance": {
+                        "avg": 0.9,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-rich-uranium-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-uranium",
+                    "chance": {
+                        "avg": 0.3,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-uranium",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-uranium",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-medium-uranium-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-uranium",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-uranium",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-poor-uranium-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-uranium",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ], //
+            "@(ore|crystalizedore)-bountiful-galena-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-amethyst",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-amethyst",
+                    "chance": {
+                        "avg": 0.75,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-amethyst",
+                    "chance": {
+                        "avg": 0.9,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-rich-galena-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-normal-amethyst",
+                    "chance": {
+                        "avg": 0.3,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-amethyst",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-amethyst",
+                    "chance": {
+                        "avg": 0.7,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-medium-galena-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-flawed-amethyst",
+                    "chance": {
+                        "avg": 0.5,
+                        "var": 0
+                    }
+                },
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-amethyst",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ],
+            "@(ore|crystalizedore)-poor-galena-.*": [
+                {
+                    "type": "item",
+                    "code": "canjewelry:gem-rough-chipped-amethyst",
+                    "chance": {
+                        "avg": 0.6,
+                        "var": 0
+                    }
+                }
+            ]
         }
-      ],
-      //
-      "@(ore|crystalizedore)-bountiful-hematite-.*": [
+    },
+    "variantgroups": [
         {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-corundum",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-corundum",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-corundum",
-          "chance": {
-            "avg": 0.8,
-            "var": 0
-          }
+            "code": "metal",
+            "states": [ "tinbronze", "bismuthbronze", "blackbronze", "gold", "silver", "iron", "meteoriciron", "steel", "copper" ]
         }
-      ],
-      "@(ore|crystalizedore)-rich-hematite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-corundum",
-          "chance": {
-            "avg": 0.2,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-corundum",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-corundum",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-medium-hematite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-corundum",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-corundum",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-poor-hematite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-corundum",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        }
-      ],
-      //
-      "@(ore|crystalizedore)-bountiful-malachite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-malachite",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-malachite",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-malachite",
-          "chance": {
-            "avg": 0.8,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-rich-malachite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-malachite",
-          "chance": {
-            "avg": 0.2,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-malachite",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-malachite",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-medium-malachite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-malachite",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-malachite",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-poor-malachite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-malachite",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        }
-      ],
-      //
-      "@(ore|crystalizedore)-bountiful-bismuthinite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-lapislazuli",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-lapislazuli",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-lapislazuli",
-          "chance": {
-            "avg": 0.8,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-rich-bismuthinite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-lapislazuli",
-          "chance": {
-            "avg": 0.2,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-lapislazuli",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-lapislazuli",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-medium-bismuthinite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-lapislazuli",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-lapislazuli",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-poor-bismuthinite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-lapislazuli",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        }
-      ],
-      //
-      "@(ore|crystalizedore)-bountiful-cassiterite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-olivine",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-olivine",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-olivine",
-          "chance": {
-            "avg": 0.8,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-rich-cassiterite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-olivine",
-          "chance": {
-            "avg": 0.2,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-olivine",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-olivine",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-medium-cassiterite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-olivine",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-olivine",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-poor-cassiterite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-olivine",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        }
-      ],
-      //
-      "@(ore|crystalizedore)-bountiful-sphalerite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-fluorite",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-fluorite",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-fluorite",
-          "chance": {
-            "avg": 0.8,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-rich-sphalerite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-fluorite",
-          "chance": {
-            "avg": 0.2,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-fluorite",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-fluorite",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-medium-sphalerite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-fluorite",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-fluorite",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-poor-sphalerite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-fluorite",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        }
-      ],
-      //
-      "@(ore|crystalizedore)-bountiful-quartz_nativesilver-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-quartz",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-quartz",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-quartz",
-          "chance": {
-            "avg": 0.8,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-rich-quartz_nativesilver-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-quartz",
-          "chance": {
-            "avg": 0.2,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-quartz",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-quartz",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-medium-quartz_nativesilver-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-quartz",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-quartz",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-poor-quartz_nativesilver-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-quartz",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        }
-      ],
-      //
-      "@(ore|crystalizedore)-bountiful-quartz_nativegold-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-quartz",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-quartz",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-quartz",
-          "chance": {
-            "avg": 0.8,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-rich-quartz_nativegold-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-quartz",
-          "chance": {
-            "avg": 0.2,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-quartz",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-quartz",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-medium-quartz_nativegold-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-quartz",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-quartz",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-poor-quartz_nativegold-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-quartz",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        }
-      ],
-      //
-      "@(ore|crystalizedore)-bountiful-limonite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-uranium",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-uranium",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-uranium",
-          "chance": {
-            "avg": 0.8,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-rich-limonite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-uranium",
-          "chance": {
-            "avg": 0.2,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-uranium",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-uranium",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-medium-limonite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-uranium",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-uranium",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-poor-limonite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-uranium",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        }
-      ],
-      //
-      "@(ore|crystalizedore)-bountiful-ilmenite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-diamond",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-diamond",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-diamond",
-          "chance": {
-            "avg": 0.8,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-emerald",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-emerald",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-emerald",
-          "chance": {
-            "avg": 0.8,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-rich-ilmenite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-diamond",
-          "chance": {
-            "avg": 0.2,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-diamond",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-diamond",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-emerald",
-          "chance": {
-            "avg": 0.2,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-emerald",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-emerald",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-medium-ilmenite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-diamond",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-diamond",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-emerald",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-emerald",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-poor-ilmenite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-diamond",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-emerald",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        }
-      ],
-      //
-      "@(ore|crystalizedore)-bountiful-nativecopper-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-ruby",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-ruby",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-ruby",
-          "chance": {
-            "avg": 0.8,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-rich-nativecopper-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-ruby",
-          "chance": {
-            "avg": 0.2,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-ruby",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-ruby",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-medium-nativecopper-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-ruby",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-ruby",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-poor-nativecopper-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-ruby",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        }
-      ],
-      //
-      "@(ore|crystalizedore)-bountiful-magnetite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-citrine",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-citrine",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-citrine",
-          "chance": {
-            "avg": 0.8,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-rich-magnetite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-citrine",
-          "chance": {
-            "avg": 0.2,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-citrine",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-citrine",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-medium-magnetite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-citrine",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-citrine",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-poor-magnetite-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-citrine",
-          "chance": {
-            "avg": 0.4,
-            "var": 0
-          }
-        }
-      ],
-      //
-      "@(ore|crystalizedore)-bountiful-uranium-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-uranium",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-uranium",
-          "chance": {
-            "avg": 0.75,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-uranium",
-          "chance": {
-            "avg": 0.9,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-rich-uranium-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-uranium",
-          "chance": {
-            "avg": 0.3,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-uranium",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-uranium",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-medium-uranium-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-uranium",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-uranium",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-poor-uranium-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-uranium",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ], //
-      "@(ore|crystalizedore)-bountiful-galena-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-amethyst",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-amethyst",
-          "chance": {
-            "avg": 0.75,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-amethyst",
-          "chance": {
-            "avg": 0.9,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-rich-galena-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-normal-amethyst",
-          "chance": {
-            "avg": 0.3,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-amethyst",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-amethyst",
-          "chance": {
-            "avg": 0.7,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-medium-galena-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-flawed-amethyst",
-          "chance": {
-            "avg": 0.5,
-            "var": 0
-          }
-        },
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-amethyst",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ],
-      "@(ore|crystalizedore)-poor-galena-.*": [
-        {
-          "type": "item",
-          "code": "canjewelry:gem-rough-chipped-amethyst",
-          "chance": {
-            "avg": 0.6,
-            "var": 0
-          }
-        }
-      ]
+    ],
+    "shape": { "base": "block/empty" },
+    "doNotRenderAtLod2": true,
+    "blockmaterial": "Wood",
+    "materialDensity": 4500,
+    "durabilityByType": {
+        "*-steel": 200,
+        "*-iron": 50,
+        "*-meteoriciron": 50,
+        "*-copper": 10,
+        "*-tinbronze": 25,
+        "*-bismuthbronze": 25,
+        "*-blackbronze": 25,
+        "*-gold": 15,
+        "*-silver": 15
+    },
+    "randomizeRotations": true,
+    "sideopaque": { "all": false },
+    "sidesolid": { "all": false },
+    "emitSideAO": { "all": false },
+    "lightAbsorption": 0,
+    "creativeinventory": {
+        "general": [ "*" ],
+        "canjewelry": [ "*" ]
+    },
+    "heldTpIdleAnimation": "holdbothhandslarge",
+    "heldTpUseAnimation": "twohandplaceblock",
+    "heldTpUseAnimation": "panning",
+    "fpHandTransform": {
+        "translation": {
+            "x": 0.3,
+            "y": 0,
+            "z": 0
+        },
+        "rotation": {
+            "x": 15,
+            "y": 15,
+            "z": 0
+        },
+        "scale": 2
+    },
+    "guiTransform": {
+        "rotate": true,
+        "translation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "rotation": {
+            "x": -25,
+            "y": 22,
+            "z": 0
+        },
+        "origin": {
+            "x": 0.53,
+            "y": 0.21,
+            "z": 0.5
+        },
+        "scale": 1.76
+    },
+    "groundTransform": {
+        "translation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "rotation": {
+            "x": 0,
+            "y": 18,
+            "z": 0
+        },
+        "origin": {
+            "x": 0.5,
+            "y": 0,
+            "z": 0.5
+        },
+        "scale": 4
+    },
+    "tpHandTransform": {
+        "translation": {
+            "x": -0.58,
+            "y": 0,
+            "z": -0.34
+        },
+        "rotation": {
+            "x": 0,
+            "y": 18,
+            "z": -74
+        },
+        "origin": {
+            "x": 0.5,
+            "y": 0,
+            "z": 0.5
+        },
+        "scale": 0.8
+    },
+    "collisionSelectionBox": {
+        "x1": 0.125,
+        "y1": 0,
+        "z1": 0.125,
+        "x2": 0.875,
+        "y2": 0.1875,
+        "z2": 0.875
+    },
+    "resistance": 1,
+    "sounds": {
+        "place": "game:block/planks",
+        "hit": "game:block/planks",
+        "break": "game:block/planks",
+        "walk": "game:walk/wood"
     }
-  },
-  "variantgroups": [
-    {
-      "code": "metal",
-      "states": [ "steel", "iron" ]
-    }
-  ],
-  "shape": { "base": "block/empty" },
-  "doNotRenderAtLod2": true,
-  "blockmaterial": "Wood",
-  "materialDensity": 450,
-  "randomizeRotations": true,
-  "sideopaque": { "all": false },
-  "sidesolid": { "all": false },
-  "emitSideAO": { "all": false },
-  "lightAbsorption": 0,
-  "creativeinventory": {
-    "general": [ "*" ],
-    "canjewelry": [ "*" ]
-  },
-  "heldTpIdleAnimation": "holdbothhandslarge",
-  "heldTpUseAnimation": "twohandplaceblock",
-  "heldTpUseAnimation": "panning",
-  "fpHandTransform": {
-    "translation": {
-      "x": 0.3,
-      "y": 0,
-      "z": 0
-    },
-    "rotation": {
-      "x": 15,
-      "y": 15,
-      "z": 0
-    },
-    "scale": 2
-  },
-  "guiTransform": {
-    "rotate": true,
-    "translation": {
-      "x": 0,
-      "y": 0,
-      "z": 0
-    },
-    "rotation": {
-      "x": -25,
-      "y": 22,
-      "z": 0
-    },
-    "origin": {
-      "x": 0.53,
-      "y": 0.21,
-      "z": 0.5
-    },
-    "scale": 1.76
-  },
-  "groundTransform": {
-    "translation": {
-      "x": 0,
-      "y": 0,
-      "z": 0
-    },
-    "rotation": {
-      "x": 0,
-      "y": 18,
-      "z": 0
-    },
-    "origin": {
-      "x": 0.5,
-      "y": 0,
-      "z": 0.5
-    },
-    "scale": 4
-  },
-  "tpHandTransform": {
-    "translation": {
-      "x": -0.58,
-      "y": 0,
-      "z": -0.34
-    },
-    "rotation": {
-      "x": 0,
-      "y": 18,
-      "z": -74
-    },
-    "origin": {
-      "x": 0.5,
-      "y": 0,
-      "z": 0.5
-    },
-    "scale": 0.8
-  },
-  "collisionSelectionBox": {
-    "x1": 0.125,
-    "y1": 0,
-    "z1": 0.125,
-    "x2": 0.875,
-    "y2": 0.1875,
-    "z2": 0.875
-  },
-  "resistance": 1,
-  "sounds": {
-    "place": "game:block/planks",
-    "hit": "game:block/planks",
-    "break": "game:block/planks",
-    "walk": "game:walk/wood"
-  }
 }

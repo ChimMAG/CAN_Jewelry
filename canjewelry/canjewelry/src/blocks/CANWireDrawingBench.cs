@@ -1,24 +1,15 @@
-﻿using Cairo;
-using canjewelry.src.be;
-using canjewelry.src.items;
-using canjewelry.src.jewelry;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
+using canjewelry.src.be;
+using canjewelry.src.items.resource;
+using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
-using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.Client.NoObf;
-using Vintagestory.Common;
-using Vintagestory.GameContent;
 
 namespace canjewelry.src.blocks
 {
@@ -317,7 +308,6 @@ namespace canjewelry.src.blocks
             }
             else
             {
-                facing = facing;
             }
             Block secondPlock = world.BlockAccessor.GetBlock(pos.AddCopy(facing));
             if (secondPlock is CANWireDrawingBench && secondPlock.LastCodePart(1) != headfoot)

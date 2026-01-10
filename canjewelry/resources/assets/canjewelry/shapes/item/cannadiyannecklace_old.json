@@ -1,0 +1,436 @@
+{
+	"editor": {
+		"backDropShape": "entity/humanoid/villager-female",
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 8,
+	"textureHeight": 4,
+	"textureSizes": {
+		"coppertarnished2": [8,4],
+		"lapislazuli": [16,16],
+		"normal": [16,16]
+	},
+	"textures": {
+
+	},
+	"elements": [
+		{
+			"name": "hideme",
+			"stepParentName": "UpperTorso",
+			"from": [ 3.0, 5.2, 3.1 ],
+			"to": [ 3.0, 5.2, 3.1 ],
+			"rotationOrigin": [ 3.0, 5.2, 3.1 ],
+			"rotationZ": 6.0,
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "chainback",
+					"from": [ 1.0, -0.1, -1.85 ],
+					"to": [ 1.2, 0.1, 1.75 ],
+					"rotationOrigin": [ 1.0, 0.0, 0.0 ],
+					"faces": {
+						"north": { "texture": "#can_necklace_leather", "uv": [ 5.0, 2.25, 5.25, 2.375 ] },
+						"east": { "texture": "#can_necklace_leather", "uv": [ 1.5, 1.625, 5.0, 1.75 ] },
+						"south": { "texture": "#can_necklace_leather", "uv": [ 6.0, 1.0, 6.25, 1.125 ] },
+						"west": { "texture": "#can_necklace_leather", "uv": [ 2.0, 1.75, 5.5, 1.875 ] },
+						"up": { "texture": "#can_necklace_leather", "uv": [ 7.0, 0.375, 7.25, 3.875 ] },
+						"down": { "texture": "#can_necklace_leather", "uv": [ 3.5, 0.25, 3.75, 3.75 ] }
+					},
+					"children": [
+						{
+							"name": "chainR1",
+							"from": [ -3.0, 0.0, 0.0 ],
+							"to": [ 0.0, 0.2, 0.2 ],
+							"rotationOrigin": [ 0.0, 0.1, 0.1 ],
+							"rotationY": 5.0,
+							"rotationZ": -3.0,
+							"faces": {
+								"north": { "texture": "#can_necklace_leather", "uv": [ 3.75, 2.25, 6.75, 2.375 ] },
+								"east": { "texture": "#can_necklace_leather", "uv": [ 5.0, 2.5, 5.25, 2.625 ] },
+								"south": { "texture": "#can_necklace_leather", "uv": [ 3.75, 1.625, 6.75, 1.75 ] },
+								"west": { "texture": "#can_necklace_leather", "uv": [ 4.5, 1.5, 4.75, 1.625 ] },
+								"up": { "texture": "#can_necklace_leather", "uv": [ 2.75, 2.125, 5.75, 2.25 ], "autoUv": false },
+								"down": { "texture": "#can_necklace_leather", "uv": [ 4.75, 2.5, 7.75, 2.625 ] }
+							},
+							"children": [
+								{
+									"name": "chainR2",
+									"from": [ -1.1, 0.0, 0.0 ],
+									"to": [ 0.0, 0.2, 0.2 ],
+									"rotationOrigin": [ 0.0, 0.1, 0.1 ],
+									"rotationY": 15.0,
+									"faces": {
+										"north": { "texture": "#can_necklace_leather", "uv": [ 2.75, 2.625, 3.75, 2.75 ] },
+										"east": { "texture": "#can_necklace_leather", "uv": [ 4.0, 2.375, 4.25, 2.5 ] },
+										"south": { "texture": "#can_necklace_leather", "uv": [ 5.0, 1.375, 6.0, 1.5 ] },
+										"west": { "texture": "#can_necklace_leather", "uv": [ 6.0, 2.375, 6.25, 2.5 ] },
+										"up": { "texture": "#can_necklace_leather", "uv": [ 4.75, 2.625, 5.75, 2.75 ] },
+										"down": { "texture": "#can_necklace_leather", "uv": [ 1.25, 2.75, 2.25, 2.875 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "chainL1",
+							"from": [ -3.0, 0.0, 3.5 ],
+							"to": [ 0.0, 0.2, 3.7 ],
+							"rotationOrigin": [ 0.0, 0.1, 3.6 ],
+							"rotationY": -5.0,
+							"rotationZ": -3.0,
+							"faces": {
+								"north": { "texture": "#can_necklace_leather", "uv": [ 3.5, 1.875, 6.5, 2.0 ] },
+								"east": { "texture": "#can_necklace_leather", "uv": [ 2.75, 1.625, 3.0, 1.75 ] },
+								"south": { "texture": "#can_necklace_leather", "uv": [ 2.0, 2.125, 5.0, 2.25 ] },
+								"west": { "texture": "#can_necklace_leather", "uv": [ 4.5, 1.5, 4.75, 1.625 ] },
+								"up": { "texture": "#can_necklace_leather", "uv": [ 3.25, 2.0, 6.25, 2.12 ], "autoUv": false },
+								"down": { "texture": "#can_necklace_leather", "uv": [ 3.75, 2.375, 6.75, 2.5 ], "autoUv": false }
+							},
+							"children": [
+								{
+									"name": "chainL2",
+									"from": [ -1.1, 0.0, 0.0 ],
+									"to": [ 0.0, 0.2, 0.2 ],
+									"rotationOrigin": [ 0.0, 0.1, 0.1 ],
+									"rotationY": -15.0,
+									"faces": {
+										"north": { "texture": "#can_necklace_leather", "uv": [ 4.0, 2.125, 5.0, 2.25 ] },
+										"east": { "texture": "#can_necklace_leather", "uv": [ 5.25, 2.25, 5.5, 2.375 ] },
+										"south": { "texture": "#can_necklace_leather", "uv": [ 6.0, 1.875, 7.0, 2.0 ] },
+										"west": { "texture": "#can_necklace_leather", "uv": [ 4.0, 2.25, 4.25, 2.375 ] },
+										"up": { "texture": "#can_necklace_leather", "uv": [ 2.0, 2.5, 3.0, 2.625 ] },
+										"down": { "texture": "#can_necklace_leather", "uv": [ 2.5, 2.0, 3.5, 2.125 ] }
+									}
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "FrontORIGIN",
+					"from": [ -3.2, 0.2, 0.0 ],
+					"to": [ -3.2, 0.2, 0.0 ],
+					"rotationOrigin": [ -3.2, 0.2, 0.0 ],
+					"rotationZ": 3.0,
+					"faces": {
+						"north": { "texture": "#normal", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+						"east": { "texture": "#normal", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+						"south": { "texture": "#normal", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+						"west": { "texture": "#normal", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+						"up": { "texture": "#normal", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+						"down": { "texture": "#normal", "uv": [ 0.0, 0.0, 0.5, 0.5 ] }
+					},
+					"children": [
+						{
+							"name": "chainR5",
+							"from": [ 0.1, -0.1, -0.15 ],
+							"to": [ 0.3, 0.1, 1.25 ],
+							"rotationOrigin": [ 0.2, 0.0, 1.15 ],
+							"rotationX": -22.5,
+							"rotationY": 22.5,
+							"faces": {
+								"north": { "texture": "#can_necklace_leather", "uv": [ 4.0, 2.375, 4.25, 2.5 ] },
+								"east": { "texture": "#can_necklace_leather", "uv": [ 1.5, 3.0, 2.75, 3.125 ] },
+								"south": { "texture": "#can_necklace_leather", "uv": [ 4.75, 2.0, 5.0, 2.125 ] },
+								"west": { "texture": "#can_necklace_leather", "uv": [ 2.25, 3.25, 3.5, 3.375 ] },
+								"up": { "texture": "#can_necklace_leather", "uv": [ 4.0, 1.5, 4.25, 2.875 ] },
+								"down": { "texture": "#can_necklace_leather", "uv": [ 5.0, 1.5, 5.25, 2.875 ] }
+							},
+							"children": [
+								{
+									"name": "gem2",
+									"from": [ -0.1, -0.1, 0.5 ],
+									"to": [ 0.1, 0.1, 0.7 ],
+									"rotationOrigin": [ 0.0, 0.0, 0.6 ],
+									"faces": {
+										"north": { "texture": "#can_necklace_gem_2", "uv": [ 5.5, 2.0, 5.75, 2.125 ] },
+										"east": { "texture": "#can_necklace_gem_2", "uv": [ 6.25, 1.5, 6.5, 1.625 ] },
+										"south": { "texture": "#can_necklace_gem_2", "uv": [ 5.0, 1.5, 5.25, 1.625 ] },
+										"west": { "texture": "#can_necklace_gem_2", "uv": [ 5.5, 2.625, 5.75, 2.75 ] },
+										"up": { "texture": "#can_necklace_gem_2", "uv": [ 3.5, 3.0, 3.75, 3.125 ] },
+										"down": { "texture": "#can_necklace_gem_2", "uv": [ 3.25, 1.875, 3.5, 2.0 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "chainL5",
+							"from": [ 0.0, -0.1, -1.15 ],
+							"to": [ 0.2, 0.1, 0.15 ],
+							"rotationOrigin": [ 0.1, 0.1, -1.15 ],
+							"rotationX": 22.5,
+							"rotationY": -22.5,
+							"faces": {
+								"north": { "texture": "#can_necklace_leather", "uv": [ 2.75, 2.375, 3.0, 2.5 ] },
+								"east": { "texture": "#can_necklace_leather", "uv": [ 1.25, 0.75, 2.5, 0.875 ] },
+								"south": { "texture": "#can_necklace_leather", "uv": [ 3.25, 1.625, 3.5, 1.75 ] },
+								"west": { "texture": "#can_necklace_leather", "uv": [ 5.25, 2.0, 6.5, 2.125 ] },
+								"up": { "texture": "#can_necklace_leather", "uv": [ 5.5, 1.125, 5.75, 2.375 ] },
+								"down": { "texture": "#can_necklace_leather", "uv": [ 5.0, 1.5, 5.25, 2.75 ] }
+							},
+							"children": [
+								{
+									"name": "gem3",
+									"from": [ -0.1, -0.1, 0.6 ],
+									"to": [ 0.1, 0.1, 0.8 ],
+									"rotationOrigin": [ 0.0, 0.0, 0.7 ],
+									"faces": {
+										"north": { "texture": "#can_necklace_gem_3", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+										"east": { "texture": "#can_necklace_gem_3", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+										"south": { "texture": "#can_necklace_gem_3", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+										"west": { "texture": "#can_necklace_gem_3", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+										"up": { "texture": "#can_necklace_gem_3", "uv": [ 0.0, 0.0, 0.5, 0.5 ] },
+										"down": { "texture": "#can_necklace_gem_3", "uv": [ 0.0, 0.0, 0.5, 0.5 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "gem1",
+							"from": [ -0.55, -0.65, -0.15 ],
+							"to": [ -0.25, -0.35, 0.15 ],
+							"rotationOrigin": [ -0.45, -0.45, -0.05 ],
+							"faces": {
+								"north": { "texture": "#can_necklace_gem_1", "uv": [ 6.25, 2.25, 6.5, 2.5 ] },
+								"east": { "texture": "#can_necklace_gem_1", "uv": [ 3.0, 3.125, 3.25, 3.375 ] },
+								"south": { "texture": "#can_necklace_gem_1", "uv": [ 6.25, 2.0, 6.5, 2.25 ] },
+								"west": { "texture": "#can_necklace_gem_1", "uv": [ 2.25, 3.125, 2.5, 3.375 ] },
+								"up": { "texture": "#can_necklace_gem_1", "uv": [ 6.0, 2.375, 6.25, 2.625 ] },
+								"down": { "texture": "#can_necklace_gem_1", "uv": [ 6.25, 2.125, 6.5, 2.375 ] }
+							}
+						},
+						{
+							"name": "chainL3",
+							"from": [ -1.3243, -0.0543, 1.0851 ],
+							"to": [ 0.1757, 0.1457, 1.2851 ],
+							"rotationOrigin": [ 0.1757, 0.0457, 1.1851 ],
+							"rotationX": -0.1718,
+							"rotationY": -24.9418,
+							"rotationZ": 52.07,
+							"faces": {
+								"north": { "texture": "#can_necklace_leather", "uv": [ 3.75, 2.375, 5.25, 2.5 ] },
+								"east": { "texture": "#can_necklace_leather", "uv": [ 2.0, 0.875, 2.25, 1.0 ] },
+								"south": { "texture": "#can_necklace_leather", "uv": [ 3.75, 2.0, 5.25, 2.125 ] },
+								"west": { "texture": "#can_necklace_leather", "uv": [ 4.75, 2.125, 5.0, 2.25 ] },
+								"up": { "texture": "#can_necklace_leather", "uv": [ 2.5, 0.5, 4.0, 0.625 ] },
+								"down": { "texture": "#can_necklace_leather", "uv": [ 4.25, 2.125, 5.75, 2.25 ] }
+							},
+							"children": [
+								{
+									"name": "chainL4",
+									"from": [ 0.0, 0.0, -1.4 ],
+									"to": [ 0.2, 0.2, 0.1 ],
+									"rotationOrigin": [ 0.1, 0.1, 0.1 ],
+									"rotationX": 5.0,
+									"rotationY": 67.5,
+									"faces": {
+										"north": { "texture": "#can_necklace_leather", "uv": [ 3.25, 3.0, 3.5, 3.125 ] },
+										"east": { "texture": "#can_necklace_leather", "uv": [ 3.0, 2.875, 4.5, 3.0 ] },
+										"south": { "texture": "#can_necklace_leather", "uv": [ 3.25, 2.625, 3.5, 2.75 ] },
+										"west": { "texture": "#can_necklace_leather", "uv": [ 2.0, 1.625, 3.5, 1.75 ] },
+										"up": { "texture": "#can_necklace_leather", "uv": [ 4.5, 1.0, 4.75, 2.5 ] },
+										"down": { "texture": "#can_necklace_leather", "uv": [ 3.25, 0.625, 3.5, 2.125 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "chainR3",
+							"from": [ -1.3243, -0.0543, -1.2851 ],
+							"to": [ 0.1757, 0.1457, -1.0851 ],
+							"rotationOrigin": [ 0.1757, 0.0457, -1.1851 ],
+							"rotationX": 0.1718,
+							"rotationY": 24.9418,
+							"rotationZ": 52.07,
+							"faces": {
+								"north": { "texture": "#can_necklace_leather", "uv": [ 3.25, 1.625, 4.75, 1.75 ] },
+								"east": { "texture": "#can_necklace_leather", "uv": [ 2.5, 2.5, 2.75, 2.625 ] },
+								"south": { "texture": "#can_necklace_leather", "uv": [ 2.75, 1.5, 4.25, 1.625 ] },
+								"west": { "texture": "#can_necklace_leather", "uv": [ 3.25, 3.25, 3.5, 3.375 ] },
+								"up": { "texture": "#can_necklace_leather", "uv": [ 3.0, 1.625, 4.5, 1.75 ] },
+								"down": { "texture": "#can_necklace_leather", "uv": [ 1.75, 2.75, 3.25, 2.875 ] }
+							},
+							"children": [
+								{
+									"name": "chainR4",
+									"from": [ 0.0, 0.0, 0.1 ],
+									"to": [ 0.2, 0.2, 1.6 ],
+									"rotationOrigin": [ 0.1, 0.1, 0.1 ],
+									"rotationX": -5.0,
+									"rotationY": -67.5,
+									"faces": {
+										"north": { "texture": "#can_necklace_leather", "uv": [ 4.5, 2.625, 4.75, 2.75 ] },
+										"east": { "texture": "#can_necklace_leather", "uv": [ 3.25, 2.125, 4.75, 2.25 ] },
+										"south": { "texture": "#can_necklace_leather", "uv": [ 1.5, 1.75, 1.75, 1.875 ] },
+										"west": { "texture": "#can_necklace_leather", "uv": [ 5.0, 2.25, 6.5, 2.375 ] },
+										"up": { "texture": "#can_necklace_leather", "uv": [ 5.25, 0.5, 5.5, 2.0 ] },
+										"down": { "texture": "#can_necklace_leather", "uv": [ 1.0, 1.875, 1.25, 3.375 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "string1",
+							"from": [ -1.2, -2.9, -0.1 ],
+							"to": [ -1.0, -1.9, 0.1 ],
+							"rotationOrigin": [ -1.1, -1.9, -0.05 ],
+							"rotationZ": -22.5,
+							"faces": {
+								"north": { "texture": "#can_necklace_leather", "uv": [ 4.5, 2.25, 4.75, 3.25 ] },
+								"east": { "texture": "#can_necklace_leather", "uv": [ 4.5, 0.75, 4.75, 1.75 ] },
+								"south": { "texture": "#can_necklace_leather", "uv": [ 4.0, 1.875, 4.25, 2.875 ] },
+								"west": { "texture": "#can_necklace_leather", "uv": [ 1.25, 1.375, 1.5, 2.375 ] },
+								"up": { "texture": "#can_necklace_leather", "uv": [ 4.75, 2.625, 5.0, 2.75 ] },
+								"down": { "texture": "#can_necklace_leather", "uv": [ 7.25, 0.875, 7.5, 1.0 ] }
+							},
+							"children": [
+								{
+									"name": "gem4",
+									"from": [ -0.05, -0.3, -0.05 ],
+									"to": [ 0.25, 0.0, 0.25 ],
+									"rotationOrigin": [ 0.1, 0.0, 0.1 ],
+									"faces": {
+										"north": { "texture": "#can_necklace_gem_3", "uv": [ 4.75, 3.25, 5.0, 3.5 ] },
+										"east": { "texture": "#can_necklace_gem_3", "uv": [ 4.25, 2.125, 4.5, 2.375 ] },
+										"south": { "texture": "#can_necklace_gem_3", "uv": [ 3.25, 1.75, 3.5, 2.0 ] },
+										"west": { "texture": "#can_necklace_gem_3", "uv": [ 5.5, 1.5, 5.75, 1.75 ] },
+										"up": { "texture": "#can_necklace_gem_3", "uv": [ 6.0, 2.75, 6.25, 3.0 ] },
+										"down": { "texture": "#can_necklace_gem_3", "uv": [ 4.0, 1.625, 4.25, 1.875 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "string2",
+							"from": [ -0.9, -2.4, 0.45 ],
+							"to": [ -0.7, -1.4, 0.65 ],
+							"rotationOrigin": [ -0.8, -1.4, 0.55 ],
+							"rotationY": 5.0,
+							"rotationZ": -30.0,
+							"faces": {
+								"north": { "texture": "#can_necklace_leather", "uv": [ 4.25, 2.375, 4.5, 3.375 ] },
+								"east": { "texture": "#can_necklace_leather", "uv": [ 4.75, 2.0, 5.0, 3.0 ] },
+								"south": { "texture": "#can_necklace_leather", "uv": [ 6.25, 0.875, 6.5, 1.875 ] },
+								"west": { "texture": "#can_necklace_leather", "uv": [ 2.25, 1.5, 2.5, 2.5 ] },
+								"up": { "texture": "#can_necklace_leather", "uv": [ 5.0, 2.5, 5.25, 2.625 ] },
+								"down": { "texture": "#can_necklace_leather", "uv": [ 5.5, 2.875, 5.75, 3.0 ] }
+							},
+							"children": [
+								{
+									"name": "gem5",
+									"from": [ -0.05, -0.3, -0.05 ],
+									"to": [ 0.25, 0.0, 0.25 ],
+									"rotationOrigin": [ 0.1, 0.0, 0.1 ],
+									"faces": {
+										"north": { "texture": "#can_necklace_gem_2", "uv": [ 4.25, 2.625, 4.5, 2.875 ] },
+										"east": { "texture": "#can_necklace_gem_2", "uv": [ 5.5, 2.875, 5.75, 3.125 ] },
+										"south": { "texture": "#can_necklace_gem_2", "uv": [ 3.75, 1.25, 4.0, 1.5 ] },
+										"west": { "texture": "#can_necklace_gem_2", "uv": [ 4.0, 1.75, 4.25, 2.0 ] },
+										"up": { "texture": "#can_necklace_gem_2", "uv": [ 5.5, 1.75, 5.75, 2.0 ] },
+										"down": { "texture": "#can_necklace_gem_2", "uv": [ 4.5, 1.75, 4.75, 2.0 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "string3",
+							"from": [ -0.9, -2.4, -0.65 ],
+							"to": [ -0.7, -1.4, -0.45 ],
+							"rotationOrigin": [ -0.8, -1.4, -0.55 ],
+							"rotationY": -5.0,
+							"rotationZ": -30.0,
+							"faces": {
+								"north": { "texture": "#can_necklace_leather", "uv": [ 1.75, 2.625, 2.0, 3.625 ] },
+								"east": { "texture": "#can_necklace_leather", "uv": [ 3.5, 1.5, 3.75, 2.5 ] },
+								"south": { "texture": "#can_necklace_leather", "uv": [ 6.75, 1.0, 7.0, 2.0 ] },
+								"west": { "texture": "#can_necklace_leather", "uv": [ 6.0, 1.375, 6.25, 2.375 ] },
+								"up": { "texture": "#can_necklace_leather", "uv": [ 2.5, 1.5, 2.75, 1.625 ] },
+								"down": { "texture": "#can_necklace_leather", "uv": [ 5.0, 3.5, 5.25, 3.625 ] }
+							},
+							"children": [
+								{
+									"name": "gem6",
+									"from": [ -0.05, -0.3, -0.05 ],
+									"to": [ 0.25, 0.0, 0.25 ],
+									"rotationOrigin": [ 0.1, 0.0, 0.1 ],
+									"faces": {
+										"north": { "texture": "#can_necklace_gem_2", "uv": [ 5.5, 2.625, 5.75, 2.875 ] },
+										"east": { "texture": "#can_necklace_gem_2", "uv": [ 5.25, 1.875, 5.5, 2.125 ] },
+										"south": { "texture": "#can_necklace_gem_2", "uv": [ 4.5, 2.25, 4.75, 2.5 ] },
+										"west": { "texture": "#can_necklace_gem_2", "uv": [ 6.0, 3.5, 6.25, 3.75 ] },
+										"up": { "texture": "#can_necklace_gem_2", "uv": [ 5.75, 1.125, 6.0, 1.375 ] },
+										"down": { "texture": "#can_necklace_gem_2", "uv": [ 4.25, 2.0, 4.5, 2.25 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "string4",
+							"from": [ -0.2, -1.4, 0.95 ],
+							"to": [ 0.0, -0.4, 1.15 ],
+							"rotationOrigin": [ -0.1, -0.4, 1.05 ],
+							"rotationY": 22.5,
+							"rotationZ": -30.0,
+							"faces": {
+								"north": { "texture": "#can_necklace_leather", "uv": [ 3.0, 2.0, 3.25, 3.0 ] },
+								"east": { "texture": "#can_necklace_leather", "uv": [ 4.0, 1.0, 4.25, 2.0 ] },
+								"south": { "texture": "#can_necklace_leather", "uv": [ 3.25, 1.375, 3.5, 2.375 ] },
+								"west": { "texture": "#can_necklace_leather", "uv": [ 5.5, 2.25, 5.75, 3.25 ] },
+								"up": { "texture": "#can_necklace_leather", "uv": [ 7.0, 3.0, 7.25, 3.125 ] },
+								"down": { "texture": "#can_necklace_leather", "uv": [ 5.5, 2.0, 5.75, 2.125 ] }
+							},
+							"children": [
+								{
+									"name": "gem7",
+									"from": [ -0.05, -0.3, -0.05 ],
+									"to": [ 0.25, 0.0, 0.25 ],
+									"rotationOrigin": [ 0.1, 0.0, 0.1 ],
+									"faces": {
+										"north": { "texture": "#can_necklace_gem_1", "uv": [ 2.75, 1.875, 3.0, 2.125 ] },
+										"east": { "texture": "#can_necklace_gem_1", "uv": [ 3.25, 2.625, 3.5, 2.875 ] },
+										"south": { "texture": "#can_necklace_gem_1", "uv": [ 2.0, 2.0, 2.25, 2.25 ] },
+										"west": { "texture": "#can_necklace_gem_1", "uv": [ 6.0, 1.5, 6.25, 1.75 ] },
+										"up": { "texture": "#can_necklace_gem_1", "uv": [ 2.25, 2.5, 2.5, 2.75 ] },
+										"down": { "texture": "#can_necklace_gem_1", "uv": [ 5.5, 2.25, 5.75, 2.5 ] }
+									}
+								}
+							]
+						},
+						{
+							"name": "string5",
+							"from": [ -0.2, -1.4, -1.15 ],
+							"to": [ 0.0, -0.4, -0.95 ],
+							"rotationOrigin": [ -0.1, -0.4, -1.05 ],
+							"rotationY": -22.5,
+							"rotationZ": -30.0,
+							"faces": {
+								"north": { "texture": "#can_necklace_leather", "uv": [ 3.75, 2.0, 4.0, 3.0 ] },
+								"east": { "texture": "#can_necklace_leather", "uv": [ 5.75, 1.75, 6.0, 2.75 ] },
+								"south": { "texture": "#can_necklace_leather", "uv": [ 2.75, 1.625, 3.0, 2.625 ] },
+								"west": { "texture": "#can_necklace_leather", "uv": [ 4.75, 1.5, 5.0, 2.5 ] },
+								"up": { "texture": "#can_necklace_leather", "uv": [ 6.25, 3.25, 6.5, 3.375 ] },
+								"down": { "texture": "#can_necklace_leather", "uv": [ 5.5, 1.5, 5.75, 1.625 ] }
+							},
+							"children": [
+								{
+									"name": "gem8",
+									"from": [ -0.05, -0.3, -0.05 ],
+									"to": [ 0.25, 0.0, 0.25 ],
+									"rotationOrigin": [ 0.1, 0.0, 0.1 ],
+									"faces": {
+										"north": { "texture": "#can_necklace_gem_1", "uv": [ 2.5, 3.0, 2.75, 3.25 ] },
+										"east": { "texture": "#can_necklace_gem_1", "uv": [ 3.5, 1.875, 3.75, 2.125 ] },
+										"south": { "texture": "#can_necklace_gem_1", "uv": [ 2.0, 2.5, 2.25, 2.75 ] },
+										"west": { "texture": "#can_necklace_gem_1", "uv": [ 6.0, 1.5, 6.25, 1.75 ] },
+										"up": { "texture": "#can_necklace_gem_1", "uv": [ 3.25, 2.375, 3.5, 2.625 ] },
+										"down": { "texture": "#can_necklace_gem_1", "uv": [ 5.75, 2.25, 6.0, 2.5 ] }
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]}

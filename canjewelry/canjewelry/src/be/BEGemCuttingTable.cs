@@ -1,16 +1,13 @@
-﻿using canjewelry.src.blocks;
-using canjewelry.src.cb;
-using canjewelry.src.CB;
-using canjewelry.src.items;
-using canjewelry.src.jewelry;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using canjewelry.src.blocks;
+using canjewelry.src.cb;
+using canjewelry.src.CB;
+using canjewelry.src.items;
+using canjewelry.src.jewelry;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
@@ -19,9 +16,6 @@ using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
-using Vintagestory.ServerMods;
-using static canjewelry.src.Config;
-using static canjewelry.src.OldConfig;
 
 namespace canjewelry.src.be
 {
@@ -195,10 +189,6 @@ namespace canjewelry.src.be
         }
         private TextureAtlasPosition getOrCreateTexPos(AssetLocation texturePath)
         {
-            /*if (texturePath == null)
-            {
-                var c3 = 3;
-            }*/
             TextureAtlasPosition texPos = this.capi.BlockTextureAtlas[texturePath];
             if (texPos == null)
             {
@@ -206,7 +196,7 @@ namespace canjewelry.src.be
                 if (asset != null)
                 {
                     BitmapRef bitmap = asset.ToBitmap(this.capi);
-                    this.capi.BlockTextureAtlas.InsertTextureCached(texturePath, (IBitmap)bitmap, out int _, out texPos);
+                    this.capi.BlockTextureAtlas.GetOrInsertTexture(texturePath, out int _, out texPos, () => asset.ToBitmap(this.Api as ICoreClientAPI));
                 }
                 else
                 {
@@ -894,8 +884,6 @@ namespace canjewelry.src.be
 
             return true;
         }
-
-
         bool HasAnyMetalVoxel()
         {
             for (int x = 0; x < 16; x++)
@@ -911,9 +899,6 @@ namespace canjewelry.src.be
 
             return false;
         }
-
-
-
         public virtual void OnSplit(Vec3i voxelPos)
         {
             if (Voxels[voxelPos.X, voxelPos.Y, voxelPos.Z] == (byte)EnumVoxelMaterial.Slag)
@@ -1321,7 +1306,7 @@ namespace canjewelry.src.be
             }
 
             ((ICoreClientAPI)Api).Network.SendBlockEntityPacket(
-                Pos.X, Pos.Y, Pos.Z,
+                Pos,
                 (int)EnumAnvilPacket.OnUserOver,
                 data
             );
@@ -1391,10 +1376,10 @@ namespace canjewelry.src.be
                 stacks.ToArray(),
                 (selectedIndex) => {
                     SelectedRecipeId = recipes[selectedIndex].RecipeId;
-                    capi.Network.SendBlockEntityPacket(Pos.X, Pos.Y, Pos.Z, (int)EnumAnvilPacket.SelectRecipe, SerializerUtil.Serialize(recipes[selectedIndex].RecipeId));
+                    capi.Network.SendBlockEntityPacket(Pos, (int)EnumAnvilPacket.SelectRecipe, SerializerUtil.Serialize(recipes[selectedIndex].RecipeId));
                 },
                 () => {
-                    capi.Network.SendBlockEntityPacket(Pos.X, Pos.Y, Pos.Z, (int)EnumAnvilPacket.CancelSelect);
+                    capi.Network.SendBlockEntityPacket(Pos, (int)EnumAnvilPacket.CancelSelect);
                 },
                 Pos,
                 Api as ICoreClientAPI

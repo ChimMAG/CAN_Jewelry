@@ -1,0 +1,214 @@
+[
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "remove",
+        "path": "/attributesByType/*-scallop-dead/rareProcessingResultChances/0",
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "addeach",
+        "path": "/attributesByType/*-scallop-dead/rareProcessingResultChances/-",
+        "value": [ 0.3, 0.1, 0.03 ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "remove",
+        "path": "/attributesByType/*-scallop-dead/rareProcessingResultStacks/0",
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "addeach",
+        "path": "/attributesByType/*-scallop-dead/rareProcessingResultStacks/-",
+        "value": [
+            {
+                "type": "item",
+                "code": "canjewelry:gem-rough-chipped-pearl",
+                "quantity": 1
+            },
+            {
+                "type": "item",
+                "code": "canjewelry:gem-rough-flawed-pearl",
+                "quantity": 1
+            },
+            {
+                "type": "item",
+                "code": "canjewelry:gem-rough-normal-pearl",
+                "quantity": 1
+            }
+        ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "addeach",
+        "path": "/attributesByType/*-scallop-dead/rareProcessingResultExclusive/-",
+        "value": [ "true", "true" ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+
+    ///
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "remove",
+        "path": "/attributesByType/*-clam-dead/rareProcessingResultChances/0",
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "addeach",
+        "path": "/attributesByType/*-clam-dead/rareProcessingResultChances/-",
+        "value": [ 0.3, 0.1, 0.03 ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "remove",
+        "path": "/attributesByType/*-clam-dead/rareProcessingResultStacks/0",
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "addeach",
+        "path": "/attributesByType/*-clam-dead/rareProcessingResultStacks/-",
+        "value": [
+            {
+                "type": "item",
+                "code": "canjewelry:gem-rough-chipped-pearl",
+                "quantity": 1
+            },
+            {
+                "type": "item",
+                "code": "canjewelry:gem-rough-flawed-pearl",
+                "quantity": 1
+            },
+            {
+                "type": "item",
+                "code": "canjewelry:gem-rough-normal-pearl",
+                "quantity": 1
+            }
+        ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "addeach",
+        "path": "/attributesByType/*-clam-dead/rareProcessingResultExclusive/-",
+        "value": [ "true", "true" ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+    ////
+
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "remove",
+        "path": "/attributesByType/*-freshwatermussel-dead/rareProcessingResultChances/0",
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "addeach",
+        "path": "/attributesByType/*-freshwatermussel-dead/rareProcessingResultChances/-",
+        "value": [ 0.3, 0.1, 0.03 ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "remove",
+        "path": "/attributesByType/*-freshwatermussel-dead/rareProcessingResultStacks/0",
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "addeach",
+        "path": "/attributesByType/*-freshwatermussel-dead/rareProcessingResultStacks/-",
+        "value": [
+            {
+                "type": "item",
+                "code": "canjewelry:gem-rough-chipped-pearl",
+                "quantity": 1
+            },
+            {
+                "type": "item",
+                "code": "canjewelry:gem-rough-flawed-pearl",
+                "quantity": 1
+            },
+            {
+                "type": "item",
+                "code": "canjewelry:gem-rough-normal-pearl",
+                "quantity": 1
+            }
+        ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    },
+    {
+        "file": "saltandsands:itemtypes/resource/bivalve.json",
+        "op": "addeach",
+        "path": "/attributesByType/*-freshwatermussel-dead/rareProcessingResultExclusive/-",
+        "value": [ "true", "true" ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ]
+    }
+
+]

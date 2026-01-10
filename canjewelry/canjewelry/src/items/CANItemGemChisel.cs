@@ -1,26 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using canjewelry.src.be;
+using canjewelry.src.items.GemChiselMode;
 using Vintagestory.API.Client;
-using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
-using VSSurvivalMod.Systems.ChiselModes;
-using canjewelry.src.items.GemChiselMode;
-using canjewelry.src.be;
 
 namespace canjewelry.src.items
 {
     public class CANItemGemChisel : Item
     {
         public SkillItem[] ToolModes;
-        SkillItem addMatItem;
 
         public static bool carvingTime = DateTime.Now.Month == 10 || DateTime.Now.Month == 11;
         public static bool AllowHalloweenEvent = true;
@@ -69,8 +64,6 @@ namespace canjewelry.src.items
             {
                 ToolModes[i]?.Dispose();
             }
-
-            addMatItem?.Dispose();
         }
 
 
@@ -292,13 +285,7 @@ namespace canjewelry.src.items
             {
                 return null;
             }
-            /*if (!(forPlayer.Entity.World.BlockAccessor.GetBlock(blockSel.Position) is BlockClayForm))
-            {
-                return null;
-            }*/
             return this.ToolModes;
-
-            return null;
         }
 
         public override int GetToolMode(ItemSlot slot, IPlayer byPlayer, BlockSelection blockSel)
