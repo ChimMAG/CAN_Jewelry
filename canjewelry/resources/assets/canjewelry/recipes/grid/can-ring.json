@@ -36,7 +36,7 @@
         }
     },
     {
-        "ingredientPattern": "W_W,_W_",
+        "ingredientPattern": "_W_,W_W,_W_",
         "ingredients": {
             "W": {
                 "type": "item",
@@ -47,7 +47,7 @@
         },
         "name": "can-canring-simple-crafts",
         "width": 3,
-        "height": 2,
+        "height": 3,
         "output": {
             "type": "item",
             "code": "canjewelry:canring-right-simple",

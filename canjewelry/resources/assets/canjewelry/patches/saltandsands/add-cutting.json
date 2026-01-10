@@ -1,0 +1,132 @@
+[
+    {
+        "file": "canjewelry:recipes/gemcutting/baguette_cutting.json",
+        "op": "addeach",
+        "path": "/0/ingredient/allowedVariants/-",
+        "value": [
+            "pearl"
+        ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ],
+        "side": "server"
+    },
+    {
+        "file": "canjewelry:recipes/gemcutting/baguette_cutting.json",
+        "op": "addeach",
+        "path": "/1/ingredient/allowedVariants/-",
+        "value": [
+            "pearl"
+        ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ],
+        "side": "server"
+    },
+    {
+        "file": "canjewelry:recipes/gemcutting/baguette_cutting.json",
+        "op": "addeach",
+        "path": "/2/ingredient/allowedVariants/-",
+        "value": [
+            "pearl"
+        ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ],
+        "side": "server"
+    },
+    ///
+
+    {
+        "file": "canjewelry:recipes/gemcutting/pear_cutting.json",
+        "op": "addeach",
+        "path": "/0/ingredient/allowedVariants/-",
+        "value": [
+            "pearl"
+        ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ],
+        "side": "server"
+    },
+    {
+        "file": "canjewelry:recipes/gemcutting/pear_cutting.json",
+        "op": "addeach",
+        "path": "/1/ingredient/allowedVariants/-",
+        "value": [
+            "pearl"
+        ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ],
+        "side": "server"
+    },
+    {
+        "file": "canjewelry:recipes/gemcutting/pear_cutting.json",
+        "op": "addeach",
+        "path": "/2/ingredient/allowedVariants/-",
+        "value": [
+            "pearl"
+        ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ],
+        "side": "server"
+    },
+    ////
+
+    {
+        "file": "canjewelry:recipes/gemcutting/round_cutting.json",
+        "op": "addeach",
+        "path": "/0/ingredient/allowedVariants/-",
+        "value": [
+            "pearl"
+        ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ],
+        "side": "server"
+    },
+    {
+        "file": "canjewelry:recipes/gemcutting/round_cutting.json",
+        "op": "addeach",
+        "path": "/1/ingredient/allowedVariants/-",
+        "value": [
+            "pearl"
+        ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ],
+        "side": "server"
+    },
+    {
+        "file": "canjewelry:recipes/gemcutting/round_cutting.json",
+        "op": "addeach",
+        "path": "/2/ingredient/allowedVariants/-",
+        "value": [
+            "pearl"
+        ],
+        "dependsOn": [
+            {
+                "modid": "saltandsands"
+            }
+        ],
+        "side": "server"
+    }
+]

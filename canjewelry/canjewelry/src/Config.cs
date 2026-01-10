@@ -41,6 +41,7 @@ namespace canjewelry.src
         public float minFineForMistake = 0.01f;
         public float maxFineForMistake = 0.08f;
         public bool TurnOffBuffs = false;
+        public float minGrinderProcessingSpeed = 0.3f;
         public void FillDefaultValues(bool onlyEmptyStructs = false)
         {
             if (buffNameToPossibleItem.Count == 0)
@@ -246,6 +247,9 @@ namespace canjewelry.src
                  },
 
                  {"topaz",  
+                        new HashSet<string>{ "pickaxe", "shovel"/*, "shears"*/ }
+                 },
+                {"pearl",
                         new HashSet<string>{ "pickaxe", "shovel"/*, "shears"*/ }
                  },
             });
@@ -756,7 +760,8 @@ namespace canjewelry.src
                     { "tourmalineverdelite",  "healingeffectivness"},
                     { "tourmalinewatermelon",  "rangedWeaponsAcc"},
                     { "amethyst", "candurability" },
-                    { "topaz", "temporalgrasp" }
+                    { "topaz", "temporalgrasp" },
+                    { "pearl", "maxhealthExtraPoints" }
                 };
             }
 
@@ -1047,7 +1052,8 @@ namespace canjewelry.src
                 { "tourmalineschorl", new HashSet<string>{ "mechanicalsDamage" } },
                 { "tourmalinewatermelon", new HashSet<string>{ "rangedWeaponsAcc" } },
                 { "amethyst", new HashSet<string>{ "candurability" } },
-                { "topaz", new HashSet<string>{ "temporalgrasp" } }
+                { "topaz", new HashSet<string>{ "temporalgrasp" } },
+                { "pearl", new HashSet<string>{ "maxhealthExtraPoints" } }
             };
             BuffAttributesDict = new Dictionary<string, BuffAttributes>
             {

@@ -146,9 +146,8 @@ namespace canjewelry.src.items.resource
                             }
                         }
                     }
-                    return;
                 }
-                if (inSlot.Itemstack.Collectible.Attributes.KeyExists("canGemTypeToAttribute"))
+                else if (inSlot.Itemstack.Collectible.Attributes.KeyExists("canGemTypeToAttribute"))
                 {
                     string buffName = inSlot.Itemstack.Collectible.Attributes["canGemTypeToAttribute"].ToString();
                     if (buffName.Equals("maxhealthExtraPoints"))
@@ -181,8 +180,23 @@ namespace canjewelry.src.items.resource
                     }
                 }
             }
+            if (inSlot?.Itemstack?.Attributes.HasAttribute("cangrindlayerinfo") ?? false)
+            {
+                var cutGemTree = inSlot.Itemstack.Attributes.GetTreeAttribute("cangrindlayerinfo");
+                if (cutGemTree == null)
+                {
+                    return;
+                }
+                if (cutGemTree.HasAttribute("grindtype"))
+                {
+                    dsc.AppendLine(Lang.Get("canjewelry:grinding-process-stage", cutGemTree.GetInt("grindtype")));
+                }
+                if (cutGemTree.HasAttribute("grindcounter"))
+                {
+                    dsc.AppendLine(Lang.Get("canjewelry:grinding-process-percent", string.Format("{0:0}", (((20 - cutGemTree.GetInt("grindcounter")) / 20.0) * 100)).ToString()));
+                }
+            }
         }
-
         public string GetMeshCacheKey(ItemStack itemstack)
         {
             string cuttingType = itemstack.Attributes.GetString(CANJWConstants.CUTTING_TYPE, "-");

@@ -40,8 +40,12 @@
     }
   ],
   "storageFlags": 5,
-  "shape": { "base": "canjewelry:item/gem/{refinestate}/{quality}/gem" },
+    "shapebytype": {
+        "*-pearl": { "base": "canjewelry:item/gem/{refinestate}/{quality}/pearl" },
+        "*": { "base": "canjewelry:item/gem/{refinestate}/{quality}/gem" }
+    },
     "texturesByType": {
+
         "*": {
             "gem": { "base": "canjewelry:item/gem/{gemtype}" }
         }

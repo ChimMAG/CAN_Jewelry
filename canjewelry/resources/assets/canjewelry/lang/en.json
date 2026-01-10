@@ -125,6 +125,11 @@
     "item-gem-rough-flawed-tourmalinewatermelon": "Medium rough watermelon tourmaline",
     "item-gem-rough-normal-tourmalinewatermelon": "Great rough watermelon tourmaline",
 
+
+    "item-gem-rough-chipped-pearl": "Small pearl",
+    "item-gem-rough-flawed-pearl": "Medium pearl",
+    "item-gem-rough-normal-pearl": "Great pearl",
+
     //Cut gems
 
     "item-gem-cut-exquisite-diamond": "Great cut diamond",
@@ -252,6 +257,10 @@
     "item-gem-cut-exquisite-topaz": "Great cut topaz",
     "item-gem-cut-flawless-topaz": "Medium cut topaz",
     "item-gem-cut-normal-topaz": "Small cut topaz",
+
+    "item-gem-cut-exquisite-pearl": "Great cut pearl",
+    "item-gem-cut-flawless-pearl": "Medium cut pearl",
+    "item-gem-cut-normal-pearl": "Small cut pearl",
 
     "item-crushed-diamond": "Crushed diamond",
 
@@ -426,5 +435,7 @@
     "block-cannecklacestand-*": "Necklacewear display",
     "item-canring": " ring",
     "clothcategory-RightPalm": "RightPalm",
-    "clothcategory-LeftPalm": "LeftPalm"
+    "clothcategory-LeftPalm": "LeftPalm",
+    "grinding-process-stage": "Grinder processing stage #{0}",
+    "grinding-process-percent": "Grinding progress: {0}%"
 }

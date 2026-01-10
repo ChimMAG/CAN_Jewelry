@@ -486,7 +486,7 @@ namespace canjewelry.src.jewelry
             {
                 return;
             }
-            if(!this.playersGrinding.ContainsKey(player.PlayerUID) || (double)this.GrindSpeed < 0.3)
+            if(!this.playersGrinding.ContainsKey(player.PlayerUID) || (double)this.GrindSpeed < canjewelry.config.minGrinderProcessingSpeed)
             {
                return;
             }
@@ -573,6 +573,7 @@ namespace canjewelry.src.jewelry
                         {
                             activeItemStack.Attributes.RemoveAttribute("cangrindlayerinfo");
                             cutGemTree.SetBool(CANJWConstants.GEM_FULL_PROCESSED, true);
+                            activeSlot.MarkDirty();
                             return;
                         }
                         itree.SetInt("grindtype", itree.GetInt("grindtype") + 1);

@@ -1,0 +1,39 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+		"pearls": "/Users/koeni/Desktop/item/pearls"
+	},
+	"elements": [
+		{
+			"name": "root",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "Cube9",
+					"from": [ -1.1, 0.0, 1.0 ],
+					"to": [ 0.4, 1.5, 2.5 ],
+					"rotationOrigin": [ -1.1, 0.0, 1.0 ],
+					"rotationY": 55.0,
+					"faces": {
+						"north": { "texture": "#pearls", "uv": [ 8.5, 6.0, 10.0, 7.5 ], "rotation": 90 },
+						"east": { "texture": "#pearls", "uv": [ 8.5, 6.0, 10.0, 7.5 ], "rotation": 180 },
+						"south": { "texture": "#pearls", "uv": [ 8.5, 6.0, 10.0, 7.5 ], "rotation": 270 },
+						"west": { "texture": "#pearls", "uv": [ 8.5, 6.0, 10.0, 7.5 ] },
+						"up": { "texture": "#pearls", "uv": [ 8.5, 6.0, 10.0, 7.5 ] },
+						"down": { "texture": "#pearls", "uv": [ 8.5, 6.0, 10.0, 7.5 ] }
+					}
+				}
+			]
+		}
+	]}

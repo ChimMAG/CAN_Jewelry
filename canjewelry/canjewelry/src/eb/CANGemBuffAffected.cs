@@ -69,6 +69,10 @@ namespace canjewelry.src.eb
                 playerHotbar = (InventoryBasePlayer)player.InventoryManager.GetOwnInventory("hotbar");
                 characterInv.SlotModified += OnSlotModifiedCharacterInv;
                 playerHotbar.SlotModified += OnSlotModifiedHotbarInv;
+
+
+                var additionalInv = player.InventoryManager.GetOwnInventory("additionaljewelrycharacter");
+                additionalInv.SlotModified += OnSlotModifiedAdditionalInv;
                 canjewelry.sapi.Logger.VerboseDebug(String.Format("[canjewelry] Try #{0} loaded behavior for {1}", this.triesToInit, player.PlayerName));
                 this.callbackId = 0;
                 initialized = true;
@@ -119,6 +123,50 @@ namespace canjewelry.src.eb
                 this.savedBuffs = SerializerUtil.Deserialize<Dictionary<int, Dictionary<string, float>>>(loadedBuffs);
             }
         }
+        private void OnSlotModifiedAdditionalInv(int i)
+        {
+            //additionaljewelrycharacter
+            var addJewelryInv = ((this.entity as EntityPlayer).Player as IServerPlayer).InventoryManager.GetOwnInventory("additionaljewelrycharacter");
+            if (addJewelryInv == null)
+            {
+                return;
+            }
+            int moveIvalue = i + 100;
+            ItemStack iStack = addJewelryInv[i].Itemstack;
+            Dictionary<string, float> newBuffDict = GetItemStackBuffs(iStack);
+            if (savedBuffs.TryGetValue(moveIvalue, out var currentBuffDict))
+            {
+                if (currentBuffDict == null)
+                {
+                    canjewelry.sapi.Logger.VerboseDebug(String.Format("[canjewelry] {0} itemslot buff dict for character inv was null", moveIvalue));
+                    savedBuffs.Remove(moveIvalue);
+                    return;
+                }
+                //if there is diff or new buffs are empty
+                if (currentBuffDict.Except(newBuffDict).Any())
+                {
+                    var f = currentBuffDict.Except(newBuffDict).ToArray();
+                    ApplyBuffFromItemStack(currentBuffDict, this.entity as EntityPlayer, false);
+                    if (newBuffDict.Count > 0)
+                    {
+                        ApplyBuffFromItemStack(newBuffDict, this.entity as EntityPlayer, true);
+                        savedBuffs[moveIvalue] = newBuffDict;
+                    }
+                    else
+                    {
+                        savedBuffs.Remove(moveIvalue);
+                    }
+                }
+            }
+            else
+            {
+                if (newBuffDict.Count > 0)
+                {
+                    ApplyBuffFromItemStack(newBuffDict, this.entity as EntityPlayer, true);
+                    savedBuffs[moveIvalue] = newBuffDict;
+                }
+            }
+        }
         private void OnSlotModifiedCharacterInv(int i)
         {
             if(!initialized)
@@ -164,6 +212,7 @@ namespace canjewelry.src.eb
                     savedBuffs[i] = newBuffDict;
                 }
             }
+           
         }
         public void OnSlotModifiedHotbarInv(int i)
         {

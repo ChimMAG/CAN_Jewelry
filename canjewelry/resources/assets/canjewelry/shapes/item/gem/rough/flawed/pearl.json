@@ -1,0 +1,67 @@
+{
+	"editor": {
+		"allAngles": false,
+		"entityTextureMode": false
+	},
+	"textureWidth": 16,
+	"textureHeight": 16,
+	"textureSizes": {
+	},
+	"textures": {
+	},
+	"elements": [
+		{
+			"name": "root",
+			"from": [ 8.0, 0.0, 8.0 ],
+			"to": [ 8.0, 0.0, 8.0 ],
+			"rotationOrigin": [ 8.0, 0.0, 8.0 ],
+			"faces": {
+			},
+			"children": [
+				{
+					"name": "Cube10",
+					"from": [ -0.5, 0.0, -1.1 ],
+					"to": [ 0.7, 1.0, 0.4 ],
+					"rotationOrigin": [ -0.5, 0.0, -0.1 ],
+					"rotationX": 3.0,
+					"rotationY": -30.0,
+					"faces": {
+						"north": { "texture": "#gem", "uv": [ 14.5, 2.5, 15.5, 3.5 ] },
+						"east": { "texture": "#gem", "uv": [ 14.5, 2.5, 16.0, 3.5 ], "rotation": 180 },
+						"south": { "texture": "#gem", "uv": [ 15.0, 2.5, 16.0, 3.5 ], "rotation": 270 },
+						"west": { "texture": "#gem", "uv": [ 14.5, 2.5, 16.0, 3.5 ] },
+						"up": { "texture": "#gem", "uv": [ 15.0, 2.5, 16.0, 4.0 ] },
+						"down": { "texture": "#gem", "uv": [ 15.0, 2.5, 16.0, 4.0 ] }
+					},
+					"children": [
+						{
+							"name": "Cube11",
+							"from": [ 0.3, 0.2, -0.2 ],
+							"to": [ 0.9, 0.8, 0.0 ],
+							"rotationOrigin": [ 0.6, 0.5, 0.0 ],
+							"faces": {
+								"north": { "texture": "#gem", "uv": [ 14.5, 3.0, 15.0, 3.5 ] },
+								"east": { "texture": "#gem", "uv": [ 15.0, 2.0, 15.5, 2.5 ] },
+								"west": { "texture": "#gem", "uv": [ 14.5, 2.5, 15.0, 3.0 ] },
+								"up": { "texture": "#gem", "uv": [ 14.5, 2.5, 15.0, 3.0 ] },
+								"down": { "texture": "#gem", "uv": [ 14.5, 3.0, 15.0, 3.5 ] }
+							}
+						},
+						{
+							"name": "Cube12",
+							"from": [ 0.3, 0.2, 1.5 ],
+							"to": [ 0.9, 0.8, 1.7 ],
+							"rotationOrigin": [ 0.6, 0.5, 1.7 ],
+							"faces": {
+								"east": { "texture": "#gem", "uv": [ 15.5, 3.0, 16.0, 3.5 ] },
+								"south": { "texture": "#gem", "uv": [ 15.5, 3.0, 16.0, 3.5 ] },
+								"west": { "texture": "#gem", "uv": [ 15.0, 3.0, 15.5, 3.5 ] },
+								"up": { "texture": "#gem", "uv": [ 15.0, 3.0, 15.5, 3.5 ] },
+								"down": { "texture": "#gem", "uv": [ 15.5, 3.0, 16.0, 3.5 ] }
+							}
+						}
+					]
+				}
+			]
+		}
+	]}
