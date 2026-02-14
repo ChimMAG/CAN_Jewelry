@@ -1,14 +1,6 @@
-﻿using canjewelry.src.utils;
-using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.Intrinsics.X86;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 using Vintagestory.API.Common;
 
 namespace canjewelry.src
@@ -29,7 +21,7 @@ namespace canjewelry.src
         public float chance_gem_drop_on_item_broken;
         public HashSet<string> buffs_to_show_gui = new HashSet<string>();
         public string config_version;
-        public Dictionary<string, HashSet<string>> PossibleGemBuffs= new Dictionary<string, HashSet<string>>();
+        public Dictionary<string, HashSet<string>> PossibleGemBuffs = new Dictionary<string, HashSet<string>>();
         public Dictionary<string, BuffAttributes> BuffAttributesDict = new Dictionary<string, BuffAttributes>();
         public Dictionary<string, CuttingAttributes> CuttingAttributesDict = new Dictionary<string, CuttingAttributes>();
         public static Random rand = new Random();
@@ -42,35 +34,36 @@ namespace canjewelry.src
         public float maxFineForMistake = 0.08f;
         public bool TurnOffBuffs = false;
         public float minGrinderProcessingSpeed = 0.3f;
+        public Dictionary<string, int> LevelOfSocketByType = new Dictionary<string, int>();
         public void FillDefaultValues(bool onlyEmptyStructs = false)
         {
             if (buffNameToPossibleItem.Count == 0)
             {
                 buffNameToPossibleItem = new Dictionary<string, HashSet<string>>
                 (new Dictionary<string, HashSet<string>> {
-                {"diamond", 
-                        new HashSet<string>{ "brigandine", "plate", "chain", "scale", "cansimplenecklace", "cantiara", 
+                {"diamond",
+                        new HashSet<string>{ "brigandine", "plate", "chain", "scale", "cansimplenecklace", "cantiara",
                             "-antique", "cancoronet", "canhoruseye", "canmonocle", "-tracker", "canarmband",
                             "greenwich-head", "greenwich-body",  "greenwich-legs", "cannadiyannecklace", "firearm-", "exoskeleton-",
                         "viking-head", "viking-body",  "viking-legs", "templar-head", "templar-body",  "templar-legs",
                             "landsknecht-head", "landsknecht-body",  "landsknecht-legs", "hussar-head", "hussar-body",  "hussar-legs"
-                        , "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"} 
+                        , "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"}
                 },
 
-                {"corundum", 
+                {"corundum",
                         new HashSet<string>{ "pickaxe", "shovel", "cansimplenecklace", "cantiara", "tunneler", "canrottenkingmask", "cancoronet", "canhoruseye", "canmonocle",
-                            "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" } 
+                            "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" }
                 },
 
-                {"emerald", 
+                {"emerald",
                         new HashSet<string>{ "brigandine", "plate", "chain", "scale", "cansimplenecklace", "-antique" , "cantiara", "canrottenkingmask", "cancoronet",
                             "canhoruseye", "canmonocle", "-tracker", "canarmband", "cannadiyannecklace", "exoskeleton-", "greenwich-head", "greenwich-body",  "greenwich-legs"
                         , "viking-head", "viking-body",  "viking-legs", "templar-head", "templar-body",  "templar-legs",
                             "landsknecht-head", "landsknecht-body",  "landsknecht-legs", "dynasties-head", "dynasties-body",  "dynasties-legs",
-                            "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "canring"} 
+                            "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "canring"}
                 },
 
-                {"fluorite", 
+                {"fluorite",
                         new HashSet<string>{ "halberd", "mace", "spear", "rapier", "longsword", "zweihander", "messer",
                         "cansimplenecklace", "cantiara", "ihammer", "tshammer", "biaxe", "tssword", "shammer", "hamb", "atgeir", "blade", "canrottenkingmask", "cancoronet", "canhoruseye",
                         "canmonocle", "axe-long", "sword-long" , "sword-great", "sword-short", "javelin-plain", "pike-plain", "club-plain", "mace-plain", "poleaxe-plain", "halberd-plain",
@@ -82,16 +75,16 @@ namespace canjewelry.src
                             "canhoruseye", "canmonocle", "-tracker", "canarmband", "cannadiyannecklace", "exoskeleton-",
                             "greenwich-head", "greenwich-body",  "greenwich-legs", "viking-head", "viking-body",  "viking-legs", "templar-head", "templar-body",  "templar-legs"
                         , "landsknecht-head", "landsknecht-body",  "landsknecht-legs",
-                            "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"} 
+                            "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"}
                 },
 
-                {"malachite", 
+                {"malachite",
                         new HashSet<string>{ "brigandine", "plate", "chain", "scale", "knife", "cansimplenecklace", "-antique" , "cantiara", "scythe", "canrottenkingmask",
                             "cancoronet", "canhoruseye", "canmonocle", "-tracker", "canarmband", "cannadiyannecklace", "exoskeleton-",
                             "greenwich-head", "greenwich-body",  "greenwich-legs", "viking-head", "viking-body",  "viking-legs", "templar-head", "templar-body",  "templar-legs"
                         , "landsknecht-head", "landsknecht-body",  "landsknecht-legs",
-                            "hussar-head", "hussar-body",  "hussar-legs", 
-                            "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"} 
+                            "hussar-head", "hussar-body",  "hussar-legs",
+                            "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"}
                 },
                 {"olivine",
                         new HashSet<string>{ "brigandine", "plate", "chain", "scale", "cansimplenecklace", "-antique" , "cantiara", "canrottenkingmask", "cancoronet", "canhoruseye",
@@ -99,7 +92,7 @@ namespace canjewelry.src
                             "greenwich-head", "greenwich-body",  "greenwich-legs", "viking-head", "viking-body",  "viking-legs", "templar-head", "templar-body",  "templar-legs"
                         , "landsknecht-head", "landsknecht-body",  "landsknecht-legs",
                             "hussar-head", "hussar-body",  "hussar-legs",
-                            "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"} 
+                            "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"}
                 },
                 {"uranium",
                         new HashSet<string>{ "brigandine", "plate", "chain", "scale", "cansimplenecklace" , "-antique" , "cantiara", "canrottenkingmask", "cancoronet",
@@ -107,75 +100,75 @@ namespace canjewelry.src
                             "cannadiyannecklace", "exoskeleton-", "greenwich-head", "greenwich-body",
                             "greenwich-legs", "viking-head", "viking-body",  "viking-legs", "templar-head", "templar-body",  "templar-legs"
                         , "landsknecht-head", "landsknecht-body",  "landsknecht-legs",
-                            "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"} 
+                            "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"}
                 },
 
-                {"quartz", 
+                {"quartz",
                         new HashSet<string>{ "pickaxe", "cansimplenecklace" , "cantiara", "tspaxel", "tunneler", "canrottenkingmask", "cancoronet", "canhoruseye",
-                            "canmonocle", "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" } 
+                            "canmonocle", "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" }
                 },
 
-                {"ruby",  
+                {"ruby",
                         new HashSet<string>{ "bow", "cansimplenecklace", "cantiara", "tbow-compound" , "canrottenkingmask", "cancoronet", "canhoruseye", "canmonocle", "canarmband",
                             "cannadiyannecklace", "firearm-" , "exoskeleton-", "canring" }
                 },
 
-                {"citrine", 
+                {"citrine",
                         new HashSet<string>{ "knife", "cansimplenecklace" , "cantiara", "canrottenkingmask", "cancoronet", "canhoruseye", "canmonocle", "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" }
                 },
 
-                {"berylaquamarine", 
+                {"berylaquamarine",
                         new HashSet<string>{ "brigandine", "plate", "chain", "scale", "cansimplenecklace", "cantiara", "-antique", "canrottenkingmask", "cancoronet", "canhoruseye",
-                            "canmonocle", "-tracker", "canarmband" , "cannadiyannecklace", "exoskeleton-", 
+                            "canmonocle", "-tracker", "canarmband" , "cannadiyannecklace", "exoskeleton-",
                             "greenwich-head", "greenwich-body",  "greenwich-legs", "viking-head", "viking-body",  "viking-legs"
                         , "templar-head", "templar-body",  "templar-legs",
                             "landsknecht-head", "landsknecht-body",  "landsknecht-legs",
-                            "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"} 
+                            "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"}
                 },
 
                 {"berylbixbite",
-                        new HashSet<string>{ "pickaxe", "shovel", "cansimplenecklace", "cantiara", "tunneler", "canrottenkingmask", 
-                            "cancoronet", "canhoruseye", "canmonocle", "canarmband", "cannadiyannecklace" , "exoskeleton-", "canring"} 
+                        new HashSet<string>{ "pickaxe", "shovel", "cansimplenecklace", "cantiara", "tunneler", "canrottenkingmask",
+                            "cancoronet", "canhoruseye", "canmonocle", "canarmband", "cannadiyannecklace" , "exoskeleton-", "canring"}
                 },
 
-                {"corundumruby",  
+                {"corundumruby",
                         new HashSet<string>{ "bow", "cansimplenecklace", "cantiara", "tbow-compound", "canrottenkingmask", "cancoronet", "canhoruseye" ,
                             "canmonocle", "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" }
                 },
 
-                {"corundumsapphire", 
+                {"corundumsapphire",
                         new HashSet<string>{ "pickaxe", "cansimplenecklace", "cantiara", "tunneler", "canrottenkingmask", "cancoronet", "canhoruseye", "canmonocle",
-                            "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" } 
+                            "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" }
                 },
 
-                {"garnetalmandine", 
-                        new HashSet<string>{ "bow", "cansimplenecklace", "cantiara", "tspaxel", "tbow-compound", "canrottenkingmask" , "cancoronet", 
+                {"garnetalmandine",
+                        new HashSet<string>{ "bow", "cansimplenecklace", "cantiara", "tspaxel", "tbow-compound", "canrottenkingmask" , "cancoronet",
                             "canhoruseye", "canmonocle", "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" }
                 },
 
                 {"garnetandradite",
-                        new HashSet<string>{ "brigandine", "plate", "chain", "scale", "cansimplenecklace" , "-antique" , "cantiara", "canrottenkingmask", "cancoronet", 
+                        new HashSet<string>{ "brigandine", "plate", "chain", "scale", "cansimplenecklace" , "-antique" , "cantiara", "canrottenkingmask", "cancoronet",
                             "canhoruseye", "canmonocle", "-tracker" , "canarmband", "cannadiyannecklace", "exoskeleton-",
                             "greenwich-head", "greenwich-body",  "greenwich-legs", "viking-head", "viking-body",  "viking-legs", "templar-head", "templar-body",  "templar-legs"
-                        , "landsknecht-head", "landsknecht-body",  "landsknecht-legs", 
+                        , "landsknecht-head", "landsknecht-body",  "landsknecht-legs",
                             "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"}
                 },
 
-                {"garnetgrossular", 
+                {"garnetgrossular",
                         new HashSet<string>{ "halberd", "mace", "spear", "rapier", "longsword", "zweihander", "messer", "falx", "cansimplenecklace",
                     "cantiara", "ihammer", "tshammer", "biaxe", "tssword", "shammer", "hamb", "atgeir", "blade", "canrottenkingmask", "cancoronet", "canhoruseye",
                             "canmonocle", "claymore", "warhammer", "dagger", "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" }
                 },
 
-                {"garnetpyrope",  
+                {"garnetpyrope",
                         new HashSet<string>{ "knife", "cansimplenecklace" , "cantiara", "canrottenkingmask", "cancoronet", "canhoruseye", "canmonocle", "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" }
                 },
 
-                {"garnetspessartine",  
+                {"garnetspessartine",
                         new HashSet<string>{ "knife", "cansimplenecklace" , "cantiara" , "canrottenkingmask", "cancoronet", "canhoruseye", "canmonocle", "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" }
                 },
 
-                {"garnetuvarovite",  
+                {"garnetuvarovite",
                         new HashSet<string>{ "bow", "cansimplenecklace", "cantiara" , "canrottenkingmask", "cancoronet", "canhoruseye", "canmonocle", "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" }
                 },
                 {"spinelred",
@@ -186,43 +179,43 @@ namespace canjewelry.src
                             "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"}
                 },
 
-                {"topazamber", 
+                {"topazamber",
                         new HashSet<string>{ "brigandine", "plate", "chain", "scale", "knife", "cansimplenecklace", "-antique" , "cantiara", "canrottenkingmask",
                             "cancoronet", "canhoruseye", "canmonocle", "-tracker", "canarmband",
                             "cannadiyannecklace" , "exoskeleton-", "greenwich-head", "greenwich-body",  "greenwich-legs", "viking-head", "viking-body",  "viking-legs"
                         , "templar-head", "templar-body",  "templar-legs"
                         , "landsknecht-head", "landsknecht-body",  "landsknecht-legs",
-                            "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"} 
+                            "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"}
                 },
 
-                {"topazblue", 
+                {"topazblue",
                         new HashSet<string>{ "brigandine", "plate", "chain", "scale", "cansimplenecklace", "-antique" , "cantiara", "canrottenkingmask",
                             "cancoronet", "canhoruseye", "canmonocle", "-tracker", "canarmband", "cannadiyannecklace", "exoskeleton-",
                             "greenwich-head", "greenwich-body",  "greenwich-legs", "viking-head", "viking-body",  "viking-legs", "templar-head", "templar-body",  "templar-legs"
-                        , "landsknecht-head", "landsknecht-body",  "landsknecht-legs", "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "canring"} 
+                        , "landsknecht-head", "landsknecht-body",  "landsknecht-legs", "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "canring"}
                 },
 
-                {"topazpink", 
+                {"topazpink",
                         new HashSet<string>{ "knife", "cansimplenecklace" , "cantiara", "canrottenkingmask", "cancoronet", "canhoruseye", "canmonocle" , "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" }
                 },
 
-                {"tourmalinerubellite", 
+                {"tourmalinerubellite",
                         new HashSet<string>{ "brigandine", "plate", "chain", "scale", "cansimplenecklace", "-antique" , "cantiara", "canrottenkingmask",
                             "cancoronet", "canhoruseye", "canmonocle", "-tracker", "canarmband", "cannadiyannecklace", "exoskeleton-",
                             "greenwich-head", "greenwich-body",  "greenwich-legs", "viking-head", "viking-body",  "viking-legs", "templar-head", "templar-body",  "templar-legs"
                         , "landsknecht-head", "landsknecht-body",  "landsknecht-legs", "hussar-head", "hussar-body",  "hussar-legs",
-                            "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"} 
+                            "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"}
                 },
 
-                {"tourmalineschorl", 
+                {"tourmalineschorl",
                         new HashSet<string>{ "halberd", "mace", "spear", "rapier", "longsword", "zweihander", "messer", "falx",
                             "cansimplenecklace", "cantiara", "ihammer", "tshammer", "biaxe", "tssword", "shammer", "hamb", "atgeir", "blade",
-                            "canrottenkingmask", "cancoronet", "canhoruseye", "canmonocle", "axe-long", "sword-long", "sword-great", "sword-short" , 
+                            "canrottenkingmask", "cancoronet", "canhoruseye", "canmonocle", "axe-long", "sword-long", "sword-great", "sword-short" ,
                             "javelin-plain", "pike-plain", "club-plain", "mace-plain", "poleaxe-plain", "halberd-plain",
                             "quarterstaff-plain", "claymore", "warhammer", "dagger", "canarmband", "cannadiyannecklace", "exoskeleton-", "canring" }
                 },
 
-                {"tourmalineverdelite", 
+                {"tourmalineverdelite",
                         new HashSet<string>{ "brigandine", "plate", "chain", "scale", "cansimplenecklace" , "-antique" , "cantiara", "canrottenkingmask", "cancoronet", "canhoruseye",
                             "canmonocle", "-tracker" , "canarmband", "cannadiyannecklace", "exoskeleton-",
                             "greenwich-head", "greenwich-body",  "greenwich-legs", "viking-head", "viking-body",  "viking-legs", "templar-head", "templar-body",  "templar-legs"
@@ -230,12 +223,12 @@ namespace canjewelry.src
                             "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs", "canring"}
                 },
 
-                {"tourmalinewatermelon",  
+                {"tourmalinewatermelon",
                         new HashSet<string>{ "bow", "cansimplenecklace", "cantiara", "tbow-compound", "canrottenkingmask", "cancoronet", "canhoruseye" , "canmonocle", "canarmband", "cannadiyannecklace"
                         , "exoskeleton-", "canring"}
                 },
 
-                {"amethyst", 
+                {"amethyst",
                         new HashSet<string>{ "halberd", "mace", "spear", "rapier", "longsword", "zweihander", "messer", "falx",
                         "bow", "knife", "ihammer", "tshammer", "biaxe", "tssword", "shammer", "hamb", "atgeir", "blade", "brigandine",
                         "plate", "chain", "scale", "-antique" , "canrottenkingmask", "axe-felling-", "prospectingpick-", "hammer-", "shovel-", "hoe-", "saw-",
@@ -246,7 +239,7 @@ namespace canjewelry.src
                             "hussar-head", "hussar-body",  "hussar-legs", "gothic-head", "gothic-body",  "gothic-legs", "dynasties-head", "dynasties-body",  "dynasties-legs"}
                  },
 
-                 {"topaz",  
+                 {"topaz",
                         new HashSet<string>{ "pickaxe", "shovel"/*, "shears"*/ }
                  },
                 {"pearl",
@@ -689,7 +682,7 @@ namespace canjewelry.src
             {  "maltiezfirearms:firearm-blunderbuss-rusted", new int[1] {2} },
             {  "maltiezfirearms:firearm-blunderbuss-steel", new int[1] {3} },
 
-              {  "maltiezfirearms:firearm-carbine-iron", new int[1] {1} },
+            {  "maltiezfirearms:firearm-carbine-iron", new int[1] {1} },
             {  "maltiezfirearms:firearm-carbine-metoriciron", new int[1] {2} },
             {  "maltiezfirearms:firearm-carbine-rusted", new int[1] {2} },
             {  "maltiezfirearms:firearm-carbine-steel", new int[1] {3} },
@@ -706,6 +699,31 @@ namespace canjewelry.src
             {  "exoskeletons:exoskeleton-arms-unarmored-*", new int[2] {3, 1} },
             {  "exoskeletons:exoskeleton-torso-armored-*", new int[1] {3} },
             {  "exoskeletons:exoskeleton-torso-unarmored-*", new int[2] {3, 1} },
+
+            {  "extrafirearms:firearm-arquebusflintlock-steel-*", new int[1] {3} },
+            {  "extrafirearms:firearm-blunderbusdb-steel-*", new int[1] {3} },
+            {  "extrafirearms:firearm-hallrifle-steel-*", new int[1] {3} },
+            {  "extrafirearms:firearm-jezail-steel-*", new int[1] {3} },
+            {  "extrafirearms:firearm-pistolaxe-steel-*", new int[1] {3} },
+            {  "extrafirearms:firearm-pistol-iron-*", new int[1] {1} },
+            {  "extrafirearms:firearm-pistol-meteoriciron-*", new int[1] {1} },
+            {  "extrafirearms:firearm-pistolrevolver-steel-*", new int[1] {3} },
+            {  "extrafirearms:firearm-pistol-steel-*", new int[1] {3} },
+            {  "extrafirearms:firearm-superimposed-steel-*", new int[1] {3} },
+            {  "extrafirearms:firearm-superimposed-iron-*", new int[1] {1} },
+            {  "extrafirearms:firearm-superimposed-meteoriciron-*", new int[1] {1} },
+            {  "extrafirearms:firearm-volleygun-steel-*", new int[1] {3} },
+            {  "extrafirearms:firearm-wheelaxe-steel-*", new int[1] {3} },
+            {  "extrafirearms:firearm-wheellockcarabine-steel-*", new int[1] {3} },
+            {  "extrafirearms:firearm-wheellockcarabine-iron-*", new int[1] {1} },
+            {  "extrafirearms:firearm-wheellockcarabine-meteoriciron-*", new int[1] {1} },
+            {  "extrafirearms:firearm-wheellockrifle-steel-*", new int[1] {3} },
+            {  "extrafirearms:firearm-wheellockrifle-iron-*", new int[1] {1} },
+            {  "extrafirearms:firearm-wheellockrifle-meteoriciron-*", new int[1] {1} },
+            {  "extrafirearms:firearm-arquebus-steel-*", new int[1] {3} },
+            {  "extrafirearms:firearm-arquebus-iron-*", new int[1] {1} },
+            {  "extrafirearms:firearm-arquebus-meteoriciron-*", new int[1] {1} },
+            {  "extrafirearms:firearm-blunderbuss-steel-*", new int[1] {3} },
                     //,
 
            /* {  "game:shears-", new int[1] {3} },
@@ -747,17 +765,17 @@ namespace canjewelry.src
                     { "corundumsapphire",  "vesselContentsDropRate"},
                     { "garnetalmandine",  "bowDrawingStrength"},
                     { "garnetandradite",  "animalSeekingRange"},
-                    { "garnetgrossular",  "meleeWeaponsDamage"},
+                    { "garnetgrossular",  "vesselContentsDropRate"},
                     { "garnetpyrope",  "animalLootDropRate"},
-                    { "garnetspessartine",  "animalLootDropRate"},
+                    { "garnetspessartine",  "meleeWeaponsDamage"},
                     { "garnetuvarovite",  "rangedWeaponsSpeed"},
                     { "spinelred",  "armorWalkSpeedAffectedness"},
-                    { "topazamber",  "wildCropDropRate"},
-                    { "topazblue",  "maxhealthExtraPoints"},
+                    { "topazamber",  "meleeWeaponsDamage"},
+                    { "topazblue",  "wildCropDropRate"},
                     { "topazpink",  "animalHarvestingTime"},
-                    { "tourmalinerubellite",  "armorDurabilityLoss"},
+                    { "tourmalinerubellite",  "wildCropDropRate"},
                     { "tourmalineschorl",  "mechanicalsDamage"},
-                    { "tourmalineverdelite",  "healingeffectivness"},
+                    { "tourmalineverdelite",  "armorDurabilityLoss"},
                     { "tourmalinewatermelon",  "rangedWeaponsAcc"},
                     { "amethyst", "candurability" },
                     { "topaz", "temporalgrasp" },
@@ -1043,9 +1061,19 @@ namespace canjewelry.src
                 { "uranium", new HashSet<string>{ "healingeffectivness" } },
                 { "ruby", new HashSet<string>{ "rangedWeaponsDamage" } },
                 { "citrine", new HashSet<string>{ "animalLootDropRate" } },
+                 { "berylaquamarine", new HashSet<string>{ "walkspeed" } },
+                 { "berylbixbite", new HashSet<string>{ "miningSpeedMul" } },
+                 { "corundumruby", new HashSet<string>{ "rangedWeaponsDamage" } },
                 { "corundumsapphire", new HashSet<string>{ "vesselContentsDropRate" } },
                 { "garnetalmandine", new HashSet<string>{ "bowDrawingStrength" } },
                 { "garnetandradite", new HashSet<string>{ "animalSeekingRange" } },
+                { "garnetgrossular", new HashSet<string>{ "vesselContentsDropRate" } },
+                { "garnetpyrope", new HashSet<string>{ "animalLootDropRate" } },
+                { "garnetspessartine", new HashSet<string>{ "meleeWeaponsDamage" } },
+                { "topazamber", new HashSet<string>{ "meleeWeaponsDamage" } },
+                { "topazblue", new HashSet<string>{ "wildCropDropRate" } },
+                { "tourmalinerubellite", new HashSet<string>{ "wildCropDropRate" } },
+                { "tourmalineverdelite", new HashSet<string>{ "armorDurabilityLoss" } },
                 { "garnetuvarovite", new HashSet<string>{ "rangedWeaponsSpeed" } },
                 { "spinelred", new HashSet<string>{ "armorWalkSpeedAffectedness" } },
                 { "topazpink", new HashSet<string>{ "animalHarvestingTime" } },
@@ -1379,7 +1407,7 @@ namespace canjewelry.src
             socketTiersColors = new string[] {
                 "2FE147",
                 "2B3FF7",
-                "9214C9" 
+                "9214C9"
             };
             if (TemporalGraspBlockList.Count == 0)
             {
@@ -1388,6 +1416,14 @@ namespace canjewelry.src
                     "game:leavesbranchy-placed*",
                     "game:bambooleaves-*",*/ };
             }
+            LevelOfSocketByType = new Dictionary<string, int> { { "canjewelry:cansocket-gold", 2 },
+                                                                { "canjewelry:cansocket-silver", 2 },
+                                                                { "canjewelry:cansocket-bismuthbronze", 1 },
+                                                                { "canjewelry:cansocket-tinbronze", 1},
+                                                                { "canjewelry:cansocket-blackbronze", 1},
+                                                                { "canjewelry:cansocket-iron", 2},
+                                                                { "canjewelry:cansocket-meteoriciron", 2},
+                                                                { "canjewelry:cansocket-steel", 3 }};
         }
         public class DropInfo
         {

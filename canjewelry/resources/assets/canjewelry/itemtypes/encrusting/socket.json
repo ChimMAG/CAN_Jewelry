@@ -1,24 +1,17 @@
 ﻿{
   "code": "cansocket",
+  "class": "CANItemSocket",
   "maxstacksize": 4,
   "shape": { "base": "canjewelry:encrusting/socket" },
   "variantgroups": [
     {
       "code": "metal",
-      "states": [ "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel" ]
+      "states": [ "tinbronze", "bismuthbronze", "blackbronze", "iron", "meteoriciron", "steel", "gold", "silver" ]
     }
   ],
   "attributes": {
     "handbook": {
       "groupBy": [ "helvehammer-*" ]
-    },
-    "levelOfSocketByType": {
-      "cansocket-tinbronze": 1,
-      "cansocket-bismuthbronze": 1,
-      "cansocket-blackbronze": 1,
-      "cansocket-iron": 2,
-      "cansocket-meteoriciron": 2,
-      "cansocket-steel": 3
     }
   },
   "textures": {
