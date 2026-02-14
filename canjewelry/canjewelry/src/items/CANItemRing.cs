@@ -1,8 +1,13 @@
 ﻿using canjewelry.src.CB;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using canjewelry.src.CB;
+using canjewelry.src.items.interfaces;
+using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -312,6 +317,7 @@ namespace canjewelry.src.items
                     }
                 }
             }
+
         }
         public override void OnBeforeRender(ICoreClientAPI capi, ItemStack itemstack, EnumItemRenderTarget target, ref ItemRenderInfo renderinfo)
         {
