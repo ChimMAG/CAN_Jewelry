@@ -208,7 +208,21 @@ namespace canjewelry.src.items
         {
             return this.GetMeshCacheKey(stack);
         }
-        public override string GetMeshCacheKey(ItemStack itemstack)
+        public override string GetMeshCacheKey(ItemSlot slot)
+        {
+            var itemstack = slot.Itemstack;
+            string metal = itemstack.Attributes.GetString("metal", null);
+            string glass = itemstack.Attributes.GetString("glass", null);
+            return string.Concat(new string[]
+            {
+                this.Code.ToShortString(),
+                "-",
+                metal,
+                "-",
+                glass
+            });
+        }
+        public string GetMeshCacheKey(ItemStack itemstack)
         {
             string metal = itemstack.Attributes.GetString("metal", null);
             string glass = itemstack.Attributes.GetString("glass", null);
@@ -292,13 +306,29 @@ namespace canjewelry.src.items
             if (meshrefid == 0 || !this.meshrefs.TryGetValue(meshrefid, out renderinfo.ModelRef))
             {
                 int id = this.meshrefs.Count + 1;
-                MultiTextureMeshRef modelref = capi.Render.UploadMultiTextureMesh(this.GenMesh(itemstack, capi.ItemTextureAtlas));
+                MultiTextureMeshRef modelref = capi.Render.UploadMultiTextureMesh(this.GenMesh(itemstack, capi.ItemTextureAtlas, null));
                 renderinfo.ModelRef = (this.meshrefs[id] = modelref);
                 itemstack.TempAttributes.SetInt("meshRefId", id);
             }
             base.OnBeforeRender(capi, itemstack, target, ref renderinfo);
         }
-        public override MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos forBlockPos = null)
+        public override MeshData GenMesh(ItemSlot slot, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
+        {
+            var itemstack = slot.Itemstack;
+            ICoreClientAPI coreClientAPI = api as ICoreClientAPI;
+            curAtlas = targetAtlas;
+            if (targetAtlas == coreClientAPI.ItemTextureAtlas)
+            {
+                ITexPositionSource textureSource = coreClientAPI.Tesselator.GetTextureSource(itemstack.Item);
+                return genMesh(coreClientAPI, itemstack, this);
+            }
+
+            curAtlas = targetAtlas;
+            MeshData meshData = genMesh(api as ICoreClientAPI, itemstack, this);
+            meshData.RenderPassesAndExtraBits.Fill((short)1);
+            return meshData;
+        }
+        public MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos forBlockPos = null)
         {
             ICoreClientAPI coreClientAPI = api as ICoreClientAPI;
             curAtlas = targetAtlas;

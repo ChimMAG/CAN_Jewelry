@@ -81,7 +81,7 @@ namespace canjewelry.src.jewelry
             glowRgb.B = incandescenceColorAsColor4f[2];
             glowRgb.A = (float)num2 / 255f;
             render.GlDisableCullFace();
-            IShaderProgram anvilShaderProg = coreMod.anvilShaderProg;
+            IShaderProgram anvilShaderProg = coreMod.smithingWorkItemShader;
             anvilShaderProg.Use();
             render.BindTexture2d(texId);
             anvilShaderProg.Uniform("rgbaAmbientIn", render.AmbientColor);
@@ -146,7 +146,7 @@ namespace canjewelry.src.jewelry
                     RegenOutlineMesh(recipeToOutlineVoxels, voxels);
                 }
 
-                MeshData data = CANItemGemCuttingWorkItem.GenMesh(api, workitemStack, voxels, out texId);
+                MeshData data = CANItemGemCuttingWorkItem.GenMesh(api, workitemStack, voxels);
                 workItemMeshRef?.Dispose();
                 workItemMeshRef = api.Render.UploadMesh(data);
             }

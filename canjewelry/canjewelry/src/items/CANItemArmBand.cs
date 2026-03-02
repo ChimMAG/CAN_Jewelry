@@ -168,7 +168,18 @@ namespace canjewelry.src.items
         }
         #endregion
         #region IContainedMeshSource
-        public override string GetMeshCacheKey(ItemStack itemstack)
+        public override string GetMeshCacheKey(ItemSlot slot)
+        {
+            var itemstack = slot.Itemstack;
+            string metal = itemstack.Attributes.GetString("loop", null);
+            return string.Concat(new string[]
+            {
+                this.Code.ToShortString(),
+                "-",
+                metal
+            });
+        }
+        public string GetMeshCacheKey(ItemStack itemstack)
         {
             string metal = itemstack.Attributes.GetString("loop", null);
             return string.Concat(new string[]
@@ -178,7 +189,23 @@ namespace canjewelry.src.items
                 metal
             });
         }
-        public override MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos forBlockPos = null)
+        public override MeshData GenMesh(ItemSlot slot, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
+        {
+            var itemstack = slot.Itemstack;
+            ICoreClientAPI coreClientAPI = api as ICoreClientAPI;
+            curAtlas = targetAtlas;
+            if (targetAtlas == coreClientAPI.ItemTextureAtlas)
+            {
+                ITexPositionSource textureSource = coreClientAPI.Tesselator.GetTextureSource(itemstack.Item);
+                return genMesh(coreClientAPI, itemstack, this);
+            }
+
+            curAtlas = targetAtlas;
+            MeshData meshData = genMesh(api as ICoreClientAPI, itemstack, this);
+            meshData.RenderPassesAndExtraBits.Fill((short)EnumChunkRenderPass.OpaqueNoCull);
+            return meshData;
+        }
+        public MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
         {
             ICoreClientAPI coreClientAPI = api as ICoreClientAPI;
             curAtlas = targetAtlas;
@@ -299,7 +326,7 @@ namespace canjewelry.src.items
             if (meshrefid == 0 || !this.meshrefs.TryGetValue(meshrefid, out renderinfo.ModelRef))
             {
                 int id = this.meshrefs.Count + 1;
-                MultiTextureMeshRef modelref = capi.Render.UploadMultiTextureMesh(this.GenMesh(itemstack, capi.ItemTextureAtlas));
+                MultiTextureMeshRef modelref = capi.Render.UploadMultiTextureMesh(this.GenMesh(itemstack, capi.ItemTextureAtlas, null));
                 renderinfo.ModelRef = (this.meshrefs[id] = modelref);
                 itemstack.TempAttributes.SetInt("meshRefId", id);
             }

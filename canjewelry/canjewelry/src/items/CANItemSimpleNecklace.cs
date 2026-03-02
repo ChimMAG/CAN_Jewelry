@@ -261,7 +261,29 @@ namespace canjewelry.src.items
             }
             
         }
-        public override MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos forBlockPos = null)
+        public override MeshData GenMesh(ItemSlot slot, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
+        {
+            var itemstack = slot.Itemstack;
+            ICoreClientAPI coreClientAPI = api as ICoreClientAPI;
+            curAtlas = targetAtlas;
+            if (targetAtlas == coreClientAPI.ItemTextureAtlas)
+            {
+                ITexPositionSource textureSource = coreClientAPI.Tesselator.GetTextureSource(itemstack.Item);
+                return genMesh(coreClientAPI, itemstack, this);
+                /* ITexPositionSource textureSource = coreClientAPI.Tesselator.GetTextureSource(itemstack.Item);
+                MeshData meshData1 =  genMesh(coreClientAPI, itemstack, this);
+                MeshData meshData2 = genMesh(coreClientAPI, itemstack, this);
+                meshData2.Rotate(new Vec3f(0.5f, 0.5f, 0.6f), 40, 40, 40);
+                meshData1.AddMeshData(meshData2);
+                return meshData1;*/
+            }
+
+            curAtlas = targetAtlas;
+            MeshData meshData = genMesh(api as ICoreClientAPI, itemstack, this);
+            meshData.RenderPassesAndExtraBits.Fill((short)1);
+            return meshData;
+        }
+        public MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos forBlockPos = null)
         {
             ICoreClientAPI coreClientAPI = api as ICoreClientAPI;
             curAtlas = targetAtlas;
@@ -282,7 +304,24 @@ namespace canjewelry.src.items
             meshData.RenderPassesAndExtraBits.Fill((short)1);
             return meshData;
         }
-        public override string GetMeshCacheKey(ItemStack itemstack)
+        public override string GetMeshCacheKey(ItemSlot slot)
+        {
+            var itemstack = slot.Itemstack;
+            string loop = itemstack.Attributes.GetString("loop", null);
+            string socket = itemstack.Attributes.GetString("socket", null);
+            string gem = itemstack.Attributes.GetString("gem", null);
+            return string.Concat(new string[]
+            {
+                this.Code.ToShortString(),
+                "-",
+                loop,
+                "-",
+                socket,
+                "-",
+                gem
+            });
+        }
+        public string GetMeshCacheKey(ItemStack itemstack)
         {
             string loop = itemstack.Attributes.GetString("loop", null);
             string socket = itemstack.Attributes.GetString("socket", null);

@@ -1,16 +1,12 @@
-﻿ using Cairo;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 using Vintagestory.ServerMods;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace canjewelry.src.jewelry
 {
@@ -57,7 +53,7 @@ namespace canjewelry.src.jewelry
             }
         }
 
-        public class PotionCauldronRecipeLoader : RecipeLoader
+        public class PotionCauldronRecipeLoader : ModSystem
         {
             public override double ExecuteOrder()
             {
@@ -65,7 +61,7 @@ namespace canjewelry.src.jewelry
             }
             public override bool ShouldLoad(EnumAppSide side)
             {
-                return true;
+                return false;
             }
             public override void Start(ICoreAPI api)
             {
@@ -137,8 +133,10 @@ namespace canjewelry.src.jewelry
                     return;
                 }
                 GemCuttingRecipe potionCauldronRecipe2 = potionCauldronRecipe;
-                Dictionary<string, string[]> nameToCodeMapping = potionCauldronRecipe.GetNameToCodeMapping(api.World);
-                if (nameToCodeMapping.Count > 0)
+                //Dictionary<string, string[]> nameToCodeMapping = //potionCauldronRecipe.GetNameToCodeMapping(api.World);
+                var nameToCodeMapping = potionCauldronRecipe.GenerateRecipesForAllIngredientCombinations(api.World);
+                //TODO
+                /*if (nameToCodeMapping.Count > 0)
                 {
                     List<GemCuttingRecipe> subRecipes = new List<GemCuttingRecipe>();
                     int qCombs = 0;
@@ -205,7 +203,7 @@ namespace canjewelry.src.jewelry
                         //quantityRegistered++;
                     }
                 }
-
+                */
                 
             }
             public ICoreServerAPI api;

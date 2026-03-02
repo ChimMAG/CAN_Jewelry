@@ -137,7 +137,7 @@ namespace canjewelry.src.jewelry
             if (meshrefid == 0 || !this.meshrefs.TryGetValue(meshrefid, out renderinfo.ModelRef))
             {
                 int id = meshrefid;
-                MultiTextureMeshRef modelref = capi.Render.UploadMultiTextureMesh(this.GenMesh(itemstack, capi.ItemTextureAtlas));
+                MultiTextureMeshRef modelref = capi.Render.UploadMultiTextureMesh(this.GenMesh(itemstack, capi.ItemTextureAtlas, null));
                
                 renderinfo.ModelRef = (this.meshrefs[id] = modelref);
                 itemstack.TempAttributes.SetInt("meshRefId", id);
@@ -146,13 +146,13 @@ namespace canjewelry.src.jewelry
         }
         public MeshData outGenMesh(ItemStack itemstack)
         {
-            return GenMesh(itemstack, targetAtlas);
+            return GenMesh(itemstack, targetAtlas, null);
         }
-        public MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas)
+        public MeshData GenMesh(ItemSlot slot, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
         {
             this.targetAtlas = targetAtlas;
             this.tmpTextures.Clear();
-
+            var itemstack = slot.Itemstack;
             string gemBase = itemstack.Attributes.GetString("gembase", null);
             string gemSize = itemstack.Attributes.GetString("gemsize", null);
 
@@ -213,6 +213,71 @@ namespace canjewelry.src.jewelry
             this.capi.Tesselator.TesselateItem(this, out mesh, this);
             return mesh;
         }
+        public MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
+        {
+            this.targetAtlas = targetAtlas;
+            this.tmpTextures.Clear();
+
+            string gemBase = itemstack.Attributes.GetString("gembase", null);
+            string gemSize = itemstack.Attributes.GetString("gemsize", null);
+
+            foreach (KeyValuePair<string, AssetLocation> ctex in this.capi.TesselatorManager.GetCachedShape(this.Shape.Base).Textures)
+            {
+                this.tmpTextures[ctex.Key] = ctex.Value;
+            }
+            string construction = this.Construction;
+            ITreeAttribute itree;
+            if (itemstack.Attributes.HasAttribute("cangrindlayerinfo"))
+            {
+                itree = itemstack.Attributes.GetTreeAttribute("cangrindlayerinfo");
+
+                gemBase = itree.GetString("gembase");
+
+                if (gemBase.Equals("olivine_peridot"))
+                {
+                    gemBase = "olivine";
+                }
+
+                if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
+                {
+                    canjewelry.gems_textures.TryGetValue("diamond", out assetPath);
+                }
+                AssetLocation asset = canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location;
+
+                this.tmpTextures["gembase"] = asset;
+
+                for (int i = 0; i < 2; i++)
+                {
+                    if (itree.GetInt("grindtype") <= i)
+                    {
+                        this.tmpTextures["emeralddefect" + i] = asset;
+                    }
+                    else
+                    {
+                        this.tmpTextures["emeralddefect" + i] = new AssetLocation("canjewelry:item/gem/notvis.png");
+                    }
+                }
+                this.tmpTextures["emeralddefect2"] = asset;
+            }
+            else
+            {
+                if (gemBase.Equals("olivine_peridot"))
+                {
+                    gemBase = "olivine";
+                }
+
+                if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
+                {
+                    canjewelry.gems_textures.TryGetValue("diamond", out assetPath);
+                }
+                AssetLocation asset = canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location;
+
+                this.tmpTextures["gembase"] = asset;
+            }
+            MeshData mesh;
+            this.capi.Tesselator.TesselateItem(this, out mesh, this);
+            return mesh;
+        }
         public override string GetHeldItemName(ItemStack itemStack)  
         {
             if(itemStack.Attributes.HasAttribute("cangrindlayerinfo"))
@@ -223,12 +288,9 @@ namespace canjewelry.src.jewelry
             }
             return "";          
         }
-        public MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
+        public string GetMeshCacheKey(ItemSlot slot)
         {
-            return this.GenMesh(itemstack, targetAtlas);
-        }
-        public string GetMeshCacheKey(ItemStack itemstack)
-        {
+            var itemstack = slot.Itemstack;
             string gemBase = itemstack.Attributes.GetString("gembase", null);
             string gemSize = itemstack.Attributes.GetString("gemsize", null);
             return string.Concat(new string[]

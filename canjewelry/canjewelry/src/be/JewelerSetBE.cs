@@ -337,7 +337,7 @@ namespace canjewelry.src.jewelry
             {
                 if (!inventory[0].Empty)
                 {
-                    mesher.AddMeshData(this.getMesh(inventory[0].Itemstack));
+                    mesher.AddMeshData(this.getMesh(inventory[0]));
                 }
             }
             /*var shape = new Shape
@@ -380,79 +380,79 @@ namespace canjewelry.src.jewelry
             {
                 if (!this.inventory[slotid].Empty)
                 {
-                    this.getOrCreateMesh(this.inventory[slotid].Itemstack, slotid);
+                    this.getOrCreateMesh(this.inventory[slotid], slotid);
                 }
             }
             this.MarkDirty(true);
         }
-        protected virtual string getMeshCacheKey(ItemStack stack)
+        protected virtual string getMeshCacheKey(ItemSlot slot)
         {
-            IContainedMeshSource meshSource = stack.Collectible as IContainedMeshSource;
+            IContainedMeshSource meshSource = slot.Itemstack.Collectible as IContainedMeshSource;
             if (meshSource != null)
             {
-                return meshSource.GetMeshCacheKey(stack);
+                return meshSource.GetMeshCacheKey(slot);
             }
-            return stack.Collectible.Code.ToString();
+            return slot.Itemstack.Collectible.Code.ToString();
         }
-        protected MeshData getMesh(ItemStack stack)
+        protected MeshData getMesh(ItemSlot slot)
         {
-            string key = this.getMeshCacheKey(stack);
+            string key = this.getMeshCacheKey(slot);
             MeshData meshdata;
             this.MeshCache.TryGetValue(key + this.facing, out meshdata);
             return meshdata;
         }
-        protected virtual MeshData getOrCreateMesh(ItemStack stack, int index)
+        protected virtual MeshData getOrCreateMesh(ItemSlot slot, int index)
         {
             //this.MeshCache.Clear();
             //here
-            MeshData mesh = this.getMesh(stack);
+            MeshData mesh = this.getMesh(slot);
             //this.MeshCache.Clear();
             if (mesh != null)
             {               
                 return mesh;
             }
-            IContainedMeshSource meshSource = stack.Collectible as IContainedMeshSource;
+            IContainedMeshSource meshSource = slot.Itemstack.Collectible as IContainedMeshSource;
             if (meshSource != null)
             {
-                mesh = meshSource.GenMesh(stack, this.capi.BlockTextureAtlas, this.Pos);
+                mesh = meshSource.GenMesh(slot, this.capi.BlockTextureAtlas, this.Pos);
             }
             if (mesh == null)
             {
                 ICoreClientAPI capi = this.Api as ICoreClientAPI;
-                if (stack.Class == EnumItemClass.Block)
+                if (slot.Itemstack.Class == EnumItemClass.Block)
                 {
-                    mesh = capi.TesselatorManager.GetDefaultBlockMesh(stack.Block).Clone();
+                    mesh = capi.TesselatorManager.GetDefaultBlockMesh(slot.Itemstack.Block).Clone();
                 }
                 else
                 {
-                    this.nowTesselatingObj = stack.Collectible;
+                    this.nowTesselatingObj = slot.Itemstack.Collectible;
                     this.nowTesselatingShape = null;
-                    CompositeShape shape = stack.Item.Shape;
+                    CompositeShape shape = slot.Itemstack.Item.Shape;
                     if (((shape != null) ? shape.Base : null) != null)
                     {
-                        this.nowTesselatingShape = capi.TesselatorManager.GetCachedShape(stack.Item.Shape.Base);
+                        this.nowTesselatingShape = capi.TesselatorManager.GetCachedShape(slot.Itemstack.Item.Shape.Base);
                     }
-                    capi.Tesselator.TesselateItem(stack.Item, out mesh, this);
+                    capi.Tesselator.TesselateItem(slot.Itemstack.Item, out mesh, this);
                     mesh.RenderPassesAndExtraBits.Fill((short)EnumChunkRenderPass.BlendNoCull);
                 }
             }
             mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.5f, 0.5f, 0.5f);
             
-            if(stack.Item is CANItemSimpleNecklace)
+            if(slot.Itemstack.Item is CANItemSimpleNecklace)
             {
                 mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 1.25f, 1.25f, 1.25f);
                 mesh.Translate(1f/16, 2f / 16, 1f / 16);
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), 0, ((float)Math.PI / 2), -((float)Math.PI / 6));
                 mesh.Translate(-3f/16, -1f/16,3f/16);
             }
-            else if(stack.Item is CANItemTiara)
+            else if(slot.Itemstack.Item is CANItemTiara)
             {
                 mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 1.6f, 1.6f, 1.6f);
                 //mesh.Translate(1f / 16, 2f / 16, 1f / 16);
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), 0, ((float)Math.PI / 4), -((float)Math.PI / 16));
                 mesh.Translate(-1f / 16, -9f / 16, 3f / 16);
             }
-            else if (stack.Item is CANItemRottenKingMask)
+            else if (slot.Itemstack.Item is CANItemRottenKingMask)
             {
                 mesh.Translate(0, 13f / 16, 0);
                 //mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 1.6f, 1.6f, 1.6f);
@@ -460,7 +460,7 @@ namespace canjewelry.src.jewelry
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), 0, ((float)Math.PI / 4), -((float)Math.PI / 16));
                 //mesh.Translate(-1f / 16, -9f / 16, 3f / 16);
             }
-            else if (stack.Item is CANItemCoronet)
+            else if (slot.Itemstack.Item is CANItemCoronet)
             {
                 mesh.Translate(0, 10f / 16, 0);
                 //mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 1.6f, 1.6f, 1.6f);
@@ -468,10 +468,10 @@ namespace canjewelry.src.jewelry
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), 0, ((float)Math.PI / 4), -((float)Math.PI / 16));
                 //mesh.Translate(-1f / 16, -9f / 16, 3f / 16);
             }
-            else if(stack.Item != null && stack.Item.StorageFlags == EnumItemStorageFlags.Outfit)
+            else if(slot.Itemstack.Item != null && slot.Itemstack.Item.StorageFlags == EnumItemStorageFlags.Outfit)
             {
                
-                if(stack.Collectible.Code.Path.Contains("-head-"))
+                if(slot.Itemstack.Collectible.Code.Path.Contains("-head-"))
                 {
                     mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), 0, ((float)Math.PI / 2), 0f);
                     mesh.Translate(-3f/16, 0, 0f/16);
@@ -485,55 +485,55 @@ namespace canjewelry.src.jewelry
                     mesh.Translate(0, 9f / 16, -1);
                 }
             }
-            else if(stack.Item.Code?.Path.Contains("quarterstaff-plain-") ?? false)
+            else if(slot.Itemstack.Item.Code?.Path.Contains("quarterstaff-plain-") ?? false)
             {
                 mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.5f, 0.5f, 0.5f);
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), 0.0f, ((float)Math.PI * 0.6f), 0f);
                 mesh.Translate(-0.2f, 10.5f / 16, -0.2f);
             }
-            else if (stack.Item.Code?.Path.Contains("axe-long-plain-") ?? false)
+            else if (slot.Itemstack.Item.Code?.Path.Contains("axe-long-plain-") ?? false)
             {
                 mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.7f, 0.7f, 0.7f);
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), 0.0f, ((float)Math.PI * 0.6f), 0f);
                 mesh.Translate(-0.2f, 12f / 16, -0.2f);
             }
-            else if (stack.Item.Code?.Path.Contains("sword-great-plain-") ?? false)
+            else if (slot.Itemstack.Item.Code?.Path.Contains("sword-great-plain-") ?? false)
             {
                 mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.6f, 0.6f, 0.6f);
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
                 mesh.Translate(-0.2f, 8.5f / 16, -0.2f);
             }
-            else if (stack.Item.Code?.Path.Contains("sword-long-plain-") ?? false)
+            else if (slot.Itemstack.Item.Code?.Path.Contains("sword-long-plain-") ?? false)
             {
                 mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.6f, 0.6f, 0.6f);
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
                 mesh.Translate(-0.2f, 8.5f / 16, -0.2f);
             }
-            else if (stack.Item.Code?.Path.Contains("sword-short-plain-") ?? false)
+            else if (slot.Itemstack.Item.Code?.Path.Contains("sword-short-plain-") ?? false)
             {
                 mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.6f, 0.6f, 0.6f);
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
                 mesh.Translate(-0.2f, 8.5f / 16, -0.2f);
             }
-            else if (stack.Item.Code?.Path.Contains("javelin-plain-") ?? false)
+            else if (slot.Itemstack.Item.Code?.Path.Contains("javelin-plain-") ?? false)
             {
                 mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.7f, 0.7f, 0.7f);
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
                 mesh.Translate(-0.1f, 8.5f / 16, 0.2f);
             }
-            else if (stack.Item.Code?.Path.Contains("pike-plain-") ?? false)
+            else if (slot.Itemstack.Item.Code?.Path.Contains("pike-plain-") ?? false)
             {
                 mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.5f, 0.5f, 0.5f);
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
                 mesh.Translate(-0.1f, 8.5f / 16, 0.6f);
             }
-            else if (stack.Item.Code?.Path.Contains("club-plain-") ?? false)
+            else if (slot.Itemstack.Item.Code?.Path.Contains("club-plain-") ?? false)
             {
                 mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.6f, 0.6f, 0.6f);
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
                 mesh.Translate(-0.2f, 8.5f / 16, -0.2f);
             }
-            else if (stack.Item.Code?.Path.Contains("halberd-plain-") ?? false)
+            else if (slot.Itemstack.Item.Code?.Path.Contains("halberd-plain-") ?? false)
             {
                 mesh.Scale(new Vec3f(0.5f, 0.5f, 0.5f), 0.7f, 0.7f, 0.7f);
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), (float)Math.PI * 0.5f, 0f, (float)Math.PI * 0.45f);
@@ -564,7 +564,7 @@ namespace canjewelry.src.jewelry
                 mesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), 0f, 2.35f, 0f);
             }
 
-            string key = this.getMeshCacheKey(stack);
+            string key = this.getMeshCacheKey(slot);
             this.MeshCache[key + this.facing] = mesh;
             return mesh;
         }

@@ -224,7 +224,29 @@ namespace canjewelry.src.items
 
         }
 
-        public override MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos forBlockPos = null)
+        public override MeshData GenMesh(ItemSlot slot, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
+        {
+            var itemstack = slot.Itemstack;
+            ICoreClientAPI coreClientAPI = api as ICoreClientAPI;
+            curAtlas = targetAtlas;
+            if (targetAtlas == coreClientAPI.ItemTextureAtlas)
+            {
+                ITexPositionSource textureSource = coreClientAPI.Tesselator.GetTextureSource(itemstack.Item);
+                return genMesh(coreClientAPI, itemstack, this);
+                /* ITexPositionSource textureSource = coreClientAPI.Tesselator.GetTextureSource(itemstack.Item);
+                MeshData meshData1 =  genMesh(coreClientAPI, itemstack, this);
+                MeshData meshData2 = genMesh(coreClientAPI, itemstack, this);
+                meshData2.Rotate(new Vec3f(0.5f, 0.5f, 0.6f), 40, 40, 40);
+                meshData1.AddMeshData(meshData2);
+                return meshData1;*/
+            }
+
+            curAtlas = targetAtlas;
+            MeshData meshData = genMesh(api as ICoreClientAPI, itemstack, this);
+            meshData.RenderPassesAndExtraBits.Fill((short)1);
+            return meshData;
+        }
+        public MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos forBlockPos = null)
         {
             ICoreClientAPI coreClientAPI = api as ICoreClientAPI;
             curAtlas = targetAtlas;
@@ -246,7 +268,28 @@ namespace canjewelry.src.items
             return meshData;
         }
 
-        public override string GetMeshCacheKey(ItemStack itemstack)
+        public override string GetMeshCacheKey(ItemSlot slot)
+        {
+            var itemstack = slot.Itemstack;
+            string carcassus = itemstack.Attributes.GetString("carcassus", null);
+            string gem_1 = itemstack.Attributes.GetString("gem_1", null);
+            string gem_2 = itemstack.Attributes.GetString("gem_2", null);
+            string gem_3 = itemstack.Attributes.GetString("gem_3", null);
+
+            return string.Concat(new string[]
+            {
+                this.Code.ToShortString(),
+                "-",
+                carcassus,
+                "-",
+                gem_1,
+                "-",
+                gem_2,
+                "-",
+                gem_3
+            });
+        }
+        public string GetMeshCacheKey(ItemStack itemstack)
         {
             string carcassus = itemstack.Attributes.GetString("carcassus", null);
             string gem_1 = itemstack.Attributes.GetString("gem_1", null);

@@ -400,10 +400,11 @@ namespace canjewelry.src.items
         {
             return this.GetMeshCacheKey(stack);
         }
-        public override string GetMeshCacheKey(ItemStack itemstack)
+        public override string GetMeshCacheKey(ItemSlot slot)
         {
+            var itemstack = slot.Itemstack;
             string constructon = itemstack.Item.Variant["construction"];
-             string materialType = itemstack.Attributes.GetString("leather", "orange");
+            string materialType = itemstack.Attributes.GetString("leather", "orange");
             var tree = itemstack.Attributes.GetTreeAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING);
             string buildStr = constructon + materialType;
             if (tree != null)
@@ -421,6 +422,30 @@ namespace canjewelry.src.items
                     }
                 }
                
+            }
+            return buildStr;
+        }
+        public string GetMeshCacheKey(ItemStack itemstack)
+        {
+            string constructon = itemstack.Item.Variant["construction"];
+            string materialType = itemstack.Attributes.GetString("leather", "orange");
+            var tree = itemstack.Attributes.GetTreeAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING);
+            string buildStr = constructon + materialType;
+            if (tree != null)
+            {
+                int slotCount = tree.GetInt(CANJWConstants.SOCKET_ADDED_NUMBER, 0);
+                for (int i = 0; i < slotCount; i++)
+                {
+                    if (tree.HasAttribute("slot" + i.ToString()))
+                    {
+                        var innerTree = tree.GetTreeAttribute("slot" + i.ToString());
+                        if (innerTree.HasAttribute(CANJWConstants.GEM_TYPE_IN_SOCKET))
+                        {
+                            buildStr += innerTree.GetString(CANJWConstants.GEM_TYPE_IN_SOCKET, "");
+                        }
+                    }
+                }
+
             }
             return buildStr;
         }
@@ -498,13 +523,29 @@ namespace canjewelry.src.items
             if (meshrefid == 0 || !this.meshrefs.TryGetValue(meshrefid, out renderinfo.ModelRef))
             {
                 int id = this.meshrefs.Count + 1;
-                MultiTextureMeshRef modelref = capi.Render.UploadMultiTextureMesh(this.GenMesh(itemstack, capi.ItemTextureAtlas));
+                MultiTextureMeshRef modelref = capi.Render.UploadMultiTextureMesh(this.GenMesh(itemstack, capi.ItemTextureAtlas, null));
                 renderinfo.ModelRef = (this.meshrefs[id] = modelref);
                 itemstack.TempAttributes.SetInt("meshRefId", id);
             }
             base.OnBeforeRender(capi, itemstack, target, ref renderinfo);
         }
-        public override MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos forBlockPos = null)
+        public override MeshData GenMesh(ItemSlot slot, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
+        {
+            var itemstack = slot.Itemstack;
+            ICoreClientAPI coreClientAPI = api as ICoreClientAPI;
+            curAtlas = targetAtlas;
+            if (targetAtlas == coreClientAPI.ItemTextureAtlas)
+            {
+                ITexPositionSource textureSource = coreClientAPI.Tesselator.GetTextureSource(itemstack.Item);
+                return genMesh(coreClientAPI, itemstack, this);
+            }
+
+            curAtlas = targetAtlas;
+            MeshData meshData = genMesh(api as ICoreClientAPI, itemstack, this);
+            meshData.RenderPassesAndExtraBits.Fill((short)1);
+            return meshData;
+        }
+        public MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos forBlockPos = null)
         {
             ICoreClientAPI coreClientAPI = api as ICoreClientAPI;
             curAtlas = targetAtlas;

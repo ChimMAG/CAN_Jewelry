@@ -567,7 +567,8 @@ namespace canjewelry.src
                 {
                     foreach (var itemIter in config.items_codes_with_socket_count)
                     {
-                        int[] tmp = new int[itemIter.Value].Fill(3);
+                        int[] tmp = new int[itemIter.Value];
+                        Array.Fill(tmp, 3);
                         config.items_codes_with_socket_count_and_tiers[itemIter.Key] = tmp;
                     }
                     config.items_codes_with_socket_count.Clear();

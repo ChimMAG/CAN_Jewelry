@@ -12,7 +12,7 @@ using Vintagestory.Common;
 
 namespace canjewelry.src.jewelry
 {
-    public class GemCuttingRecipe : LayeredVoxelRecipe<GemCuttingRecipe>, IByteSerializable
+    public class GemCuttingRecipe : LayeredVoxelRecipe, IByteSerializable
     {
         public override int QuantityLayers
         {

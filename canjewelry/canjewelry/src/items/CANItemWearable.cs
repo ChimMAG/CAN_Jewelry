@@ -14,11 +14,11 @@ namespace canjewelry.src.items
         public static AssetLocation NotVisTexture;
         public virtual TextureAtlasPosition this[string textureCode] => throw new NotImplementedException();
         public virtual Size2i AtlasSize => throw new NotImplementedException();
-        public virtual MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
+        public virtual MeshData GenMesh(ItemSlot slot, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
         {
             throw new NotImplementedException();
         }
-        public virtual string GetMeshCacheKey(ItemStack itemstack)
+        public virtual string GetMeshCacheKey(ItemSlot slot)
         {
             throw new NotImplementedException();
         }

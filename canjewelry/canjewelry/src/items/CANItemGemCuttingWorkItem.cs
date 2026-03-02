@@ -23,20 +23,14 @@ namespace canjewelry.src.items
         {
             if (!itemstack.Attributes.HasAttribute("voxels"))
             {
-                CachedMeshRef ccmr = ObjectCacheUtil.GetOrCreate<CachedMeshRef>(capi, "clearWorkItem" + this.Variant["metal"], delegate
+                MultiTextureMeshRef ccmr = ObjectCacheUtil.GetOrCreate<MultiTextureMeshRef>(capi, "clearWorkItem" + this.Variant["metal"], delegate
                 {
                     byte[,,] voxels = new byte[16, 14, 16];
                     ItemIngot.CreateVoxelsFromIngot(capi, ref voxels, false);
-                    int textureid;
-                    MeshData mesh = CANItemGemCuttingWorkItem.GenMesh(capi, itemstack, voxels, out textureid);
-                    return new CachedMeshRef
-                    {
-                        meshref = capi.Render.UploadMultiTextureMesh(mesh),
-                        TextureId = textureid
-                    };
+                    MeshData mesh = CANItemGemCuttingWorkItem.GenMesh(capi, itemstack, voxels);
+                    return capi.Render.UploadMultiTextureMesh(mesh);
                 });
-                renderinfo.ModelRef = ccmr.meshref;
-                renderinfo.TextureId = ccmr.TextureId;
+                renderinfo.ModelRef = ccmr;
                 base.OnBeforeRender(capi, itemstack, target, ref renderinfo);
                 return;
             }
@@ -45,25 +39,17 @@ namespace canjewelry.src.items
             {
                 meshrefId = ++CANItemGemCuttingWorkItem.nextMeshRefId;
             }
-            CachedMeshRef cmr = ObjectCacheUtil.GetOrCreate<CachedMeshRef>(capi, meshrefId.ToString() ?? "", delegate
+            renderinfo.ModelRef = ObjectCacheUtil.GetOrCreate<MultiTextureMeshRef>(capi, meshrefId.ToString() ?? "", delegate
             {
                 byte[,,] voxels = CANItemGemCuttingWorkItem.GetVoxels(itemstack);
-                int textureid;
-                MeshData mesh = CANItemGemCuttingWorkItem.GenMesh(capi, itemstack, voxels, out textureid);
-                return new CachedMeshRef
-                {
-                    meshref = capi.Render.UploadMultiTextureMesh(mesh),
-                    TextureId = textureid
-                };
+                MeshData mesh = CANItemGemCuttingWorkItem.GenMesh(capi, itemstack, voxels);
+                return capi.Render.UploadMultiTextureMesh(mesh);
             });
-            renderinfo.ModelRef = cmr.meshref;
-            renderinfo.TextureId = cmr.TextureId;
             itemstack.Attributes.SetInt("meshRefId", meshrefId);
             base.OnBeforeRender(capi, itemstack, target, ref renderinfo);
         }
-        public static MeshData GenMesh(ICoreClientAPI capi, ItemStack workitemStack, byte[,,] voxels, out int textureId)
+        public static MeshData GenMesh(ICoreClientAPI capi, ItemStack workitemStack, byte[,,] voxels)
         {
-            textureId = 0;
             if (workitemStack == null)
             {
                 return null;
@@ -104,10 +90,9 @@ namespace canjewelry.src.items
                 Count = metalVoxelMesh.VerticesCount,
                 Values = new byte[metalVoxelMesh.VerticesCount]
             };
-            textureId = tposMetal.atlasTextureId;
             for (int i = 0; i < 6; i++)
             {
-                metalVoxelMesh.AddTextureId(textureId);
+                metalVoxelMesh.AddTextureId(tposSlag.atlasTextureId);
             }
             metalVoxelMesh.XyzFaces = (byte[])CubeMeshUtil.CubeFaceIndices.Clone();
             metalVoxelMesh.XyzFacesCount = 6;
