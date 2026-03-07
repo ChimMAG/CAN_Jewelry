@@ -689,6 +689,17 @@ namespace canjewelry.src
                     }
                     config.items_codes_with_socket_count.Clear();
                     config.items_codes_with_socket_count["moved to items_codes_with_socket_count_and_tiers"] = 42;
+                    if(config.LevelOfSocketByType.Count == 0)
+                    {
+                        config.LevelOfSocketByType = new Dictionary<string, int> { { "canjewelry:cansocket-gold", 2 },
+                                                                { "canjewelry:cansocket-silver", 2 },
+                                                                { "canjewelry:cansocket-bismuthbronze", 1 },
+                                                                { "canjewelry:cansocket-tinbronze", 1},
+                                                                { "canjewelry:cansocket-blackbronze", 1},
+                                                                { "canjewelry:cansocket-iron", 2},
+                                                                { "canjewelry:cansocket-meteoriciron", 2},
+                                                                { "canjewelry:cansocket-steel", 3 }};
+                    }
                 }
                 if (config == null)
                 { 
