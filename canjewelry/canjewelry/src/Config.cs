@@ -34,7 +34,7 @@ namespace canjewelry.src
         public float maxFineForMistake = 0.08f;
         public bool TurnOffBuffs = false;
         public float minGrinderProcessingSpeed = 0.3f;
-        public Dictionary<string, int> LevelOfSocketByType = new();
+        public Dictionary<string, int> LevelOfSocketByType = new Dictionary<string, int>();
         public void FillDefaultValues(bool onlyEmptyStructs = false)
         {
             if (buffNameToPossibleItem.Count == 0)

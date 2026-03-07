@@ -25,7 +25,7 @@ namespace canjewelry.src.blocks
             return num != 0;
         }
 
-        public override bool DoParticalSelection(IWorldAccessor world, BlockPos pos) => true;
+        public override bool DoPartialSelection(IWorldAccessor world, BlockPos pos) => true;
 
         public override bool OnBlockInteractStart(
           IWorldAccessor world,
@@ -146,7 +146,7 @@ namespace canjewelry.src.blocks
         {
         }
 
-        public override bool HasMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face)
+        public override bool HasMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face, BlockMPBase forBlock)
         {
             return face == BlockFacing.DOWN;
         }
