@@ -2,6 +2,7 @@
 using canjewelry.src.items;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +31,11 @@ namespace canjewelry.src.commands
                                         .WithDesc("reapply cancrusted buffs for player selected by name")
                                         .WithArgs(parsers.Word("playerName"))
                                         .HandleWith(reapplyCancrustedBuffFromPlayer)
+                                    .EndSub()
+                                    .BeginSub("setgembuffs")
+                                        .WithAlias("sgb")
+                                        .WithArgs(parsers.WordRange("cutting", "round", "baguette", "pear"), parsers.OptionalAll("buffNamesAndValues"))
+                                        .HandleWith(SetGemParams)
                                     .EndSub()
                                     ;
             if (canjewelry.config.debugMode)
@@ -139,6 +145,45 @@ namespace canjewelry.src.commands
             }
 
             canjewelry.sapi.SendMessage(pl, 0, String.Format("Buffs were reapplied for {0}", pl.PlayerName), EnumChatType.Notification);
+            return tcr;
+        }
+        public static TextCommandResult SetGemParams(TextCommandCallingArgs args)
+        {
+            var pl = args.Caller.Player as IServerPlayer;
+            var beh = pl.Entity.GetBehavior<CANGemBuffAffected>();
+            TextCommandResult tcr = new TextCommandResult();
+            tcr.Status = EnumCommandStatus.Success;
+            if (pl.WorldData.CurrentGameMode != EnumGameMode.Creative)
+            {
+                return tcr;
+            }
+            var itemStack = pl.InventoryManager.ActiveHotbarSlot.Itemstack;
+            if(itemStack == null)
+            {
+                return tcr;
+            }
+            ITreeAttribute tree = new TreeAttribute();
+            tree.SetString(CANJWConstants.CUTTING_TYPE, args.Parsers[0].GetValue().ToString());
+
+            var namesAndValues = args.Parsers[1].GetValue().ToString().Split(' ');
+            List<string> buffNames = new();
+            List<float> buffValues = new();
+            for (int i = 0; i < namesAndValues.Length; i+=2)
+            {
+                try
+                {
+                    buffNames.Add(namesAndValues[i]);
+                    buffValues.Add(float.Parse(namesAndValues[i + 1], CultureInfo.InvariantCulture));
+                }
+                catch {
+                    return tcr;
+                }
+            }
+
+            tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(buffNames.ToArray());
+            tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(buffValues.ToArray());
+            itemStack.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
+            pl.InventoryManager.ActiveHotbarSlot.MarkDirty();
             return tcr;
         }
     }

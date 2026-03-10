@@ -192,18 +192,16 @@ namespace canjewelry.src.jewelry
 
                         int socketTier = tree.GetTreeAttribute("slot" + i).GetInt(CANJWConstants.ADDED_SOCKET_TYPE);
 
-                        string socket_type_str = "tinbronze";
+                        string socket_type_str = "canjewelry:cansocket-tinbronze";
 
-                        if (socketTier == 2)
+                        foreach(var it in canjewelry.config.LevelOfSocketByType)
                         {
-                            socket_type_str = "iron";
+                            if(it.Value == socketTier)
+                            {
+                                socket_type_str = it.Key;
+                            }
                         }
-                        else if (socketTier == 3)
-                        {
-                            socket_type_str = "steel";
-                        }
-
-                        var bucketSatck = new ItemStack(capi.World.GetItem(new AssetLocation("canjewelry:cansocket-" + socket_type_str)), 1);
+                        var bucketSatck = new ItemStack(capi.World.GetItem(new AssetLocation(socket_type_str)), 1);
                         var sli = new SlideshowItemstackTextComponent(capi, new ItemStack[] { bucketSatck }, 48, EnumFloat.Inline);
                         var rc = new RichTextComponentBase[] { sli };
                         tmpEl.fixedX += 20;

@@ -29,25 +29,87 @@ using Vintagestory.Server;
 
 namespace canjewelry.src
 {
+    /// <summary>
+    /// Main ModSystem class for the CAN Jewelry mod.
+    /// Responsible for registering items, blocks, behaviors,
+    /// loading configuration, handling networking,
+    /// and applying Harmony patches.
+    /// </summary>
     public class canjewelry: ModSystem
     {
+        /// <summary>
+        /// Harmony instance used for runtime patching.
+        /// </summary>
         public Harmony harmonyInstance;
+
+        /// <summary>
+        /// Unique Harmony ID for this mod.
+        /// </summary>
         public const string harmonyID = "canjewelry.Patches";
+
+        /// <summary>
+        /// Client-side API reference.
+        /// </summary>
         public static ICoreClientAPI capi;
+
+        /// <summary>
+        /// Server-side API reference.
+        /// </summary>
         public static ICoreServerAPI sapi;
+
+        /// <summary>
+        /// Server network channel for config synchronization.
+        /// </summary>
         internal static IServerNetworkChannel serverChannel;
+
+        /// <summary>
+        /// Client network channel for config synchronization.
+        /// </summary>
         internal static IClientNetworkChannel clientChannel;
+
+        /// <summary>
+        /// Global mod configuration.
+        /// </summary>
         public static Config config;
+
+        /// <summary>
+        /// Map of gem type → texture path.
+        /// </summary>
         public static Dictionary<string, string> gems_textures = new();
+
+        /// <summary>
+        /// Map of gem type → PNG texture path.
+        /// </summary>
         public static Dictionary<string, string> gems_textures_pngs;
+
+        /// <summary>
+        /// Loaded gem cutting recipes.
+        /// </summary>
         public static List<GemCuttingRecipe> gemCuttingRecipes;
+        /// <summary>
+        /// Loaded wearable restrictions by name.
+        /// </summary>
         private readonly Dictionary<string, RestrictionData> restrictions = [];
+        /// <summary>
+        /// Model transformations associated with restrictions.
+        /// </summary>
         private readonly Dictionary<string, Dictionary<string, ModelTransform>> transformations = [];
+
+        /// <summary>
+        /// Executed before all mods are started.
+        /// Adds an additional jewelry inventory to player defaults.
+        /// </summary>
         public override void StartPre(ICoreAPI api)
         {
             PlayerInventoryManager.defaultInventories = PlayerInventoryManager.defaultInventories.Append("additionaljewelrycharacter");
             base.StartPre(api);
         }
+
+        /// <summary>
+        /// Called on both client and server.
+        /// Registers blocks, items, behaviors, entities,
+        /// and applies core Harmony patches.
+        /// </summary>
         public override void Start(ICoreAPI api)
         {
             base.Start(api);
@@ -86,6 +148,7 @@ namespace canjewelry.src
             api.RegisterItemClass("CANItemWireHank", typeof(CANItemWireHank));
             api.RegisterItemClass("CANItemArmBand", typeof(CANItemArmBand));
             api.RegisterItemClass("CANItemStrap", typeof(CANItemStrap));
+            api.RegisterItemClass("CANItemSocket", typeof(CANItemSocket));
             api.RegisterItemClass("CANItemGemCuttingWorkItem", typeof(CANItemGemCuttingWorkItem));
             api.RegisterItemClass("CANItemGemChisel", typeof(CANItemGemChisel));
             api.RegisterItemClass("CANItemHorusEye", typeof(CANItemHorusEye));
@@ -103,6 +166,11 @@ namespace canjewelry.src
             api.RegisterBlockEntityClass("CANBENecklaceStand", typeof(CANBENecklaceStand));
             api.RegisterBlockEntityClass("CANBEHeadStand", typeof(CANBEHeadStand));
         }
+        /// <summary>
+        /// Client-side initialization.
+        /// Handles GUI icons, client patches, config sync,
+        /// and visual gem data.
+        /// </summary>
         public override void StartClientSide(ICoreClientAPI api)
         {
             base.StartClientSide(api);
@@ -144,7 +212,7 @@ namespace canjewelry.src
                     }
                     else
                     {
-                        canjewelry.sapi.Event.RegisterCallback((dt =>
+                        canjewelry.capi.Event.RegisterCallback((dt =>
                         {
                             if (clientChannel.Connected)
                             {
@@ -274,6 +342,12 @@ namespace canjewelry.src
                 };
             }
         }
+        /// <summary>
+        /// Server-side initialization.
+        /// Loads config, applies server patches,
+        /// registers commands and networking,
+        /// and injects custom drops.
+        /// </summary>
         public override void StartServerSide(ICoreServerAPI api)
         {
             base.StartServerSide(api);
@@ -367,6 +441,14 @@ namespace canjewelry.src
             gemCuttingRecipes = null;
             CANItemWearable.NotVisTexture = null;
         }
+        /// <summary>
+        /// Adds socket behavior, gem attributes, and custom variants
+        /// to items based on configuration.
+        /// Can be executed on both client and server.
+        /// </summary>
+        /// <param name="serverSide">
+        /// True if executed on server, false if on client.
+        /// </param>
         public void AddBehaviorAndSocketNumber(bool serverSide = true)
         {
             ICoreAPI api = capi;
@@ -514,7 +596,42 @@ namespace canjewelry.src
                     }
                 }
             }
-        }      
+            foreach (var it in config.LevelOfSocketByType)
+            {
+                Item[] arrayResult = api.World.SearchItems(new AssetLocation(it.Key));
+                if (arrayResult.Length > 0)
+                {
+                    foreach (Item item in arrayResult)
+                    {
+                        if (item.Attributes == null)
+                        {
+                            JToken jt = JToken.Parse("{}");
+                            item.Attributes = new JsonObject(jt);
+                        }
+
+
+                        string s = JsonConvert.SerializeObject(it.Value);
+
+                        //parse it for jarray
+                        JToken k = JToken.Parse(s);
+
+                        //set to item general attributes, accessible across all
+                        item.Attributes.Token[CANJWConstants.LEVEL_OF_SOSCKET_STRING] = k;
+                    }
+                }
+                else
+                {
+                    if (config.debugMode)
+                    {
+                        // api.Logger.VerboseDebug(String.Format("[canjewelry] Item with \"{0}\" code not found", it.Key));
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Sends the current configuration to a client.
+        /// </summary>
+        /// <param name="byPlayer">Target player</param>
         public void sendNewValues(IServerPlayer byPlayer)
         {
             if (byPlayer.ConnectionState != EnumClientState.Offline)
