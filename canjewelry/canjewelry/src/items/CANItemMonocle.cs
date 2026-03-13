@@ -506,7 +506,7 @@ namespace canjewelry.src.items
             string carcassus = itemStack.Attributes.GetString("loop", "steel");
             return Lang.Get("game:material-" + carcassus) + Lang.Get("canjewelry:item-monocle");
         }
-        public override void OnCreatedByCrafting(ItemSlot[] allInputslots, ItemSlot outputSlot, GridRecipe byRecipe)
+        public override void OnCreatedByCrafting(ItemSlot[] allInputslots, ItemSlot outputSlot, IRecipeBase byRecipe)
         {
             if(byRecipe.Name.Path == "can-monocle-change-side")
             {

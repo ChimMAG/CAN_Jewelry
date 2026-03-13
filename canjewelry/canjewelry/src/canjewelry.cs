@@ -85,7 +85,7 @@ namespace canjewelry.src
         /// <summary>
         /// Loaded gem cutting recipes.
         /// </summary>
-        public static List<GemCuttingRecipe> gemCuttingRecipes;
+        public static List<GemCuttingRecipe> gemCuttingRecipes = new();
         /// <summary>
         /// Loaded wearable restrictions by name.
         /// </summary>

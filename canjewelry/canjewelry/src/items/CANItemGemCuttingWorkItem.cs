@@ -78,9 +78,14 @@ namespace canjewelry.src.items
             }
             AssetLocation asset = canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location;
 
-            capi.ItemTextureAtlas.GetOrInsertTexture(new AssetLocation(canjewelry.gems_textures_pngs[gemBase]), out var id, out tposMetal);
+            if (!canjewelry.gems_textures_pngs.TryGetValue(gemBase, out var gemAssetLocationStr))
+            {
+                gemAssetLocationStr = "canjewelry:item/gem/diamond.png";
+            }
 
-            tposSlag = capi.BlockTextureAtlas.GetPosition(capi.World.GetBlock(new AssetLocation("game:anvil-copper")), "ironbloom", false); ;
+            capi.ItemTextureAtlas.GetOrInsertTexture(new AssetLocation(gemAssetLocationStr).Clone(), out var id, out tposMetal);
+
+            tposSlag = capi.BlockTextureAtlas.GetPosition(capi.World.GetBlock(new AssetLocation("game:anvil-copper")), "ironbloom", false); 
 
             MeshData metalVoxelMesh = CubeMeshUtil.GetCubeOnlyScaleXyz(0.03125f, 0.03125f, new Vec3f(0.03125f, 0.03125f, 0.03125f));
             CubeMeshUtil.SetXyzFacesAndPacketNormals(metalVoxelMesh);
@@ -92,7 +97,7 @@ namespace canjewelry.src.items
             };
             for (int i = 0; i < 6; i++)
             {
-                metalVoxelMesh.AddTextureId(tposSlag.atlasTextureId);
+                metalVoxelMesh.AddTextureId(tposMetal.atlasTextureId);
             }
             metalVoxelMesh.XyzFaces = (byte[])CubeMeshUtil.CubeFaceIndices.Clone();
             metalVoxelMesh.XyzFacesCount = 6;
