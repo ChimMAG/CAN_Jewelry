@@ -339,7 +339,7 @@ namespace canjewelry.src.items
                 int textureSubId = 0;
                 TextureAtlasPosition texpos;
 
-                (this.api as ICoreClientAPI).EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
+               /* (this.api as ICoreClientAPI).EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
                 {
                     IAsset texAsset = this.capi.Assets.TryGet(armorTexLoc.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
                     if (texAsset != null)
@@ -347,7 +347,7 @@ namespace canjewelry.src.items
                         return texAsset.ToBitmap(capi);
                     }
                     return null;
-                });
+                });*/
 
                 ctex.Baked = new BakedCompositeTexture() { BakedName = armorTexLoc, TextureSubId = textureSubId };
                 intoDict[texture.Key] = ctex;
@@ -371,6 +371,7 @@ namespace canjewelry.src.items
         }
         public string GetTexturePrefixCode(ItemStack stack)
         {
+            return "";
             return this.GetMeshCacheKey(stack);
         }
         public bool IsAttachable(Entity toEntity, ItemStack itemStack)

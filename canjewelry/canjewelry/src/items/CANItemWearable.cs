@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
+using Vintagestory.Client.NoObf;
 using Vintagestory.GameContent;
 
 namespace canjewelry.src.items
@@ -12,6 +14,7 @@ namespace canjewelry.src.items
     {
         protected Shape nowTesselatingShape;
         public static AssetLocation NotVisTexture;
+        protected Dictionary<string, AssetLocation> tmpTextures = new Dictionary<string, AssetLocation>();
         public virtual TextureAtlasPosition this[string textureCode] => throw new NotImplementedException();
         public virtual Size2i AtlasSize => throw new NotImplementedException();
         public virtual MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
@@ -83,6 +86,47 @@ namespace canjewelry.src.items
                         }
                     }
                 }
+                /*foreach (var texture in tmpTextures)
+                {
+                    CompositeTexture ctex = new CompositeTexture() { Base = texture.Value };
+                    AssetLocation armorTexLoc = texture.Value;
+                    if (!api.Assets.Exists(armorTexLoc.CopyWithPathPrefixAndAppendixOnce("textures/", ".png")))
+                    {
+                        ctex.Base.Path = "unknown";
+                        ctex.Base.Domain = "game";
+                    }
+                    ctex.Bake(api.Assets);
+                    //intoDict[texture.Key] = ctex;
+                    (texSource as Item).Textures[texture.Key] = ctex;
+                }*/
+                   /* foreach ((string textureCode, CompositeTexture texture) in (texSource as CANItemWearable).tmpTextures)
+                {
+                    CompositeTexture ctex = texture.Clone();
+                    //ctex = variants.ReplacePlaceholders(ctex);
+                    if (!api.Assets.Exists(ctex.Base.CopyWithPathPrefixAndAppendixOnce("textures/", ".png")))
+                    {
+                        ctex.Base.Path = "unknown";
+                        ctex.Base.Domain = "game";
+                    }
+                    ctex.Bake(api.Assets);
+                    //(this.api as ICoreClientAPI).EntityTextureAtlas
+                    (texSource as Item).Textures[textureCode] = ctex;*/
+
+                ////
+
+                   /* if (prefixedTextureCodes is { Count: > 0 } && prefixedTextureCodes.ContainsKey(textureCode))
+                    {
+                        textureSource.textures[overlayPrefix + textureCode] = ctex;
+                    }
+                    else
+                    {
+                        textureSource.textures[textureCode] = ctex;
+                    }*/
+
+                ///
+              // }
+
+
 
                 nowTesselatingShape = shape;
                 capi.Tesselator.TesselateShapeWithJointIds("entity", shape, out modeldata, texSource, new Vec3f());

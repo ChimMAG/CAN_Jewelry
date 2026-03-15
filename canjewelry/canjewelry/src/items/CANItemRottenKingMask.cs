@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
@@ -31,11 +32,12 @@ namespace canjewelry.src.items
             }
         }
         public EnumCharacterDressType DressType { get; private set; }
-        private Dictionary<string, AssetLocation> tmpTextures = new Dictionary<string, AssetLocation>();
+        
         protected TextureAtlasPosition getOrCreateTexPos(AssetLocation texturePath)
         {
             ICoreClientAPI capi = api as ICoreClientAPI;
-            curAtlas.GetOrInsertTexture(texturePath, out var _, out var texPos, delegate
+           
+            (this.api as ICoreClientAPI).EntityTextureAtlas.GetOrInsertTexture(texturePath, out var _, out var texPos, delegate
             {
                 IAsset asset = capi.Assets.TryGet(texturePath.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
                 if (asset != null)
@@ -147,24 +149,67 @@ namespace canjewelry.src.items
             {
                 return;
             }
+            /*ContainedTextureSource cnts = new ContainedTextureSource(this.api as ICoreClientAPI, null, new Dictionary<string, AssetLocation>(), string.Format("For render in shield {0}", this.Code));
+            cnts.Textures.Clear();
+            string maskMetal1 = stack.Attributes.GetString("metal", null);
+            cnts.Textures["canjewelry:canrottenkingmask-normal-silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal1 + "1.png");
+            cnts.Textures["silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal1 + "1.png");
+            //"canjewelry:canrottenkingmask-normal-silver1"
+            cnts.Textures["rotten-king-mask"] = new AssetLocation("canjewelry:item/rottenking.png");
+            cnts.Textures["rotten-king-cloth"] = new AssetLocation("canjewelry:item/rottenkingcloth.png");
+            foreach (KeyValuePair<string, AssetLocation> val in cnts.Textures)
+            {
+                shape.Textures[val.Key] = val.Value;
+            }
+            return;*/
+
             string maskMetal = stack.Attributes.GetString("metal", null);
-            tmpTextures["canjewelry:canrottenkingmask-normal-silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
+            /*tmpTextures["canjewelry:canrottenkingmask-normal-silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
             tmpTextures["silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
             //"canjewelry:canrottenkingmask-normal-silver1"
             tmpTextures["rotten-king-mask"] = new AssetLocation("canjewelry:item/rottenking.png");
             tmpTextures["rotten-king-cloth"] = new AssetLocation("canjewelry:item/rottenkingcloth.png");
+            tmpTextures["seraph"] = new AssetLocation("game:block/transparent");*/
 
+
+            tmpTextures["silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
+            tmpTextures["rotten-king-mask"] = new AssetLocation("canjewelry:item/rottenking.png");
+            tmpTextures["rotten-king-cloth"] = new AssetLocation("canjewelry:item/rottenkingcloth.png");
+            //string maskMetal = maskMetal.Attributes.GetString("metal", null);
+            //tmpTextures["canjewelry:canrottenkingmask-normal-silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
+            tmpTextures["silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
+            //"canjewelry:canrottenkingmask-normal-silver1"
+            tmpTextures["rotten-king-mask"] = new AssetLocation("canjewelry:item/rottenking.png");
+            tmpTextures["rotten-king-cloth"] = new AssetLocation("canjewelry:item/rottenkingcloth.png");
+            //tmpTextures["seraph"] = new AssetLocation("game:block/transparent");
             foreach (var texture in tmpTextures)
             {
                 CompositeTexture ctex = new CompositeTexture() { Base = texture.Value };
-
-
                 AssetLocation armorTexLoc = texture.Value;
+                if (!api.Assets.Exists(armorTexLoc.CopyWithPathPrefixAndAppendixOnce("textures/", ".png")))
+                {
+                    ctex.Base.Path = "unknown";
+                    ctex.Base.Domain = "game";
+                }
+                ctex.Bake(api.Assets);
+                intoDict[texture.Key] = ctex;
+                shape.Textures[texture.Key] = ctex.Baked.BakedName;
 
-                int textureSubId = 0;
+
+
+
+
+            /*CompositeTexture ctex = new CompositeTexture() { Base = texture.Value };
+
+
+            AssetLocation armorTexLoc = texture.Value;
+            var f = (this.api as ICoreClientAPI).EntityTextureAtlas[armorTexLoc];
+            int textureSubId = 0;
+            //TextureAtlasPosition texpos;
+            if(f == null)
+            {
                 TextureAtlasPosition texpos;
-
-                (this.api as ICoreClientAPI).EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
+                api.Event.EnqueueMainThreadTask(() => (this.api as ICoreClientAPI).EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
                 {
                     IAsset texAsset = this.capi.Assets.TryGet(armorTexLoc.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
                     if (texAsset != null)
@@ -172,10 +217,51 @@ namespace canjewelry.src.items
                         return texAsset.ToBitmap(capi);
                     }
                     return null;
-                });
+                }), "ThreadSafeUtils.InsertTextureIntoAtlas");
+                continue;
+            }
+            textureSubId = f.atlasTextureId;
 
-                ctex.Baked = new BakedCompositeTexture() { BakedName = armorTexLoc, TextureSubId = textureSubId };
-                intoDict[texture.Key] = ctex;
+            ctex.Baked = new BakedCompositeTexture() { BakedName = armorTexLoc, TextureSubId = textureSubId };
+            intoDict[texture.Key] = ctex;*/
+            /* int textureSubId = 0;
+             TextureAtlasPosition texpos;
+
+             (this.api as ICoreClientAPI).EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
+             {
+                 IAsset texAsset = this.capi.Assets.TryGet(armorTexLoc.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
+                 if (texAsset != null)
+                 {
+                     return texAsset.ToBitmap(capi);
+                 }
+                 return null;
+             });
+
+             ctex.Baked = new BakedCompositeTexture() { BakedName = armorTexLoc, TextureSubId = textureSubId };
+             intoDict[texture.Key] = ctex;*/
+            /* foreach (var texture in tmpTextures)
+             {
+                 CompositeTexture ctex = new CompositeTexture() { Base = texture.Value };
+
+
+                 AssetLocation armorTexLoc = texture.Value;
+
+                 int textureSubId = 0;
+                 TextureAtlasPosition texpos;
+
+                 (this.api as ICoreClientAPI).EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
+                 {
+                     IAsset texAsset = this.capi.Assets.TryGet(armorTexLoc.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
+                     if (texAsset != null)
+                     {
+                         return texAsset.ToBitmap(capi);
+                     }
+                     return null;
+                 });
+
+                 ctex.Baked = new BakedCompositeTexture() { BakedName = armorTexLoc, TextureSubId = textureSubId };
+                 intoDict[texture.Key] = ctex;
+             }*/
             }
         }
 
@@ -201,6 +287,8 @@ namespace canjewelry.src.items
 
         public string GetTexturePrefixCode(ItemStack stack)
         {
+            return "";
+            var c = this.GetMeshCacheKey(stack);
             return this.GetMeshCacheKey(stack);
         }
         public override string GetMeshCacheKey(ItemStack itemstack)
@@ -217,6 +305,7 @@ namespace canjewelry.src.items
         {
             get
             {
+                //Console.WriteLine(textureCode);
                 if (this.tmpTextures.TryGetValue(textureCode, out var res))
                 {
                     return this.getOrCreateTexPos(res);
@@ -310,11 +399,23 @@ namespace canjewelry.src.items
         }
         public override MeshData genMesh(ICoreClientAPI capi, ItemStack itemstack, ITexPositionSource texSource)
         {
+
+
+
+
+
             string carcassus = itemstack.Attributes.GetString("metal", null);
             this.tmpTextures.Clear();
             tmpTextures["silver1"] = new AssetLocation("block/metal/sheet/" + carcassus + "1.png");
             tmpTextures["rotten-king-mask"] = new AssetLocation("canjewelry:item/rottenking.png");
             tmpTextures["rotten-king-cloth"] = new AssetLocation("canjewelry:item/rottenkingcloth.png");
+            string maskMetal = itemstack.Attributes.GetString("metal", null);
+            //tmpTextures["canjewelry:canrottenkingmask-normal-silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
+            tmpTextures["silver1"] = new AssetLocation("block/metal/sheet/" + maskMetal + "1.png");
+            //"canjewelry:canrottenkingmask-normal-silver1"
+            tmpTextures["rotten-king-mask"] = new AssetLocation("canjewelry:item/rottenking.png");
+            tmpTextures["rotten-king-cloth"] = new AssetLocation("canjewelry:item/rottenkingcloth.png");
+            //tmpTextures["seraph"] = new AssetLocation("game:block/transparent");
             return base.genMesh(capi, itemstack, texSource);         
         }
         public override string GetHeldItemName(ItemStack itemStack)

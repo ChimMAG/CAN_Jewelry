@@ -38,6 +38,10 @@
     <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\Newtonsoft.Json.dll</HintPath>
 	  <Private>False</Private>
   </Reference>
+  <Reference Include="PlayerModelLib">
+    <HintPath>..\..\..\..\..\libs\PlayerModelLib.dll</HintPath>
+    <Private>False</Private>
+  </Reference>
   <Reference Include="protobuf-net">
     <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\protobuf-net.dll</HintPath>
     <Private>False</Private>

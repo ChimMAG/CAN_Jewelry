@@ -48,10 +48,10 @@ namespace canjewelry.src.eb
         {
             base.Initialize(properties, attributes);
         }
-        protected override Shape addGearToShape(Shape entityShape, ItemStack stack, IAttachableToEntity iatta, string slotCode, string shapePathForLogging, ref string[] willDeleteElements, Dictionary<string, StepParentElementTo> overrideStepParent = null)
+        /*protected override Shape addGearToShape(Shape entityShape, ItemStack stack, IAttachableToEntity iatta, string slotCode, string shapePathForLogging, ref string[] willDeleteElements, Dictionary<string, StepParentElementTo> overrideStepParent = null)
         {
             return base.addGearToShape(entityShape, stack, iatta, slotCode, shapePathForLogging, ref willDeleteElements, overrideStepParent);
-        }
+        }*/
         public override void OnEntityDespawn(EntityDespawnData despawn)
         {
             base.OnEntityDespawn(despawn);
