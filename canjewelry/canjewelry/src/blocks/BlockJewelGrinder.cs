@@ -24,12 +24,10 @@ namespace canjewelry.src.blocks
             tryConnect(world, byPlayer, blockSel.Position, BlockFacing.DOWN);
             return num != 0;
         }
-        public override bool DoParticalSelection(IWorldAccessor world, BlockPos pos)
+        public override bool DoPartialSelection(IWorldAccessor world, BlockPos pos)
         {
             return true;
         }
-       // public override bool DoPartialSelection(IWorldAccessor world, BlockPos pos) => true;
-
         public override bool OnBlockInteractStart(
           IWorldAccessor world,
           IPlayer byPlayer,
@@ -148,13 +146,9 @@ namespace canjewelry.src.blocks
         public override void DidConnectAt(IWorldAccessor world, BlockPos pos, BlockFacing face)
         {
         }
-        public override bool HasMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face)
+        public override bool HasMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face, BlockMPBase forBlock)
         {
             return face == BlockFacing.DOWN;
         }
-        /*public override bool HasMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face, BlockMPBase forBlock)
-        {
-            return face == BlockFacing.DOWN;
-        }*/
     }
 }
