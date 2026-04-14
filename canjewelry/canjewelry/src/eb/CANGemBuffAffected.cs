@@ -238,7 +238,7 @@ namespace canjewelry.src.eb
             Dictionary<string, float> newBuffDict = GetItemStackBuffs(itemStack);
             if (savedBuffs.TryGetValue(1 + (int)EnumCharacterDressType.ArmorLegs, out Dictionary<string, float> currentBuffDict))
             {
-                /*if(currentBuffDict == null)
+                if(currentBuffDict == null)
                 {
                     this.entity.Api.Logger.Debug("OnSlotModifiedHotbarInv:: currentBuffDict was null");
                     return;
@@ -247,7 +247,7 @@ namespace canjewelry.src.eb
                 {
                     this.entity.Api.Logger.Debug("OnSlotModifiedHotbarInv:: newBuffDict was null");
                     return;
-                }*/
+                }
                 //if there is diff or new buffs are empty
                 if (!currentBuffDict.Equals(newBuffDict))
                 {
