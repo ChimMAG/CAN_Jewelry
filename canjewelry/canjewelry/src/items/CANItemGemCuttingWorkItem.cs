@@ -83,11 +83,6 @@ namespace canjewelry.src.items
                 gemAssetLocationStr = "canjewelry:item/gem/diamond.png";
             }
 
-            if (!canjewelry.gems_textures_pngs.TryGetValue(gemBase, out var gemAssetLocationStr))
-            {
-                gemAssetLocationStr = "canjewelry:item/gem/diamond.png";
-            }
-
             capi.ItemTextureAtlas.GetOrInsertTexture(new AssetLocation(gemAssetLocationStr).Clone(), out var id, out tposMetal);
 
             tposSlag = capi.BlockTextureAtlas.GetPosition(capi.World.GetBlock(new AssetLocation("game:anvil-copper")), "ironbloom", false); 
