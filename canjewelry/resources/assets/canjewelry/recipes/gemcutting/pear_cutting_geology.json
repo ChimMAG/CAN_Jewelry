@@ -3,10 +3,7 @@
     "enabled": false,
     "ingredient": {
       "type": "item",
-      "code": "game:gem-*-rough",
-      "recipeAttributes": {
-        "potential": "low"
-      },
+      "code": "canjewelry:gem-rough-chipped-*",
       "name": "gemtype",
       "allowedVariants": [
         "berylaquamarine",
@@ -113,10 +110,7 @@
     "enabled": false,
     "ingredient": {
       "type": "item",
-      "code": "game:gem-*-rough",
-      "recipeAttributes": {
-        "potential": "medium"
-      },
+      "code": "canjewelry:gem-rough-flawed-*",
       "name": "gemtype",
       "allowedVariants": [
         "berylaquamarine",
@@ -223,10 +217,7 @@
     "enabled": false,
     "ingredient": {
       "type": "item",
-      "code": "game:gem-*-rough",
-      "recipeAttributes": {
-        "potential": "high"
-      },
+      "code": "canjewelry:gem-rough-normal-*",
       "name": "gemtype",
       "allowedVariants": [
         "berylaquamarine",
