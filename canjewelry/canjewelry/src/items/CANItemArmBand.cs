@@ -224,25 +224,8 @@ namespace canjewelry.src.items
 
             foreach (var texture in tmpTextures)
             {
-                CompositeTexture ctex = new CompositeTexture() { Base = texture.Value };
-
-                AssetLocation armorTexLoc = texture.Value;
-
-                int textureSubId = 0;
-                TextureAtlasPosition texpos;
-
-                (this.api as ICoreClientAPI).EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
-                {
-                    IAsset texAsset = this.capi.Assets.TryGet(armorTexLoc.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
-                    if (texAsset != null)
-                    {
-                        return texAsset.ToBitmap(capi);
-                    }
-                    return null;
-                });
-
-                ctex.Baked = new BakedCompositeTexture() { BakedName = armorTexLoc, TextureSubId = textureSubId };
-                intoDict[texture.Key] = ctex;
+                intoDict[texture.Key] = new CompositeTexture() { Base = texture.Value };
+                shape.Textures[texture.Key] = texture.Value;
             }
         }
         public string GetCategoryCode(ItemStack stack)
@@ -263,7 +246,7 @@ namespace canjewelry.src.items
         }
         public string GetTexturePrefixCode(ItemStack stack)
         {
-            return this.GetMeshCacheKey(stack);
+            return "";
         }
         #endregion    
         public override void GetHeldItemInfo(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)

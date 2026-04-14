@@ -338,29 +338,10 @@ namespace canjewelry.src.items
                 tmpTextures["gem"] = canjewelry.capi.Assets.TryGet(assetPath + ".png").Location;
             }
 
-            foreach(var texture in tmpTextures)
+            foreach (var texture in tmpTextures)
             {
-                CompositeTexture ctex = new CompositeTexture() { Base = texture.Value };
-
-                //ICoreClientAPI capi = this.capi as ICoreClientAPI;
-
-                AssetLocation armorTexLoc = texture.Value;
-
-                int textureSubId = 0;
-                TextureAtlasPosition texpos;
-
-                (this.api as ICoreClientAPI).EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out texpos, () =>
-                {
-                    IAsset texAsset = this.capi.Assets.TryGet(armorTexLoc.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
-                    if (texAsset != null)
-                    {
-                        return texAsset.ToBitmap(capi);
-                    }
-                    return null;
-                });
-
-                ctex.Baked = new BakedCompositeTexture() { BakedName = armorTexLoc, TextureSubId = textureSubId };
-                intoDict[texture.Key] = ctex;
+                intoDict[texture.Key] = new CompositeTexture() { Base = texture.Value };
+                shape.Textures[texture.Key] = texture.Value;
             }
         }
 
@@ -386,7 +367,7 @@ namespace canjewelry.src.items
 
         public string GetTexturePrefixCode(ItemStack stack)
         {
-            return this.GetMeshCacheKey(stack);
+            return "";
         }
 
         public bool IsAttachable(Entity toEntity, ItemStack itemStack)

@@ -86,7 +86,7 @@ namespace canjewelry.src.eb
             entity.MarkShapeModified();
         }
 
-        public override void OnTesselation(ref Shape entityShape, string shapePathForLogging, ref bool shapeIsCloned, ref string[] willDeleteElements)
+       /* public override void OnTesselation(ref Shape entityShape, string shapePathForLogging, ref bool shapeIsCloned, ref string[] willDeleteElements)
         {
             addGearToShape(ref entityShape, shapePathForLogging, ref shapeIsCloned, ref willDeleteElements);
             base.OnTesselation(ref entityShape, shapePathForLogging, ref shapeIsCloned, ref willDeleteElements);
@@ -102,7 +102,7 @@ namespace canjewelry.src.eb
                     entity.LightHsv = null;
                 }
             }
-        }
+        }*/
 
         protected Shape addGearToShape(ref Shape entityShape, string shapePathForLogging, ref bool shapeIsCloned, ref string[] willDeleteElements)
         {
