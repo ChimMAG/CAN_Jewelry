@@ -71,10 +71,10 @@ namespace canjewelry.src.items
             TextureAtlasPosition tposSlag;
             TextureAtlasPosition tposMetal;
 
-            string gemBase = workitemStack.Attributes.GetString(CANJWConstants.GEM_TYPE_IN_SOCKET, "diamond");
+            string gemBase = workitemStack.Attributes.GetString(CANJWConstants.GEM_TYPE_IN_SOCKET, CANJWConstants.FALLBACK_GEM_TYPE);
             if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
             {
-                canjewelry.gems_textures.TryGetValue("diamond", out assetPath);
+                canjewelry.gems_textures.TryGetValue(CANJWConstants.FALLBACK_GEM_TYPE, out assetPath);
             }
             //AssetLocation asset = canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location;
 

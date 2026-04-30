@@ -289,7 +289,7 @@ namespace canjewelry.src.CB
                     treeSocket.SetInt("size", gem_slot.Itemstack.Collectible.Attributes["canGemType"].AsInt());
                     treeSocket.SetString("gemtype", gem_slot.Itemstack.Collectible.Code.Path.Split('-').Last());
                                       
-                    treeSocket.SetString(CANJWConstants.CUTTING_TYPE, cutGemTree.GetString(CANJWConstants.CUTTING_TYPE, "round"));
+                    treeSocket.SetString(CANJWConstants.CUTTING_TYPE, cutGemTree.GetString(CANJWConstants.CUTTING_TYPE, CANJWConstants.CUTTING_ROUND));
 
                     if (encrustable.Itemstack.Item is CANItemSimpleNecklace || encrustable.Itemstack.Item is CANItemHorusEye)
                     {
@@ -409,7 +409,7 @@ namespace canjewelry.src.CB
                     return;
                 }
                 //Main stat buff
-                if (cuttingType == "round")
+                if (cuttingType == CANJWConstants.CUTTING_ROUND)
                 {
                     canjewelry.config.CuttingAttributesDict.TryGetValue(cuttingType, out var cuttingAttributes);
                     float buffValue = buffAttributes.GetRandomMainValue(outstack.Collectible.Attributes["canGemType"].AsInt());
@@ -418,7 +418,7 @@ namespace canjewelry.src.CB
                     tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(new float[] { buffValue });
                     outstack.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
                 }
-                else if (cuttingType == "baguette")
+                else if (cuttingType == CANJWConstants.CUTTING_BAGUETTE)
                 {
                     canjewelry.config.CuttingAttributesDict.TryGetValue(cuttingType, out var cuttingAttributes);
                     float buffValue = buffAttributes.GetRandomMainValue(outstack.Collectible.Attributes["canGemType"].AsInt());
@@ -441,7 +441,7 @@ namespace canjewelry.src.CB
 
                     outstack.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
                 }
-                else if (cuttingType == "pear")
+                else if (cuttingType == CANJWConstants.CUTTING_PEAR)
                 {
                     canjewelry.config.CuttingAttributesDict.TryGetValue(cuttingType, out var cuttingAttributes);
                     float buffValue = buffAttributes.GetRandomMainValue(outstack.Collectible.Attributes["canGemType"].AsInt());
@@ -498,7 +498,7 @@ namespace canjewelry.src.CB
                         {
                             float additionalValue = buffValues[j];
                             string attributeBuffName = buffNames[j];
-                            if (attributeBuffName == "temporalgrasp")//TODO
+                            if (attributeBuffName == CANJWConstants.TEMPORALGRASP)//TODO
                             {
                                 collectedValue += additionalValue;
                             }

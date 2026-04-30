@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using canjewelry.src;
 using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -175,7 +176,7 @@ namespace canjewelry.src.jewelry
 
                 if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
                 {
-                    canjewelry.gems_textures.TryGetValue("diamond", out assetPath);
+                    canjewelry.gems_textures.TryGetValue(CANJWConstants.FALLBACK_GEM_TYPE, out assetPath);
                 }
                 AssetLocation asset = canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location;
 
@@ -203,7 +204,7 @@ namespace canjewelry.src.jewelry
 
                 if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
                 {
-                    canjewelry.gems_textures.TryGetValue("diamond", out assetPath);
+                    canjewelry.gems_textures.TryGetValue(CANJWConstants.FALLBACK_GEM_TYPE, out assetPath);
                 }
                 AssetLocation asset = canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location;
 
@@ -240,7 +241,7 @@ namespace canjewelry.src.jewelry
 
                 if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
                 {
-                    canjewelry.gems_textures.TryGetValue("diamond", out assetPath);
+                    canjewelry.gems_textures.TryGetValue(CANJWConstants.FALLBACK_GEM_TYPE, out assetPath);
                 }
                 AssetLocation asset = canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location;
 
@@ -268,7 +269,7 @@ namespace canjewelry.src.jewelry
 
                 if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
                 {
-                    canjewelry.gems_textures.TryGetValue("diamond", out assetPath);
+                    canjewelry.gems_textures.TryGetValue(CANJWConstants.FALLBACK_GEM_TYPE, out assetPath);
                 }
                 AssetLocation asset = canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location;
 

@@ -63,11 +63,11 @@ namespace canjewelry.src.items.resource
             this.targetAtlas = targetAtlas;
             tmpTextures.Clear();
             var itemstack = slot.Itemstack;
-            string cuttingType = "round";
+            string cuttingType = CANJWConstants.CUTTING_ROUND;
             if (itemstack.Attributes.HasAttribute(CANJWConstants.CUT_GEM_TREE))
             {
                 var cut_tree = itemstack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
-                cuttingType = cut_tree.GetString(CANJWConstants.CUTTING_TYPE, "round");
+                cuttingType = cut_tree.GetString(CANJWConstants.CUTTING_TYPE, CANJWConstants.CUTTING_ROUND);
             }
             
             Shape shapeCutGem = null;
@@ -79,7 +79,7 @@ namespace canjewelry.src.items.resource
             string gemBase = Variant["gemtype"];
             if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
             {
-                canjewelry.gems_textures.TryGetValue("diamond", out assetPath);
+                canjewelry.gems_textures.TryGetValue(CANJWConstants.FALLBACK_GEM_TYPE, out assetPath);
             }
             AssetLocation asset = canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location;
 
@@ -112,11 +112,11 @@ namespace canjewelry.src.items.resource
             this.targetAtlas = targetAtlas;
             tmpTextures.Clear();
 
-            string cuttingType = "round";
+            string cuttingType = CANJWConstants.CUTTING_ROUND;
             if (itemstack.Attributes.HasAttribute(CANJWConstants.CUT_GEM_TREE))
             {
                 var cut_tree = itemstack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
-                cuttingType = cut_tree.GetString(CANJWConstants.CUTTING_TYPE, "round");
+                cuttingType = cut_tree.GetString(CANJWConstants.CUTTING_TYPE, CANJWConstants.CUTTING_ROUND);
             }
 
             Shape shapeCutGem = null;
@@ -128,7 +128,7 @@ namespace canjewelry.src.items.resource
             string gemBase = Variant["gemtype"];
             if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
             {
-                canjewelry.gems_textures.TryGetValue("diamond", out assetPath);
+                canjewelry.gems_textures.TryGetValue(CANJWConstants.FALLBACK_GEM_TYPE, out assetPath);
             }
             AssetLocation asset = canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location;
 
@@ -142,7 +142,7 @@ namespace canjewelry.src.items.resource
             if (itemStack.Attributes.HasAttribute(CANJWConstants.CUT_GEM_TREE))
             {
                 ITreeAttribute tree = itemStack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
-                bb += " [" + Lang.Get("canjewelry:cut-gem-cutting-type-" + tree.GetString(CANJWConstants.CUTTING_TYPE, "round")) + "]";
+                bb += " [" + Lang.Get("canjewelry:cut-gem-cutting-type-" + tree.GetString(CANJWConstants.CUTTING_TYPE, CANJWConstants.CUTTING_ROUND)) + "]";
                 //bb += "[" +  +"]";
             }
             return bb;

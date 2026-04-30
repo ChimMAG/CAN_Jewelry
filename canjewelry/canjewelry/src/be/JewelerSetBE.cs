@@ -73,7 +73,7 @@ namespace canjewelry.src.jewelry
                     {
                         return;
                     }
-                    string newCuttingType = canjewelry.config.CuttingAttributesDict.Keys.ToArray().Shuffle(Config.rand).FirstOrDefault("round");
+                    string newCuttingType = canjewelry.config.CuttingAttributesDict.Keys.ToArray().Shuffle(Config.rand).FirstOrDefault(CANJWConstants.CUTTING_ROUND);
                     ITreeAttribute tree = new TreeAttribute();
                     tree.SetString(CANJWConstants.CUTTING_TYPE, newCuttingType);
                     workStack.Attributes[CANJWConstants.CUT_GEM_TREE] = tree;
@@ -87,25 +87,26 @@ namespace canjewelry.src.jewelry
                     {
                         return;
                     }
+                    // Migrate legacy single-buff attributes to the new array form.
+                    // Skip sockets that lack either attribute (partial data) but keep migrating the rest.
                     for (int i = 0; i < EncrustableCB.GetMaxAmountSockets(workStack); i++)
                     {
-                        ITreeAttribute socketSlot = tree.GetTreeAttribute("slot" + i.ToString());
+                        ITreeAttribute socketSlot = tree.GetTreeAttribute("slot" + i);
                         if (socketSlot == null)
                         {
                             continue;
                         }
-                        if (!socketSlot.HasAttribute("attributeBuffValue") || !socketSlot.HasAttribute("attributeBuffValue"))
+                        if (!socketSlot.HasAttribute(CANJWConstants.GEM_ATTRIBUTE_BUFF_VALUE) || !socketSlot.HasAttribute(CANJWConstants.GEM_ATTRIBUTE_BUFF))
                         {
-                            return;
+                            continue;
                         }
-                        float currValue = socketSlot.GetFloat("attributeBuffValue");
-                        string currBuffName = socketSlot.GetString("attributeBuff");
+                        float currValue = socketSlot.GetFloat(CANJWConstants.GEM_ATTRIBUTE_BUFF_VALUE);
+                        string currBuffName = socketSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF);
 
                         socketSlot[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(new string[] { currBuffName });
                         socketSlot[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(new float[] { currValue });
-                        socketSlot.RemoveAttribute("attributeBuffValue");
-                        socketSlot.RemoveAttribute("attributeBuff");
-                        //this.inventory.Slots[slotId].MarkDirty();
+                        socketSlot.RemoveAttribute(CANJWConstants.GEM_ATTRIBUTE_BUFF_VALUE);
+                        socketSlot.RemoveAttribute(CANJWConstants.GEM_ATTRIBUTE_BUFF);
                     }
 
 
@@ -146,7 +147,7 @@ namespace canjewelry.src.jewelry
                             if(!gemStack.Attributes.HasAttribute(CANJWConstants.CUT_GEM_TREE))
                             {
                                 Random r = new Random();
-                                string selectedCutting = canjewelry.config.CuttingAttributesDict.Keys.ToArray().Shuffle(r).FirstOrDefault("round");
+                                string selectedCutting = canjewelry.config.CuttingAttributesDict.Keys.ToArray().Shuffle(r).FirstOrDefault(CANJWConstants.CUTTING_ROUND);
                                 ITreeAttribute tree = new TreeAttribute();
                                 //gemStack.Attributes.SetString(CANJWConstants.CUTTING_TYPE, selectedCutting);
                                 tree.SetString(CANJWConstants.CUTTING_TYPE, selectedCutting);
@@ -401,7 +402,15 @@ namespace canjewelry.src.jewelry
             this.MeshCache.TryGetValue(key + this.facing, out meshdata);
             return meshdata;
         }
-        protected virtual MeshData getOrCreateMesh(ItemSlot slot, int index)
+        // ============================================================================
+        // OLD HARDCODED IMPLEMENTATION — kept as reference for the magic numbers below.
+        // Replaced by the data-driven version that reads vanilla `toolrackTransform`
+        // attribute for weapons/tools instead of hardcoding 9 weapon paths here.
+        // Jewelry items (CANItemSimpleNecklace/Tiara/RottenKingMask/Coronet) keep
+        // their hardcoded poses since they are mod-owned and small in number.
+        // ============================================================================
+        /*
+        protected virtual MeshData getOrCreateMesh_OLD(ItemSlot slot, int index)
         {
             //this.MeshCache.Clear();
             //here
@@ -568,6 +577,174 @@ namespace canjewelry.src.jewelry
             this.MeshCache[key + this.facing] = mesh;
             return mesh;
         }
+        */
+
+        private static readonly Vec3f MeshOrigin = new Vec3f(0.5f, 0.5f, 0.5f);
+
+        // Per-weapon poses extracted from the OLD hardcoded chain. Same numbers,
+        // structured as a dispatch table instead of a 9-branch if/else.
+        // Match: Item.Code.Path.Contains(PathSubstring).
+        private readonly struct WeaponPose
+        {
+            public readonly string PathSubstring;
+            public readonly float Scale;
+            public readonly float RotX, RotY, RotZ;
+            public readonly float TrX, TrY, TrZ;
+
+            public WeaponPose(string sub, float scale, float rx, float ry, float rz, float tx, float ty, float tz)
+            { PathSubstring = sub; Scale = scale; RotX = rx; RotY = ry; RotZ = rz; TrX = tx; TrY = ty; TrZ = tz; }
+        }
+
+        private static readonly float PI = (float)Math.PI;
+        private static readonly WeaponPose[] WeaponPoses = new[]
+        {
+            new WeaponPose("quarterstaff-plain-", 0.5f, 0,        PI * 0.6f, 0,           -0.2f, 10.5f/16, -0.2f),
+            new WeaponPose("axe-long-plain-",     0.7f, 0,        PI * 0.6f, 0,           -0.2f, 12f/16,   -0.2f),
+            new WeaponPose("sword-great-plain-",  0.6f, PI * 0.5f, 0,         PI * 0.45f, -0.2f, 8.5f/16,  -0.2f),
+            new WeaponPose("sword-long-plain-",   0.6f, PI * 0.5f, 0,         PI * 0.45f, -0.2f, 8.5f/16,  -0.2f),
+            new WeaponPose("sword-short-plain-",  0.6f, PI * 0.5f, 0,         PI * 0.45f, -0.2f, 8.5f/16,  -0.2f),
+            new WeaponPose("javelin-plain-",      0.7f, PI * 0.5f, 0,         PI * 0.45f, -0.1f, 8.5f/16,   0.2f),
+            new WeaponPose("pike-plain-",         0.5f, PI * 0.5f, 0,         PI * 0.45f, -0.1f, 8.5f/16,   0.6f),
+            new WeaponPose("club-plain-",         0.6f, PI * 0.5f, 0,         PI * 0.45f, -0.2f, 8.5f/16,  -0.2f),
+            new WeaponPose("halberd-plain-",      0.7f, PI * 0.5f, 0,         PI * 0.45f, -0.2f, 8.5f/16,   0.5f),
+        };
+
+        protected virtual MeshData getOrCreateMesh(ItemSlot slot, int index)
+        {
+            // While debugMode is on, skip the cache so iterating on poses (constants
+            // in WeaponPoses or jewelry transforms) is visible after a single restart
+            // without the previous mesh sticking around per-session.
+            bool debugBypass = canjewelry.config?.debugMode == true;
+
+            if (!debugBypass)
+            {
+                MeshData cached = this.getMesh(slot);
+                if (cached != null) return cached;
+            }
+
+            MeshData mesh = BuildBaseMesh(slot);
+            mesh.Scale(MeshOrigin, 0.5f, 0.5f, 0.5f);
+
+            ApplyDisplayTransform(slot.Itemstack, mesh);
+            ApplyFacingRotation(mesh);
+
+            if (!debugBypass)
+            {
+                string newKey = this.getMeshCacheKey(slot);
+                this.MeshCache[newKey + this.facing] = mesh;
+            }
+            return mesh;
+        }
+
+        private MeshData BuildBaseMesh(ItemSlot slot)
+        {
+            IContainedMeshSource meshSource = slot.Itemstack.Collectible as IContainedMeshSource;
+            if (meshSource != null)
+            {
+                MeshData m = meshSource.GenMesh(slot, this.capi.BlockTextureAtlas, this.Pos);
+                if (m != null) return m;
+            }
+
+            ICoreClientAPI cApi = this.Api as ICoreClientAPI;
+            if (slot.Itemstack.Class == EnumItemClass.Block)
+            {
+                return cApi.TesselatorManager.GetDefaultBlockMesh(slot.Itemstack.Block).Clone();
+            }
+
+            this.nowTesselatingObj = slot.Itemstack.Collectible;
+            this.nowTesselatingShape = slot.Itemstack.Item.Shape?.Base != null
+                ? cApi.TesselatorManager.GetCachedShape(slot.Itemstack.Item.Shape.Base)
+                : null;
+            cApi.Tesselator.TesselateItem(slot.Itemstack.Item, out MeshData itemMesh, this);
+            itemMesh.RenderPassesAndExtraBits.Fill((short)EnumChunkRenderPass.BlendNoCull);
+            return itemMesh;
+        }
+
+        private void ApplyDisplayTransform(ItemStack stack, MeshData mesh)
+        {
+            // 1. Mod-owned jewelry items (4 cases, mod-private types).
+            if (TryApplyJewelryTransform(stack, mesh)) return;
+
+            // 2. Known vanilla weapons via WeaponPoses table (poses preserved from OLD impl).
+            if (TryApplyWeaponPose(stack, mesh)) return;
+
+            // 3. Outfit items dispatch on -head- vs body.
+            if (stack.Item != null && stack.Item.StorageFlags == EnumItemStorageFlags.Outfit)
+            {
+                if (stack.Collectible.Code.Path.Contains("-head-"))
+                {
+                    mesh.Rotate(MeshOrigin, 0, (float)Math.PI / 2, 0f);
+                    mesh.Translate(-3f / 16, 0, 0f);
+                }
+                else
+                {
+                    mesh.Rotate(MeshOrigin, 0f, (float)Math.PI / 2, 0f);
+                    mesh.Translate(0, 12f / 16, 0);
+                    mesh.Rotate(MeshOrigin, (float)Math.PI / 2, 0f, 0f);
+                    mesh.Translate(0, 9f / 16, -1);
+                }
+                return;
+            }
+
+            // 4. Default fallback for unknown items.
+            mesh.Rotate(MeshOrigin, 0f, (float)Math.PI / 2, 0f);
+            mesh.Translate(0, 13f / 16, 0);
+        }
+
+        private bool TryApplyJewelryTransform(ItemStack stack, MeshData mesh)
+        {
+            switch (stack.Item)
+            {
+                case CANItemSimpleNecklace _:
+                    mesh.Scale(MeshOrigin, 1.25f, 1.25f, 1.25f);
+                    mesh.Translate(1f / 16, 2f / 16, 1f / 16);
+                    mesh.Rotate(MeshOrigin, 0, (float)Math.PI / 2, -(float)Math.PI / 6);
+                    mesh.Translate(-3f / 16, -1f / 16, 3f / 16);
+                    return true;
+                case CANItemTiara _:
+                    mesh.Scale(MeshOrigin, 1.6f, 1.6f, 1.6f);
+                    mesh.Rotate(MeshOrigin, 0, (float)Math.PI / 4, -(float)Math.PI / 16);
+                    mesh.Translate(-1f / 16, -9f / 16, 3f / 16);
+                    return true;
+                case CANItemRottenKingMask _:
+                    mesh.Translate(0, 13f / 16, 0);
+                    mesh.Rotate(MeshOrigin, 0, (float)Math.PI / 4, -(float)Math.PI / 16);
+                    return true;
+                case CANItemCoronet _:
+                    mesh.Translate(0, 10f / 16, 0);
+                    mesh.Rotate(MeshOrigin, 0, (float)Math.PI / 4, -(float)Math.PI / 16);
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private bool TryApplyWeaponPose(ItemStack stack, MeshData mesh)
+        {
+            string path = stack.Item?.Code?.Path;
+            if (path == null) return false;
+
+            foreach (var p in WeaponPoses)
+            {
+                if (path.Contains(p.PathSubstring))
+                {
+                    mesh.Scale(MeshOrigin, p.Scale, p.Scale, p.Scale);
+                    mesh.Rotate(MeshOrigin, p.RotX, p.RotY, p.RotZ);
+                    mesh.Translate(p.TrX, p.TrY, p.TrZ);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void ApplyFacingRotation(MeshData mesh)
+        {
+            if (this.facing == BlockFacing.SOUTH) mesh.Rotate(MeshOrigin, 0f, -2.35f, 0f);
+            else if (this.facing == BlockFacing.NORTH) mesh.Rotate(MeshOrigin, 0f, 1.0f, 0f);
+            else if (this.facing == BlockFacing.EAST) mesh.Rotate(MeshOrigin, 0f, -1.0f, 0f);
+            else mesh.Rotate(MeshOrigin, 0f, 2.35f, 0f);
+        }
+
         private void OnInventoryClosed(IPlayer player)
         {
             this.renameGui?.Dispose();

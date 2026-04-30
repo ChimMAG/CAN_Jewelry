@@ -51,8 +51,8 @@ namespace canjewelry.src.harmony
                     return;
                 }
             }
-            float additionalValue = socketSlot.GetFloat("attributeBuffValue");
-            string attributeBuffName = socketSlot.GetString("attributeBuff");
+            float additionalValue = socketSlot.GetFloat(CANJWConstants.GEM_ATTRIBUTE_BUFF_VALUE);
+            string attributeBuffName = socketSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF);
             float blendedStatValue = ep.Stats[attributeBuffName].GetBlended();
             canjewelry.config.max_buff_values.TryGetValue(attributeBuffName, out float buffThreshold);
 
@@ -309,17 +309,15 @@ namespace canjewelry.src.harmony
                         dsc.Append("\n");
                         if (treeSlot.GetString("gemtype") != "")
                         {
-                            if (treeSlot.HasAttribute("attributeBuff"))
+                            if (treeSlot.HasAttribute(CANJWConstants.GEM_ATTRIBUTE_BUFF))
                             {
-
-
-                                if (treeSlot.GetString("attributeBuff").Equals("maxhealthExtraPoints"))
+                                if (treeSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF).Equals("maxhealthExtraPoints"))
                                 {
-                                    dsc.Append(Lang.Get("canjewelry:socket-has-attribute", i, treeSlot.GetFloat("attributeBuffValue"))).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString("attributeBuff")));
+                                    dsc.Append(Lang.Get("canjewelry:socket-has-attribute", i, treeSlot.GetFloat(CANJWConstants.GEM_ATTRIBUTE_BUFF_VALUE))).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF)));
                                 }
                                 else
                                 {
-                                    dsc.Append(Lang.Get("canjewelry:socket-has-attribute-percent", i, treeSlot.GetFloat("attributeBuffValue") * 100)).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString("attributeBuff")));
+                                    dsc.Append(Lang.Get("canjewelry:socket-has-attribute-percent", i, treeSlot.GetFloat(CANJWConstants.GEM_ATTRIBUTE_BUFF_VALUE) * 100)).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF)));
                                 }
                                 dsc.AppendLine();
                             }
