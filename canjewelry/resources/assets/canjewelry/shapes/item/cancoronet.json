@@ -11,11 +11,11 @@
 		"gold1": [16,16]
 	},
 	"textures": {
-		"metal": "/Users/koeni/Downloads/gold/metal",
-		"gems_1": "C:/Users/koeni/Desktop/gem/gem_1",
-		"gems_2": "C:/Users/koeni/Desktop/gem/gem_1",
-		"gems_3": "C:/Users/koeni/Desktop/gem/gem_1",
-		"gems_4": "C:/Users/koeni/Desktop/gem/gem_1"
+		"metal": "game:block/metal/ingot/gold",
+		"gems_1": "canjewelry:item/gem/diamond",
+		"gems_2": "canjewelry:item/gem/diamond",
+		"gems_3": "canjewelry:item/gem/diamond",
+		"gems_4": "canjewelry:item/gem/diamond"
 	},
 	"elements": [
 		{

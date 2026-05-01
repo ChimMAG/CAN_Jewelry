@@ -9,6 +9,7 @@ using canjewelry.src.be;
 using canjewelry.src.cb;
 using canjewelry.src.CB;
 using canjewelry.src.eb;
+using canjewelry.src.gui;
 using HarmonyLib;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -25,6 +26,11 @@ namespace canjewelry.src.harmony
     [HarmonyPatch]
     public class harmPatch
     {
+        /// <summary>Prevents game from dropping mouse cursor items while ImGui inventory grid is active.</summary>
+        public static bool Prefix_DropMouseSlotItems()
+        {
+            return !ImGuiInventoryGrid.SuppressMouseDrop;
+        }
 
         /***
           

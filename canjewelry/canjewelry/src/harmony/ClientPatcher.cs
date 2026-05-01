@@ -25,6 +25,11 @@ namespace canjewelry.src.harmony
             harmonyInstance.Patch(typeof(CharacterSystem).GetMethod("StartClientSide"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_CharacterSystem_StartClientSide")));
 
             harmonyInstance.Patch(typeof(ItemChisel).GetMethod("OnHeldAttackStart"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_ItemChisel_OnHeldAttackStart")));
+
+            // Block default "drop on world" while ImGui inventory grid is active.
+            harmonyInstance.Patch(
+                typeof(Vintagestory.Common.PlayerInventoryManager).GetMethod("DropMouseSlotItems"),
+                prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_DropMouseSlotItems")));
         }
     }
 }

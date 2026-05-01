@@ -35,10 +35,11 @@ namespace canjewelry.src.items
             int maxSocketNumber = EncrustableCB.GetMaxAmountSockets(stack);
             AssetLocation Resolve(string gemAttr)
             {
-                string gem = stack.Attributes.GetString(gemAttr, "none");
-                return canjewelry.gems_textures.TryGetValue(gem, out string assetPath)
-                    ? canjewelry.capi.Assets.TryGet(assetPath + ".png").Location
-                    : new AssetLocation("canjewelry:item/gem/notvis.png");
+                string gem = stack.Attributes.GetString(gemAttr, null);
+                var notvisGem = new AssetLocation("canjewelry:item/gem/notvis.png");
+                return gem != null && canjewelry.gems_textures.TryGetValue(gem, out string assetPath)
+                    ? canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location ?? notvisGem
+                    : notvisGem;
             }
 
             if (maxSocketNumber == 1)

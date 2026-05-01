@@ -34,14 +34,14 @@ namespace canjewelry.src.items
 
         protected override void FillTextureDict(Dictionary<string, AssetLocation> dict, ItemStack itemStack)
         {
-            string loop = itemStack.Attributes.GetString("loop", null);
-            string socket = itemStack.Attributes.GetString("socket", null);
+            string loop = itemStack.Attributes.GetString("loop", "gold");
+            string socket = itemStack.Attributes.GetString("socket", "gold");
             string gem = itemStack.Attributes.GetString("gem", null);
 
             dict["loop"] = new AssetLocation("block/metal/ingot/" + loop + ".png");
             dict["socket"] = new AssetLocation("block/metal/ingot/" + socket + ".png");
-            dict["gem"] = canjewelry.gems_textures.TryGetValue(gem, out string assetPath)
-                ? canjewelry.capi.Assets.TryGet(assetPath + ".png").Location
+            dict["gem"] = gem != null && canjewelry.gems_textures.TryGetValue(gem, out string assetPath)
+                ? canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location ?? new AssetLocation("canjewelry:item/gem/notvis.png")
                 : new AssetLocation("canjewelry:item/gem/notvis.png");
         }
 
@@ -49,15 +49,15 @@ namespace canjewelry.src.items
         {
             if (this.api.Side is EnumAppSide.Server) return;
 
-            string loop = stack.Attributes.GetString("loop", null);
-            string socket = stack.Attributes.GetString("socket", null);
+            string loop = stack.Attributes.GetString("loop", "gold");
+            string socket = stack.Attributes.GetString("socket", "gold");
             string gem = stack.Attributes.GetString("gem", null);
 
             tmpTextures.Clear();
             tmpTextures["loop"] = new AssetLocation("block/metal/sheet/" + loop + "1.png");
             tmpTextures["socket"] = new AssetLocation("block/metal/plate/" + socket + ".png");
-            tmpTextures["gem"] = canjewelry.gems_textures.TryGetValue(gem, out string assetPath)
-                ? canjewelry.capi.Assets.TryGet(assetPath + ".png").Location
+            tmpTextures["gem"] = gem != null && canjewelry.gems_textures.TryGetValue(gem, out string assetPath)
+                ? canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location ?? new AssetLocation("canjewelry:item/gem/notvis.png")
                 : new AssetLocation("canjewelry:item/gem/notvis.png");
 
             foreach (var texture in tmpTextures)

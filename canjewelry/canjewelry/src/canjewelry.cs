@@ -8,6 +8,7 @@ using canjewelry.src.blocks;
 using canjewelry.src.cb;
 using canjewelry.src.CB;
 using canjewelry.src.eb;
+using canjewelry.src.gui;
 using canjewelry.src.harmony;
 using canjewelry.src.inventories;
 using canjewelry.src.items;
@@ -86,6 +87,8 @@ namespace canjewelry.src
         /// Loaded gem cutting recipes.
         /// </summary>
         public static List<GemCuttingRecipe> gemCuttingRecipes = new();
+
+        private CANJewelryGuideDialog guideDialog;
         /// <summary>
         /// Loaded wearable restrictions by name.
         /// </summary>
@@ -179,12 +182,37 @@ namespace canjewelry.src
             AddCustomIcons();
             ClientPatcher.ApplyPatches(capi, harmonyID, ref harmonyInstance);
 
+            guideDialog = new CANJewelryGuideDialog(api);
+            api.Input.RegisterHotKey("canjewelryguide", "CAN Jewelry Guide", Vintagestory.API.Client.GlKeys.J, Vintagestory.API.Client.HotkeyType.GUIOrOtherControls);
+            api.Input.SetHotKeyHandler("canjewelryguide", comb =>
+            {
+                if (guideDialog.IsOpen) guideDialog.Close();
+                else guideDialog.Open();
+                return true;
+            });
+
             clientChannel = api.Network.RegisterChannel("canjewelry");
             clientChannel.RegisterMessageType(typeof(SyncCANJewelryPacket));
+            clientChannel.RegisterMessageType(typeof(CANGuideRequestDemoPacket));
+            clientChannel.RegisterMessageType(typeof(CANGuideDemoItemsPacket));
             clientChannel.SetMessageHandler<SyncCANJewelryPacket>((packet) =>
             {
                 config = JsonConvert.DeserializeObject<Config>(packet.CompressedConfig);
                 AddBehaviorAndSocketNumber(false);
+            });
+            clientChannel.SetMessageHandler<CANGuideDemoItemsPacket>((packet) =>
+            {
+                if (guideDialog == null) return;
+                for (int i = 0; i < packet.Slots.Length; i++)
+                {
+                    var stack = new ItemStack();
+                    using var ms = new System.IO.MemoryStream(packet.Stacks[i]);
+                    using var br = new System.IO.BinaryReader(ms);
+                    stack.FromBytes(br);
+                    stack.ResolveBlockOrItem(api.World);
+                    guideDialog.ApplyDemoStack(packet.Slots[i], stack);
+                }
+                capi.Logger.Notification("[CANGuide demo cli] applied {0} stacks from server", packet.Slots.Length);
             });
 
             //Set colors of processed gems on jewel grinder
@@ -361,6 +389,8 @@ namespace canjewelry.src
             
             serverChannel = sapi.Network.RegisterChannel("canjewelry");
             serverChannel.RegisterMessageType(typeof(SyncCANJewelryPacket));
+            serverChannel.RegisterMessageType(typeof(CANGuideRequestDemoPacket));
+            serverChannel.RegisterMessageType(typeof(CANGuideDemoItemsPacket));
             api.Event.ServerRunPhase(EnumServerRunPhase.RunGame, () => AddBehaviorAndSocketNumber());
             api.Event.PlayerNowPlaying += OnPlayerNowPlaying;
             commands.RegisterCommands.registerServerCommands(sapi);
@@ -368,6 +398,12 @@ namespace canjewelry.src
             serverChannel.SetMessageHandler<SyncCANJewelryPacket>((player, packet) =>
             {
                 sendNewValues(player);
+            });
+
+            serverChannel.SetMessageHandler<CANGuideRequestDemoPacket>((player, packet) =>
+            {
+                var response = BuildDemoItemsPacket(sapi);
+                serverChannel.SendPacket(response, player);
             });
             foreach (var it in config.gems_drops_table)
             {
@@ -429,6 +465,7 @@ namespace canjewelry.src
                 harmonyInstance.UnpatchAll(harmonyID + "_client");
                 harmonyInstance.UnpatchAll(harmonyID + "_server");
             }
+            guideDialog = null;
             capi = null;
             sapi = null;
             serverChannel = null;
@@ -642,6 +679,60 @@ namespace canjewelry.src
                 },
                 byPlayer);
             }
+        }
+
+        /// <summary>
+        /// Builds the demo-jewelry packet on server side. Stacks are serialized via
+        /// ItemStack.ToBytes so the client receives them in the same canonical form
+        /// as items pulled from a real inventory.
+        /// </summary>
+        private static CANGuideDemoItemsPacket BuildDemoItemsPacket(ICoreServerAPI sapi)
+        {
+            var demos = new (int slot, string code, (string k, string v)[] attrs)[]
+            {
+                (0,  "canjewelry:canring-right-simple",                new[] { ("metal", "silver") }),
+                (1,  "canjewelry:canearrings-left-gemstuddedearrings", new[] { ("metal", "iron") }),
+                /*(2,  "canjewelry:canearrings-right-keys",              new[] { ("metal", "gold") }),
+                (3,  "canjewelry:cantiara-normal-tiara",               new[] { ("carcassus", "steel"), ("gem_1", "none"), ("gem_2", "none"), ("gem_3", "none") }),
+                (4,  "canjewelry:canarmband-normal",                   new[] { ("loop", "silver") }),
+                (5,  "canjewelry:cancoronet-gold",                     System.Array.Empty<(string, string)>()),
+                (6,  "canjewelry:cansimplenecklace-normal-neck",       new[] { ("loop", "gold"), ("socket", "silver"), ("gem", "none") }),
+                (7,  "canjewelry:cannadiyannecklace-metal",            new[] { ("metal", "copper") }),
+                (8,  "canjewelry:cannadiyannecklace-leather",          new[] { ("leather", "red") }),
+                (9,  "canjewelry:canglasses-heart",                    new[] { ("metal", "steel"), ("glass", "plain") }),
+                (10, "canjewelry:canmonocle-normal",                   new[] { ("loop", "silver"), ("glasstype", "quartzglass") }),
+                (11, "canjewelry:canhoruseye-normal",                  new[] { ("metal", "tinbronze"), ("silk", "white"), ("gem", "none") }),
+                (12, "canjewelry:canrottenkingmask-normal",            new[] { ("metal", "gold") }),*/
+            };
+
+            var slots = new System.Collections.Generic.List<int>();
+            var bytes = new System.Collections.Generic.List<byte[]>();
+
+            foreach (var (slot, code, attrs) in demos)
+            {
+                var item = sapi.World.GetItem(new AssetLocation(code));
+                if (item == null)
+                {
+                    sapi.Logger.Warning("[CANGuide demo srv] item not found '{0}'", code);
+                    continue;
+                }
+                var stack = new ItemStack(item);
+                foreach (var (k, v) in attrs) stack.Attributes.SetString(k, v);
+
+                using var ms = new System.IO.MemoryStream();
+                using (var bw = new System.IO.BinaryWriter(ms))
+                {
+                    stack.ToBytes(bw);
+                }
+                slots.Add(slot);
+                bytes.Add(ms.ToArray());
+            }
+
+            return new CANGuideDemoItemsPacket
+            {
+                Slots = slots.ToArray(),
+                Stacks = bytes.ToArray()
+            };
         }
         private void loadConfig(ICoreAPI api)
         {

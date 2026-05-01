@@ -48,9 +48,10 @@ namespace canjewelry.src.items
 
             dict["metal"] = new AssetLocation("block/metal/sheet/" + loop + "1.png");
             dict["silk"] = new AssetLocation("block/cloth/basic/" + socket + ".png");
-            dict["gem"] = canjewelry.gems_textures.TryGetValue(gem, out string assetPath)
-                ? canjewelry.capi.Assets.TryGet(assetPath + ".png").Location
-                : new AssetLocation("canjewelry:item/gem/notvis.png");
+            var notvisGem = new AssetLocation("canjewelry:item/gem/notvis.png");
+            dict["gem"] = gem != null && canjewelry.gems_textures.TryGetValue(gem, out string assetPath)
+                ? canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location ?? notvisGem
+                : notvisGem;
         }
 
         public override Shape GetShape(ItemStack stack, Entity forEntity, string texturePrefixCode)

@@ -137,7 +137,10 @@ namespace canjewelry.src.items
                     nowTesselatingShape?.Textures.TryGetValue(textureCode, out value);
 
                 if (value == null)
+                {
+                    api.World.Logger.Debug("[CANItemWearable] {0}: texture key '{1}' not found, falling back to AssetLocation('{1}')", Code, textureCode);
                     value = new AssetLocation(textureCode);
+                }
 
                 return getOrCreateTexPos(value);
             }

@@ -30,7 +30,7 @@ namespace canjewelry.src.items
                         string gemType = treeSocket.GetString("gemtype");
                         canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
                         dict[key] = assetPath != null
-                            ? canjewelry.capi.Assets.TryGet(assetPath + ".png").Location
+                            ? canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location ?? NotVisTexture
                             : NotVisTexture;
                     }
                     else
