@@ -49,7 +49,7 @@ namespace canjewelry.src.items
             dict[prefix + "brass"] = new AssetLocation("block/metal/ingot/" + itemStack.Attributes.GetString("metal", "steel") + ".png");
         }
 
-        public override string GetCategoryCode(ItemStack stack) => "canearrings";
+        public override string GetCategoryCode(ItemStack stack) => "canring";
 
         public override string GetMeshCacheKey(ItemStack itemstack)
         {

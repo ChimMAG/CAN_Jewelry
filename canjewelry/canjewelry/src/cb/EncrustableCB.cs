@@ -87,7 +87,7 @@ namespace canjewelry.src.CB
 
                         int[] socketsTiersList = GetSocketsTiers(encrustable.Itemstack);
 
-                        if (socketsTiersList[socketNumber] < socketSlot.Itemstack.Collectible.Attributes[CANJWConstants.LEVEL_OF_SOSCKET_STRING].AsInt())
+                        if (socketsTiersList == null || socketNumber >= socketsTiersList.Length || socketsTiersList[socketNumber] < socketSlot.Itemstack.Collectible.Attributes[CANJWConstants.LEVEL_OF_SOSCKET_STRING].AsInt())
                         {
                             inventory.TakeLocked = false;
                             return false;
@@ -133,7 +133,7 @@ namespace canjewelry.src.CB
 
                     int[] socketsTiersList = GetSocketsTiers(encrustable.Itemstack);
 
-                    if (socketsTiersList == null || socketsTiersList[socketNumber] < socketSlot.Itemstack.Collectible.Attributes[CANJWConstants.LEVEL_OF_SOSCKET_STRING].AsInt())
+                    if (socketsTiersList == null || socketNumber >= socketsTiersList.Length || socketsTiersList[socketNumber] < socketSlot.Itemstack.Collectible.Attributes[CANJWConstants.LEVEL_OF_SOSCKET_STRING].AsInt())
                     {
                         inventory.TakeLocked = false;
                         return false;

@@ -160,20 +160,6 @@ namespace canjewelry.src.gui
             _inventory.InvNetworkUtil.PauseInventoryUpdates = false;
             mouseSlot.Inventory.InvNetworkUtil.PauseInventoryUpdates = false;
 
-            // DEBUG: dump whatever ended up in the clicked slot (so we can mirror it for demo items)
-            var afterStack = _inventory[slotId]?.Itemstack;
-            if (afterStack != null)
-            {
-                string attrs = afterStack.Attributes?.ToJsonToken() ?? "<null>";
-                _capi.Logger.Notification(
-                    "[CANGuide debug] slot={0} class={1} code='{2}' stackSize={3} attributes={4}",
-                    slotId, afterStack.Class, afterStack.Collectible?.Code, afterStack.StackSize, attrs);
-            }
-            else
-            {
-                _capi.Logger.Notification("[CANGuide debug] slot={0} now empty", slotId);
-            }
-
             if (packet != null && _sendPacket != null)
             {
                 if (packet is object[] packets)

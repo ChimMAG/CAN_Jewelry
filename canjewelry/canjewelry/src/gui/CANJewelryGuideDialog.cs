@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using canjewelry.src;
 using ImGuiNET;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -23,7 +22,6 @@ namespace canjewelry.src.gui
         private bool _jewelryLoaded = false;
         private bool _gemsLoaded    = false;
 
-        private readonly Dictionary<string, int> _jewelrySlots = new();
         private readonly Dictionary<string, int> _gemSlots = new();
 
         private record JewelryRow(string Key, string Label, int SocketCount, int[] Tiers);
@@ -39,7 +37,7 @@ namespace canjewelry.src.gui
         public CANJewelryGuideDialog(ICoreClientAPI api) : base(api)
         {
             _capi = api;
-            _inv  = new InventoryGeneric(140, "canguide", null, api);
+            _inv  = new InventoryGeneric(140, "canguide", null, api, (_, inv) => new DisplayOnlyItemSlot(inv));
             // GPU resources (atlas FBO, cairo textures) are created lazily on first Open()
             // so that the GL context and world are fully initialized.
         }
@@ -53,8 +51,6 @@ namespace canjewelry.src.gui
             _gpuReady = true;
         }
 
-        private bool _demoLoaded = false;
-
         protected override bool OnOpen()
         {
             EnsureGpuReady();
@@ -62,34 +58,6 @@ namespace canjewelry.src.gui
             EnsureJewelryRowsLoaded();   // metadata only, no slot writes
             EnsureGemsLoaded();          // gems still go into slots so the Gems tab can show icons
             return true;
-        }
-
-        /// <summary>
-        /// Asks the server to build demo jewelry stacks and ship them back via
-        /// <see cref="CANGuideDemoItemsPacket"/>. Server-resolved stacks are
-        /// canonical and behave the same as items pulled from a real inventory.
-        /// </summary>
-        private void LoadDemoItems()
-        {
-            if (_demoLoaded) return;
-            _demoLoaded = true;
-            if (canjewelry.clientChannel == null || !canjewelry.clientChannel.Connected)
-            {
-                _capi.Logger.Warning("[CANGuide demo] client channel not connected; demo items not loaded");
-                _demoLoaded = false; // retry on next OnOpen
-                return;
-            }
-            canjewelry.clientChannel.SendPacket(new CANGuideRequestDemoPacket());
-            _capi.Logger.Notification("[CANGuide demo] requested demo stacks from server");
-        }
-
-        /// <summary>Called by the client packet handler when the server responds with a demo stack.</summary>
-        public void ApplyDemoStack(int slot, ItemStack stack)
-        {
-            if (slot < 0 || slot >= _inv.Count) return;
-            _inv[slot].Itemstack = stack;
-            _inv[slot].MarkDirty();
-            _capi.Logger.Notification("[CANGuide demo] slot={0} <- {1}", slot, stack?.Collectible?.Code);
         }
 
         protected override bool OnClose()
@@ -156,98 +124,7 @@ namespace canjewelry.src.gui
             }
         }
 
-        private void EnsureJewelryLoaded()
-        {
-            if (_jewelryLoaded) return;
-            _jewelryLoaded = true;
-
-            int jewSlot = 80;
-            void Add(string key, string codeOrPattern, Action<ItemStack> setAttrs = null)
-            {
-                if (jewSlot >= 140) return;
-                Item item;
-                if (codeOrPattern.Contains('*'))
-                {
-                    var found = _capi.World.SearchItems(new AssetLocation(codeOrPattern));
-                    if (found.Length == 0)
-                    {
-                        _capi.Logger.Warning("[CANGuide] no items match pattern '{0}' for key '{1}'", codeOrPattern, key);
-                        return;
-                    }
-                    item = found[0];
-                }
-                else
-                {
-                    item = _capi.World.GetItem(new AssetLocation(codeOrPattern));
-                    if (item == null)
-                    {
-                        _capi.Logger.Warning("[CANGuide] item not found '{0}' for key '{1}'", codeOrPattern, key);
-                        return;
-                    }
-                }
-                var stack = new ItemStack(item);
-                setAttrs?.Invoke(stack);
-                stack.ResolveBlockOrItem(_capi.World);
-                _inv[jewSlot].Itemstack = stack;
-                _capi.Logger.Notification("[CANGuide] loaded jewelry slot={0} key='{1}' code='{2}'",
-                    jewSlot, key, item.Code);
-                _jewelrySlots[key] = jewSlot++;
-            }
-
-            Add("canring",           "canjewelry:canring-left-*",
-                s => s.Attributes.SetString("metal", "steel"));
-            Add("canearrings",        "canjewelry:canearrings-*",
-                s => s.Attributes.SetString("metal", "steel"));
-            Add("cantiara",           "canjewelry:cantiara-*", s => {
-                s.Attributes.SetString("carcassus", "steel");
-                s.Attributes.SetString("gem_1", "none");
-                s.Attributes.SetString("gem_2", "none");
-                s.Attributes.SetString("gem_3", "none");
-            });
-            Add("canarmband",         "canjewelry:canarmband-*",
-                s => s.Attributes.SetString("loop", "steel"));
-            Add("cancoronet",         "canjewelry:cancoronet-*");
-            Add("cansimplenecklace",  "canjewelry:cansimplenecklace-*", s => {
-                s.Attributes.SetString("loop", "gold");
-                s.Attributes.SetString("socket", "gold");
-                s.Attributes.SetString("gem", "none");
-            });
-            Add("cannadiyannecklace", "canjewelry:cannadiyannecklace-*",
-                s => s.Attributes.SetString("metal", "gold"));
-            Add("canglasses",         "canjewelry:canglasses-*");
-            Add("canmonocle",         "canjewelry:canmonocle-*");
-            Add("cannosering",        "canjewelry:cannosering-*",
-                s => s.Attributes.SetString("metal", "steel"));
-            Add("canhoruseye",        "canjewelry:canhoruseye-*");
-            Add("canrottenkingmask",  "canjewelry:canrottenkingmask-*");
-
-            var cfg = canjewelry.config;
-            if (cfg != null)
-            {
-                foreach (var cvst in cfg.custom_variants_sockets_tiers)
-                {
-                    string key = ItemCodeToKey(cvst.ItemCode);
-                    if (_jewelrySlots.ContainsKey(key)) continue;
-                    string pat = cvst.ItemCode.Contains('*') ? cvst.ItemCode : cvst.ItemCode + "-*";
-                    Add(key, pat, s => s.Attributes.SetString("metal", "steel"));
-                }
-            }
-
-            _simpleRows.Add(new("canring",            "Ring",             1, new[] { 1 }));
-            _simpleRows.Add(new("canarmband",         "Armband",          1, new[] { 2 }));
-            _simpleRows.Add(new("cancoronet",         "Coronet",          1, new[] { 3 }));
-            _simpleRows.Add(new("cannadiyannecklace", "Nadiyan Necklace", 1, new[] { 1 }));
-            _simpleRows.Add(new("canearrings",        "Earrings",         2, new[] { 1, 1 }));
-            _simpleRows.Add(new("cantiara",           "Tiara",            3, new[] { 2, 2, 3 }));
-            _simpleRows.Add(new("cansimplenecklace",  "Simple Necklace",  1, new[] { 2 }));
-            _simpleRows.Add(new("canmonocle",         "Monocle",          1, new[] { 1 }));
-            _simpleRows.Add(new("canglasses",         "Glasses",          2, new[] { 1, 1 }));
-            _simpleRows.Add(new("cannosering",        "Nose Ring",        1, new[] { 1 }));
-            _simpleRows.Add(new("canhoruseye",        "Horus Eye",        1, new[] { 2 }));
-            _simpleRows.Add(new("canrottenkingmask",  "Rotten King Mask", 3, new[] { 3, 3, 3 }));
-        }
-
-        private void EnsureGemsLoaded()
+private void EnsureGemsLoaded()
         {
             if (_gemsLoaded) return;
             var cfg = canjewelry.config;
@@ -718,9 +595,9 @@ namespace canjewelry.src.gui
         private static readonly Vector4 TabBarBackground  = new(0.06f, 0.04f, 0.03f, 1.0f);
         private static readonly Vector4 TabBorder         = new(1.00f, 0.82f, 0.35f, 1.0f); // bright gold rim
 
-        private static int _tabStylePushDepth;
+        private int _tabStylePushDepth;
 
-        private static void PushTabStyle()
+        private void PushTabStyle()
         {
             ImGui.PushStyleColor(ImGuiCol.Tab,                TabIdle);
             ImGui.PushStyleColor(ImGuiCol.TabHovered,         TabHovered);
@@ -736,7 +613,7 @@ namespace canjewelry.src.gui
             _tabStylePushDepth++;
         }
 
-        private static void PopTabStyle()
+        private void PopTabStyle()
         {
             if (_tabStylePushDepth <= 0) return;
             _tabStylePushDepth--;

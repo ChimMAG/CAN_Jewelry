@@ -121,12 +121,14 @@ namespace canjewelry.src.items
             dict["plain"] = new AssetLocation("game:block/leather/plain");
         }
 
-        public override string GetCategoryCode(ItemStack stack) => "canearrings";
+        public override string GetCategoryCode(ItemStack stack) => "cannadiyannecklace";
 
         public override string GetMeshCacheKey(ItemStack itemstack)
         {
             string construction = itemstack.Item.Variant["construction"];
-            string materialType = itemstack.Attributes.GetString("leather", "orange");
+            string materialType = construction == "leather"
+                ? itemstack.Attributes.GetString("leather", "plain")
+                : itemstack.Attributes.GetString("metal", "gold");
             var tree = itemstack.Attributes.GetTreeAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING);
             string buildStr = construction + materialType;
             if (tree != null)

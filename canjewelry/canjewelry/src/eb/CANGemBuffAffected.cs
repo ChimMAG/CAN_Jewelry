@@ -334,6 +334,22 @@ namespace canjewelry.src.eb
                     }
                 }
             }
+
+            IInventory additionalInv = (entity as EntityPlayer).Player.InventoryManager.GetOwnInventory(ADDITIONAL_INV);
+            if (additionalInv != null)
+            {
+                for (int i = 0; i < additionalInv.Count; ++i)
+                {
+                    ItemSlot itemSlot = additionalInv[i];
+                    ItemStack itemStack = itemSlot?.Itemstack;
+                    if (itemStack != null)
+                    {
+                        var newBuffs = GetItemStackBuffs(itemStack);
+                        ApplyBuffFromItemStack(newBuffs, entity as EntityPlayer, true);
+                        savedBuffs[i + ADDITIONAL_INV_KEY_OFFSET] = newBuffs;
+                    }
+                }
+            }
         }
     }
 }

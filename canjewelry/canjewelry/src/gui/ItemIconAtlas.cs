@@ -77,7 +77,7 @@ namespace canjewelry.src.gui
             }
             if (newStacks.Count == 0) return;
 
-            _capi.Logger.Notification("[CANGuide atlas] Build: rendering {0} new stack(s), TextureId={1}, FBO={2}",
+            _capi.Logger.VerboseDebug("[CANGuide atlas] Build: rendering {0} new stack(s), TextureId={1}, FBO={2}",
                 newStacks.Count, TextureId, _frameBuffer != null);
 
             try
@@ -115,7 +115,7 @@ namespace canjewelry.src.gui
                         stack.StackSize = prev;
                         _game.Platform.GlScissorFlag(false);
                         _itemIndexMap[GetKey(stack)] = idx;
-                        _capi.Logger.Notification("[CANGuide atlas]   ok: '{0}' -> idx={1} ({2},{3})",
+                        _capi.Logger.VerboseDebug("[CANGuide atlas]   ok: '{0}' -> idx={1} ({2},{3})",
                             GetKey(stack), idx, (int)x, (int)y);
                     }
                     catch (Exception itemEx)
@@ -167,7 +167,7 @@ namespace canjewelry.src.gui
             string key = GetKey(stack);
             if (!_itemIndexMap.TryGetValue(key, out int index))
             {
-                _capi.Logger.Notification("[CANGuide atlas] DrawToList building '{0}' (cache miss)", key);
+                _capi.Logger.VerboseDebug("[CANGuide atlas] DrawToList building '{0}' (cache miss)", key);
                 Build(new[] { stack });
                 if (!_itemIndexMap.TryGetValue(key, out index))
                 {

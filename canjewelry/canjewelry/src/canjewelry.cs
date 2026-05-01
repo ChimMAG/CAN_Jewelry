@@ -193,26 +193,10 @@ namespace canjewelry.src
 
             clientChannel = api.Network.RegisterChannel("canjewelry");
             clientChannel.RegisterMessageType(typeof(SyncCANJewelryPacket));
-            clientChannel.RegisterMessageType(typeof(CANGuideRequestDemoPacket));
-            clientChannel.RegisterMessageType(typeof(CANGuideDemoItemsPacket));
             clientChannel.SetMessageHandler<SyncCANJewelryPacket>((packet) =>
             {
                 config = JsonConvert.DeserializeObject<Config>(packet.CompressedConfig);
-                AddBehaviorAndSocketNumber(false);
-            });
-            clientChannel.SetMessageHandler<CANGuideDemoItemsPacket>((packet) =>
-            {
-                if (guideDialog == null) return;
-                for (int i = 0; i < packet.Slots.Length; i++)
-                {
-                    var stack = new ItemStack();
-                    using var ms = new System.IO.MemoryStream(packet.Stacks[i]);
-                    using var br = new System.IO.BinaryReader(ms);
-                    stack.FromBytes(br);
-                    stack.ResolveBlockOrItem(api.World);
-                    guideDialog.ApplyDemoStack(packet.Slots[i], stack);
-                }
-                capi.Logger.Notification("[CANGuide demo cli] applied {0} stacks from server", packet.Slots.Length);
+                AddBehaviorAndSocketNumber(capi);
             });
 
             //Set colors of processed gems on jewel grinder
@@ -389,9 +373,7 @@ namespace canjewelry.src
             
             serverChannel = sapi.Network.RegisterChannel("canjewelry");
             serverChannel.RegisterMessageType(typeof(SyncCANJewelryPacket));
-            serverChannel.RegisterMessageType(typeof(CANGuideRequestDemoPacket));
-            serverChannel.RegisterMessageType(typeof(CANGuideDemoItemsPacket));
-            api.Event.ServerRunPhase(EnumServerRunPhase.RunGame, () => AddBehaviorAndSocketNumber());
+            api.Event.ServerRunPhase(EnumServerRunPhase.RunGame, () => AddBehaviorAndSocketNumber(sapi));
             api.Event.PlayerNowPlaying += OnPlayerNowPlaying;
             commands.RegisterCommands.registerServerCommands(sapi);
 
@@ -400,11 +382,6 @@ namespace canjewelry.src
                 sendNewValues(player);
             });
 
-            serverChannel.SetMessageHandler<CANGuideRequestDemoPacket>((player, packet) =>
-            {
-                var response = BuildDemoItemsPacket(sapi);
-                serverChannel.SendPacket(response, player);
-            });
             foreach (var it in config.gems_drops_table)
             {
                 Block[] found_blocks = api.World.SearchBlocks(new AssetLocation(it.Key));
@@ -462,6 +439,7 @@ namespace canjewelry.src
             base.Dispose();
             if (harmonyInstance != null)
             {
+                harmonyInstance.UnpatchAll(harmonyID);
                 harmonyInstance.UnpatchAll(harmonyID + "_client");
                 harmonyInstance.UnpatchAll(harmonyID + "_server");
             }
@@ -486,184 +464,124 @@ namespace canjewelry.src
         /// <param name="serverSide">
         /// True if executed on server, false if on client.
         /// </param>
-        public void AddBehaviorAndSocketNumber(bool serverSide = true)
+        public void AddBehaviorAndSocketNumber(ICoreAPI api)
         {
-            ICoreAPI api = capi;
-            if (serverSide)
-            {
-                api = sapi;
-            }
+            ApplySimpleJewelry(api);
+            ApplyGemBehaviors(api);
+            ApplyCustomVariants(api);
+            ApplyTemporalGrasp(api);
+            ApplySocketLevels(api);
+        }
 
+        private void ApplySimpleJewelry(ICoreAPI api)
+        {
             foreach (var it in config.items_codes_with_socket_count_and_tiers)
             {
-                if(it.Value == null || it.Value.Length == 0)
+                if (it.Value == null || it.Value.Length == 0) continue;
+
+                Item[] items = api.World.SearchItems(new AssetLocation(it.Key));
+                if (items.Length == 0)
                 {
+                    if (config.debugMode)
+                        api.Logger.VerboseDebug($"[canjewelry] Item \"{it.Key}\" not found");
                     continue;
                 }
-                Item[] arrayResult = api.World.SearchItems(new AssetLocation(it.Key));
-                if(arrayResult.Length > 0) 
+
+                JToken tiersToken = JToken.Parse(JsonConvert.SerializeObject(it.Value));
+                foreach (Item item in items)
                 {
-                    
-                    foreach (Item item in arrayResult)
-                    {
-                        if (!item.HasBehavior<EncrustableCB>())
-                        {
-                            item.CollectibleBehaviors = item.CollectibleBehaviors.Append(new EncrustableCB(item));
-                        }
-                        if(item.Attributes == null)
-                        {
-                            JToken jt = JToken.Parse("{}");
-                            jt[CANJWConstants.SOCKETS_NUMBER_STRING] = it.Value.Length;
-                            item.Attributes = new JsonObject(jt);
-                            continue;
-                        }
+                    if (!item.HasBehavior<EncrustableCB>())
+                        item.CollectibleBehaviors = item.CollectibleBehaviors.Append(new EncrustableCB(item));
 
-                        string s = JsonConvert.SerializeObject(it.Value);
-
-                        //parse it for jarray
-                        JToken k = JToken.Parse(s);
-                        //set to item general attributes, accessible across all
-                        item.Attributes.Token[CANJWConstants.SOCKETS_TIERS_STRING] = k;
-
-                        item.Attributes.Token[CANJWConstants.SOCKETS_NUMBER_STRING] = it.Value.Length;
-
-                        item.Attributes = new JsonObject(item.Attributes.Token);
-                    }
-                }
-                else
-                {
-                    if (config.debugMode)
-                    {
-                        api.Logger.VerboseDebug(String.Format("[canjewelry] Item with \"{0}\" code not found", it.Key));
-                    }
-                }
-            }         
-            
-            Item[] rough_gems_items = api.World.SearchItems(new AssetLocation("canjewelry:gem-rough-*"));
-            Item[] rough_gems_other = api.World.SearchItems(new AssetLocation("game:gem-*-rough"));
-
-            rough_gems_items = rough_gems_items.Append(rough_gems_other);
-            foreach (var gem in rough_gems_items)
-            {
-                string code_item = gem.Code.Path.Split('-').Last();
-                if(config.gem_type_to_buff.ContainsKey(code_item) )
-                {
-                    gem.Attributes.Token["canGemTypeToAttribute"] = config.gem_type_to_buff[code_item];
+                    EnsureAttributes(item);
+                    item.Attributes.Token[CANJWConstants.SOCKETS_TIERS_STRING] = tiersToken.DeepClone();
+                    item.Attributes.Token[CANJWConstants.SOCKETS_NUMBER_STRING] = it.Value.Length;
+                    item.Attributes = new JsonObject(item.Attributes.Token);
                 }
             }
+        }
 
-            foreach (var gem in rough_gems_items)
+        private void ApplyGemBehaviors(ICoreAPI api)
+        {
+            Item[] roughGems = api.World.SearchItems(new AssetLocation("canjewelry:gem-rough-*"))
+                .Append(api.World.SearchItems(new AssetLocation("game:gem-*-rough")));
+
+            foreach (var gem in roughGems)
             {
+                string gemType = gem.Code.Path.Split('-').Last();
+                if (config.gem_type_to_buff.ContainsKey(gemType))
+                    gem.Attributes.Token["canGemTypeToAttribute"] = config.gem_type_to_buff[gemType];
+
                 if (!gem.HasBehavior<CANGemCuttableCB>())
-                {
                     gem.CollectibleBehaviors = gem.CollectibleBehaviors.Append(new CANGemCuttableCB(gem));
-                }
             }
 
-
-            Item[] cut_gems_items = api.World.SearchItems(new AssetLocation("canjewelry:gem-cut-*"));
-
-            if (!serverSide)
+            foreach (var gem in api.World.SearchItems(new AssetLocation("canjewelry:gem-cut-*")))
             {
-                foreach (var gem in cut_gems_items)
-                {
-                    //catch if not present?
-                    gems_textures.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":textures/" + gem.Textures["gem"].Base.Path);
-                    gems_textures_pngs.TryAdd(gem.Code.Path.Split('-').Last(), gem.Textures["gem"].Base.Domain + ":" + gem.Textures["gem"].Base.Path + ".png");
-                }
+                string gemType = gem.Code.Path.Split('-').Last();
+                if (config.gem_type_to_buff.ContainsKey(gemType))
+                    gem.Attributes.Token["canGemTypeToAttribute"] = config.gem_type_to_buff[gemType];
             }
-          
-            foreach (var gem in cut_gems_items)
+        }
+
+        private void ApplyCustomVariants(ICoreAPI api)
+        {
+            foreach (var cvst in config.custom_variants_sockets_tiers)
             {
-                string code_item = gem.Code.Path.Split('-').Last();
-                if (config.gem_type_to_buff.ContainsKey(code_item))
+                Item[] items = api.World.SearchItems(new AssetLocation(cvst.ItemCode));
+                if (items.Length == 0) continue;
+
+                JToken tiersToken = JToken.Parse(JsonConvert.SerializeObject(cvst.SocketTiers));
+                foreach (Item item in items)
                 {
-                    gem.Attributes.Token["canGemTypeToAttribute"] = config.gem_type_to_buff[code_item];
+                    if (!item.HasBehavior<EncrustableCB>())
+                        item.CollectibleBehaviors = item.CollectibleBehaviors.Append(new EncrustableCB(item));
+
+                    EnsureAttributes(item);
+                    item.Attributes.Token[CANJWConstants.CAN_CUSTOM_VARIANTS] = tiersToken.DeepClone();
+                    item.Attributes.Token[CANJWConstants.CAN_CUSTOM_VARIANTS_COMPARE_KEY] = cvst.AttributeKey;
                 }
             }
+        }
 
-            foreach(var it in config.custom_variants_sockets_tiers)
+        private void ApplyTemporalGrasp(ICoreAPI api)
+        {
+            if (!config.TemporalGraspEnabled) return;
+            foreach (var code in config.TemporalGraspBlockList)
             {
-                Item[] arrayResult = api.World.SearchItems(new AssetLocation(it.ItemCode));
-                if (arrayResult.Length > 0)
+                foreach (var block in api.World.SearchBlocks(new AssetLocation(code)))
                 {
-                    foreach (Item item in arrayResult)
-                    {
-                        if (!item.HasBehavior<EncrustableCB>())
-                        {
-                            item.CollectibleBehaviors = item.CollectibleBehaviors.Append(new EncrustableCB(item));
-                        }
-                        if (item.Attributes == null)
-                        {
-                            JToken jt = JToken.Parse("{}");
-                            item.Attributes = new JsonObject(jt);
-                        }
-
-
-                        string s = JsonConvert.SerializeObject(it.SocketTiers);
-
-                        //parse it for jarray
-                        JToken k = JToken.Parse(s);
-
-                        //set to item general attributes, accessible across all
-                        item.Attributes.Token[CANJWConstants.CAN_CUSTOM_VARIANTS] = k;
-                        item.Attributes.Token[CANJWConstants.CAN_CUSTOM_VARIANTS_COMPARE_KEY] = it.AttributeKey;
-                    }
-                }
-                else
-                {
-                    if (config.debugMode)
-                    {
-                       // api.Logger.VerboseDebug(String.Format("[canjewelry] Item with \"{0}\" code not found", it.Key));
-                    }
+                    if (!block.HasBehavior<CANTemporalGraspBB>())
+                        block.BlockBehaviors = block.BlockBehaviors.Append(new CANTemporalGraspBB(block));
                 }
             }
+        }
 
-            if (config.TemporalGraspEnabled)
-            {
-                foreach (var it in config.TemporalGraspBlockList)
-                {
-                    Block[] arrayResult = api.World.SearchBlocks(new AssetLocation(it));
-                    foreach (var itB in arrayResult)
-                    {
-                        if (!itB.HasBehavior<CANTemporalGraspBB>())
-                        {
-                            itB.BlockBehaviors = itB.BlockBehaviors.Append(new CANTemporalGraspBB(itB));
-                        }
-                    }
-                }
-            }
+        private void ApplySocketLevels(ICoreAPI api)
+        {
             foreach (var it in config.LevelOfSocketByType)
             {
-                Item[] arrayResult = api.World.SearchItems(new AssetLocation(it.Key));
-                if (arrayResult.Length > 0)
-                {
-                    foreach (Item item in arrayResult)
-                    {
-                        if (item.Attributes == null)
-                        {
-                            JToken jt = JToken.Parse("{}");
-                            item.Attributes = new JsonObject(jt);
-                        }
-
-
-                        string s = JsonConvert.SerializeObject(it.Value);
-
-                        //parse it for jarray
-                        JToken k = JToken.Parse(s);
-
-                        //set to item general attributes, accessible across all
-                        item.Attributes.Token[CANJWConstants.LEVEL_OF_SOSCKET_STRING] = k;
-                    }
-                }
-                else
+                Item[] items = api.World.SearchItems(new AssetLocation(it.Key));
+                if (items.Length == 0)
                 {
                     if (config.debugMode)
-                    {
-                        // api.Logger.VerboseDebug(String.Format("[canjewelry] Item with \"{0}\" code not found", it.Key));
-                    }
+                        api.Logger.VerboseDebug($"[canjewelry] Item \"{it.Key}\" not found");
+                    continue;
+                }
+
+                JToken levelToken = JToken.Parse(JsonConvert.SerializeObject(it.Value));
+                foreach (Item item in items)
+                {
+                    EnsureAttributes(item);
+                    item.Attributes.Token[CANJWConstants.LEVEL_OF_SOSCKET_STRING] = levelToken.DeepClone();
                 }
             }
+        }
+
+        private static void EnsureAttributes(Item item)
+        {
+            if (item.Attributes == null)
+                item.Attributes = new JsonObject(JToken.Parse("{}"));
         }
         /// <summary>
         /// Sends the current configuration to a client.
@@ -681,59 +599,6 @@ namespace canjewelry.src
             }
         }
 
-        /// <summary>
-        /// Builds the demo-jewelry packet on server side. Stacks are serialized via
-        /// ItemStack.ToBytes so the client receives them in the same canonical form
-        /// as items pulled from a real inventory.
-        /// </summary>
-        private static CANGuideDemoItemsPacket BuildDemoItemsPacket(ICoreServerAPI sapi)
-        {
-            var demos = new (int slot, string code, (string k, string v)[] attrs)[]
-            {
-                (0,  "canjewelry:canring-right-simple",                new[] { ("metal", "silver") }),
-                (1,  "canjewelry:canearrings-left-gemstuddedearrings", new[] { ("metal", "iron") }),
-                /*(2,  "canjewelry:canearrings-right-keys",              new[] { ("metal", "gold") }),
-                (3,  "canjewelry:cantiara-normal-tiara",               new[] { ("carcassus", "steel"), ("gem_1", "none"), ("gem_2", "none"), ("gem_3", "none") }),
-                (4,  "canjewelry:canarmband-normal",                   new[] { ("loop", "silver") }),
-                (5,  "canjewelry:cancoronet-gold",                     System.Array.Empty<(string, string)>()),
-                (6,  "canjewelry:cansimplenecklace-normal-neck",       new[] { ("loop", "gold"), ("socket", "silver"), ("gem", "none") }),
-                (7,  "canjewelry:cannadiyannecklace-metal",            new[] { ("metal", "copper") }),
-                (8,  "canjewelry:cannadiyannecklace-leather",          new[] { ("leather", "red") }),
-                (9,  "canjewelry:canglasses-heart",                    new[] { ("metal", "steel"), ("glass", "plain") }),
-                (10, "canjewelry:canmonocle-normal",                   new[] { ("loop", "silver"), ("glasstype", "quartzglass") }),
-                (11, "canjewelry:canhoruseye-normal",                  new[] { ("metal", "tinbronze"), ("silk", "white"), ("gem", "none") }),
-                (12, "canjewelry:canrottenkingmask-normal",            new[] { ("metal", "gold") }),*/
-            };
-
-            var slots = new System.Collections.Generic.List<int>();
-            var bytes = new System.Collections.Generic.List<byte[]>();
-
-            foreach (var (slot, code, attrs) in demos)
-            {
-                var item = sapi.World.GetItem(new AssetLocation(code));
-                if (item == null)
-                {
-                    sapi.Logger.Warning("[CANGuide demo srv] item not found '{0}'", code);
-                    continue;
-                }
-                var stack = new ItemStack(item);
-                foreach (var (k, v) in attrs) stack.Attributes.SetString(k, v);
-
-                using var ms = new System.IO.MemoryStream();
-                using (var bw = new System.IO.BinaryWriter(ms))
-                {
-                    stack.ToBytes(bw);
-                }
-                slots.Add(slot);
-                bytes.Add(ms.ToArray());
-            }
-
-            return new CANGuideDemoItemsPacket
-            {
-                Slots = slots.ToArray(),
-                Stacks = bytes.ToArray()
-            };
-        }
         private void loadConfig(ICoreAPI api)
         {
             //Try to read old config
