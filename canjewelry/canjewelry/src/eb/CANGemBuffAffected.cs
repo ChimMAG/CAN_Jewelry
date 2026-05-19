@@ -139,10 +139,11 @@ namespace canjewelry.src.eb
                     savedBuffs.Remove(key);
                     return;
                 }
-                // Except returns items in current that are NOT in new.
-                // KNOWN LIMITATION: if new has buffs added (gem socketed), Except is empty
-                // and the update is skipped. Preserved as legacy behavior.
-                if (!currentBuffDict.Except(newBuffDict).Any()) return;
+                // Skip only when dictionaries are identical: same count AND no differing entries.
+                // Count check catches the case where new has additional buffs (gem socketed into
+                // item that already has other gems) — Except alone would miss those additions.
+                if (currentBuffDict.Count == newBuffDict.Count
+                    && !currentBuffDict.Except(newBuffDict).Any()) return;
 
                 ApplyBuffFromItemStack(currentBuffDict, ep, false);
                 if (newBuffDict.Count > 0)
@@ -319,7 +320,7 @@ namespace canjewelry.src.eb
             IInventory characterInv = (entity as EntityPlayer).Player.InventoryManager.GetOwnInventory(CHARACTER_INV);
             if (characterInv != null)
             {
-                for (int i = 0; i < 16; ++i)
+                for (int i = 0; i < characterInv.Count; ++i)
                 {
                     if (characterInv[i] != null)
                     {

@@ -39,6 +39,74 @@ namespace canjewelry.src
     public class canjewelry: ModSystem
     {
         /// <summary>
+        /// Singleton-style accessor used by static-context callers (EncrustableCB, BEs)
+        /// to fire integration events without holding api references.
+        /// </summary>
+        public static canjewelry Instance { get; private set; }
+
+        // ── Integration hooks ────────────────────────────────────────────────────
+        // Companion mods (e.g. canjewelry-xskills) subscribe to these and mutate
+        // the event objects to influence outcomes. Running with no subscribers
+        // leaves vanilla math untouched.
+        public event Action<src.integration.EncrustEvent> OnEncrustBuff;
+        public event Action<src.integration.CutEvent>     OnCutGem;
+        public event Action<src.integration.GrindEvent>   OnGrindStep;
+        public event Action<src.integration.GrindStageStartEvent> OnGrindStageStart;
+        public event Action<src.integration.PanEvent>      OnPanGem;
+        public event Action<src.integration.PanTakeEvent>  OnPanMaterialTake;
+        public event Action<src.integration.CanPanDropEvent> OnCanPanDrop;
+        public event Action<src.integration.ExtractEvent>   OnExtractGem;
+        public event Action<src.integration.CanExtractEvent> OnCanExtract;
+        public event Action<src.integration.WireDrawEvent>  OnWireDrawn;
+        public event Action<src.integration.CanInscribeEvent> OnCanInscribe;
+        public event Action<src.integration.CANXpEvent>    OnXpAwarded;
+
+        public void FireEncrust(src.integration.EncrustEvent e)   => OnEncrustBuff?.Invoke(e);
+        public void FireCut    (src.integration.CutEvent     e)   => OnCutGem?.Invoke(e);
+        public void FireGrind  (src.integration.GrindEvent   e)   => OnGrindStep?.Invoke(e);
+        public void FireGrindStageStart(src.integration.GrindStageStartEvent e) => OnGrindStageStart?.Invoke(e);
+        public void FirePan    (src.integration.PanEvent     e)   => OnPanGem?.Invoke(e);
+        public void FirePanMaterialTake(src.integration.PanTakeEvent e) => OnPanMaterialTake?.Invoke(e);
+        public void FireCanPanDrop(src.integration.CanPanDropEvent e) => OnCanPanDrop?.Invoke(e);
+
+        // Companion-supplied drop entries that get merged into CANBlockPan.dropsBySourceMat
+        // at block-load time. Kept separate from config.panningDrops (which is admin-persistent)
+        // so companion contributions never end up written to canjewelry.json.
+        public readonly System.Collections.Generic.Dictionary<string, src.utils.CANPanningDrop[]> runtimeExtraPanDrops
+            = new System.Collections.Generic.Dictionary<string, src.utils.CANPanningDrop[]>();
+
+        // Companion-mod entry point: extends panning drop tables at startup. Drops are
+        // resolved against the world and added in-memory only — they do not persist into
+        // canjewelry.json. Calling with the same material again appends rather than replacing.
+        public void RegisterPanDrops(IWorldAccessor world, string material, src.utils.CANPanningDrop[] drops)
+        {
+            foreach (var drop in drops)
+            {
+                if (drop?.Code != null && !drop.Code.Path.Contains("{rocktype}"))
+                {
+                    drop.Resolve(world, "RegisterPanDrops:" + material, true);
+                }
+            }
+            if (runtimeExtraPanDrops.TryGetValue(material, out var existing))
+            {
+                var combined = new src.utils.CANPanningDrop[existing.Length + drops.Length];
+                System.Array.Copy(existing, 0, combined, 0, existing.Length);
+                System.Array.Copy(drops, 0, combined, existing.Length, drops.Length);
+                runtimeExtraPanDrops[material] = combined;
+            }
+            else
+            {
+                runtimeExtraPanDrops[material] = drops;
+            }
+        }
+        public bool HasExtractSubscriber => OnExtractGem != null;
+        public void FireExtract(src.integration.ExtractEvent e)     => OnExtractGem?.Invoke(e);
+        public void FireCanExtract(src.integration.CanExtractEvent e) => OnCanExtract?.Invoke(e);
+        public void FireWireDraw(src.integration.WireDrawEvent e) => OnWireDrawn?.Invoke(e);
+        public void FireCanInscribe(src.integration.CanInscribeEvent e) => OnCanInscribe?.Invoke(e);
+        public void FireXp     (src.integration.CANXpEvent   e)   => OnXpAwarded?.Invoke(e);
+
+        /// <summary>
         /// Harmony instance used for runtime patching.
         /// </summary>
         public Harmony harmonyInstance;
@@ -115,6 +183,7 @@ namespace canjewelry.src
         /// </summary>
         public override void Start(ICoreAPI api)
         {
+            Instance = this;
             base.Start(api);
             harmonyInstance = new Harmony(harmonyID);
             var p = harmonyInstance.GetPatchedMethods();

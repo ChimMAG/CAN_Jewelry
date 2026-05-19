@@ -127,7 +127,7 @@ namespace canjewelry.src.commands
             //playerBackpacks.Player
             if (charakterInv != null)
             {
-                for (int i = 0; i < 16; ++i)
+                for (int i = 0; i < charakterInv.Count; ++i)
                 {
                     if (charakterInv[i] != null)
                     {

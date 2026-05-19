@@ -29,5 +29,7 @@ namespace canjewelry.src
         public const string CUTTING_BAGUETTE = "baguette";
         public const string CUTTING_PEAR = "pear";
         public const string FALLBACK_GEM_TYPE = "diamond";
+        public const string INSCRIPTION = "inscription";
+        public const int INSCRIPTION_MAX_LEN = 32;
     }
 }

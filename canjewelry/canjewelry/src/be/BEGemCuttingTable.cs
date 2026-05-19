@@ -314,6 +314,7 @@ namespace canjewelry.src.be
                     EncrustableCB.ReduceBuffValueBecauseOfMistakes(outstack, mistakeValueMult);
                     //ApplyCuttingBuff(outstack);
                     //outstack.Collectible.SetTemperature(Api.World, outstack, workItemStack.Collectible.GetTemperature(Api.World, workItemStack));
+                    EncrustableCB.FireCutCompletionEvents(byPlayer, workItemStack, outstack);
                     workItemStack = null;
 
                     SelectedRecipeId = -1;
@@ -760,6 +761,7 @@ namespace canjewelry.src.be
                 EncrustableCB.ApplyCuttingBuff(outstack);
                 //ApplyCuttingBuff(outstack);
                 //outstack.Collectible.SetTemperature(Api.World, outstack, workItemStack.Collectible.GetTemperature(Api.World, workItemStack));
+                EncrustableCB.FireCutCompletionEvents(byPlayer, workItemStack, outstack);
                 workItemStack = null;
 
                 SelectedRecipeId = -1;

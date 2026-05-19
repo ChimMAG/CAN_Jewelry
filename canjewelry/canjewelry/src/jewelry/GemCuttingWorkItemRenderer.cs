@@ -108,7 +108,7 @@ namespace canjewelry.src.jewelry
                 Vec3d cameraPos = world.Player.Entity.CameraPos;
                 ModelMat.Set(render.CameraMatrixOriginf).Translate((double)pos.X - cameraPos.X, (double)pos.Y - cameraPos.Y, (double)pos.Z - cameraPos.Z);
                 outLineColorMul.A = 1f - GameMath.Clamp((float)Math.Sqrt(entityPos.SquareDistanceTo(pos.X, pos.Y, pos.Z)) / 5f - 1f, 0f, 1f);
-                float num2 = (render.LineWidth = 2f * api.Settings.Float["wireframethickness"]);
+                float num2 = (render.LineWidth = 3.5f * api.Settings.Float["wireframethickness"]);
                 render.GLEnableDepthTest();
                 render.GlToggleBlend(blend: true);
                 IShaderProgram engineShader = render.GetEngineShader(EnumShaderProgram.Wireframe);

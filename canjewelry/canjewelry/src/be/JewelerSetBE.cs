@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using canjewelry.src.CB;
+using canjewelry.src.gui;
 using canjewelry.src.inventories;
 using canjewelry.src.items;
 using canjewelry.src.items.resource;
@@ -24,6 +25,7 @@ namespace canjewelry.src.jewelry
         protected CollectibleObject nowTesselatingObj;
         protected Shape nowTesselatingShape;
         GuiDialogJewelerSet renameGui;
+        ImGuiDialogJewelerSet imguiGui;
         BlockFacing facing;
         public virtual string AttributeTransformCode => "groundTransform";
         public virtual string ClassCode
@@ -195,46 +197,39 @@ namespace canjewelry.src.jewelry
             IClientWorldAccessor clientWorldAccessor = (IClientWorldAccessor)Api.World;
             if (packetid == 5000)
             {
-                if (renameGui != null)
+                if (imguiGui != null)
                 {
-                    if (renameGui?.IsOpened() ?? false)
-                    {
-                        renameGui.TryClose();
-                    }
-
-                    renameGui?.Dispose();
-                    renameGui = null;
+                    if (imguiGui.IsOpen) imguiGui.Close();
+                    imguiGui.Dispose();
+                    imguiGui = null;
                     return;
                 }
 
                 TreeAttribute treeAttribute = new TreeAttribute();
-                string dialogTitle;
-                int cols;
                 using (MemoryStream input = new MemoryStream(data))
                 {
                     BinaryReader binaryReader = new BinaryReader(input);
                     binaryReader.ReadString();
-                    dialogTitle = binaryReader.ReadString();
-                    cols = binaryReader.ReadByte();
+                    binaryReader.ReadString(); // dialogTitle (unused)
+                    binaryReader.ReadByte();   // cols (unused)
                     treeAttribute.FromBytes(binaryReader);
                 }
 
                 Inventory.FromTreeAttributes(treeAttribute);
                 Inventory.ResolveBlocksOrItems();
-                renameGui = new GuiDialogJewelerSet(dialogTitle, Inventory, Pos, capi);
-                renameGui.TryOpen();
+                imguiGui = new ImGuiDialogJewelerSet(capi, inventory, Pos);
+                imguiGui.Open();
             }
 
             if (packetid == 1001)
             {
                 clientWorldAccessor.Player.InventoryManager.CloseInventory(Inventory);
-                if (renameGui?.IsOpened() ?? false)
+                if (imguiGui?.IsOpen ?? false)
                 {
-                    renameGui?.TryClose();
+                    imguiGui.Close();
                 }
-
-                renameGui?.Dispose();
-                renameGui = null;
+                imguiGui?.Dispose();
+                imguiGui = null;
             }
         }
         public override void OnReceivedClientPacket(IPlayer player, int packetid, byte[] data)
@@ -267,7 +262,7 @@ namespace canjewelry.src.jewelry
                             selectedSlotNum = tree.GetInt("selectedSlotNum");
                         }
                     }
-                    EncrustableCB.TryAddSocket(this.inventory, inventory[0], inventory[selectedSlotNum], socketNumber);
+                    EncrustableCB.TryAddSocket(this.inventory, inventory[0], inventory[selectedSlotNum], socketNumber, player);
 
                     //EncrustableFunctions.TryToAddSocket(this.inventory);
                 }
@@ -292,9 +287,54 @@ namespace canjewelry.src.jewelry
                         }
                     }
 
-                    EncrustableCB.TryToEncrustGemsIntoSockets(this.inventory, inventory[0], inventory[selectedSlotNum], socketNumber);
+                    EncrustableCB.TryToEncrustGemsIntoSockets(this.inventory, inventory[0], inventory[selectedSlotNum], socketNumber, player);
 
                     //EncrustableFunctions.TryToEncrustGemsIntoSockets(this.inventory);
+                }
+                else if (packetid == 1007)
+                {
+                    // Inscribe: write a permanent text attribute on the jewelry in slot 0.
+                    // Companion mods may gate this via OnCanInscribe (e.g. Jeweler.Inscriber perk).
+                    // Server also validates length & charset; rejects silently on any failure.
+                    if (inventory[0].Empty) return;
+                    string text;
+                    using (MemoryStream ms = new MemoryStream(data))
+                    using (BinaryReader reader = new BinaryReader(ms))
+                    {
+                        text = reader.ReadString();
+                    }
+                    string sanitized = EncrustableCB.SanitizeInscription(text);
+                    if (sanitized == null) return;
+                    if (inventory[0].Itemstack.Attributes.HasAttribute(CANJWConstants.INSCRIPTION)) return;
+
+                    var permitEv = new integration.CanInscribeEvent
+                    {
+                        Player = player,
+                        Jewelry = inventory[0].Itemstack,
+                    };
+                    canjewelry.Instance?.FireCanInscribe(permitEv);
+                    if (!permitEv.Allowed) return;
+
+                    inventory[0].Itemstack.Attributes.SetString(CANJWConstants.INSCRIPTION, sanitized);
+                    inventory[0].MarkDirty();
+                }
+                else if (packetid == 1006)
+                {
+                    // Extract: pulls a gem out of a specific socket. Output goes to the
+                    // matching gem-input slot if empty, otherwise to the player.
+                    TreeAttribute tree = new TreeAttribute();
+                    int socketNumber;
+                    int selectedSlotNum;
+                    using (MemoryStream ms = new MemoryStream(data))
+                    {
+                        using (BinaryReader reader = new BinaryReader(ms))
+                        {
+                            tree.FromBytes(reader);
+                            socketNumber = tree.GetInt("selectedSocketSlot");
+                            selectedSlotNum = tree.GetInt("selectedSlotNum");
+                        }
+                    }
+                    EncrustableCB.TryExtractGem(this.inventory, inventory[0], inventory[selectedSlotNum], socketNumber, player);
                 }
 
             }
@@ -334,13 +374,8 @@ namespace canjewelry.src.jewelry
         }
         public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tessThreadTesselator)
         {
-            for (int index = 0; index < 1; index++)
-            {
-                if (!inventory[0].Empty)
-                {
-                    mesher.AddMeshData(this.getMesh(inventory[0]));
-                }
-            }
+            // Item-on-top mesh removed — the placed jewelry is now shown in the
+            // ImGui dialog's 3D preview instead.
             /*var shape = new Shape
             {
                 // Создание шейпа куба
@@ -748,7 +783,9 @@ namespace canjewelry.src.jewelry
         private void OnInventoryClosed(IPlayer player)
         {
             this.renameGui?.Dispose();
-            this.renameGui = (GuiDialogJewelerSet)null;
+            this.renameGui = null;
+            this.imguiGui?.Dispose();
+            this.imguiGui = null;
         }
         protected virtual void OnInvOpened(IPlayer player) => this.inventory.PutLocked = false;    
         public TextureAtlasPosition this[string textureCode]

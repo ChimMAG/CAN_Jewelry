@@ -93,13 +93,13 @@ namespace canjewelry.src.eb
             if (Inventory != null)
             {
                 ItemSlot itemSlot = Inventory.MaxBy((ItemSlot slot) => (!slot.Empty) ? slot.Itemstack.Collectible.LightHsv[2] : 0);
-                if (!itemSlot.Empty)
+                if (!itemSlot.Empty && itemSlot.Itemstack.Collectible.LightHsv[2] > 0)
                 {
-                    entity.LightHsv = itemSlot.Itemstack.Collectible.GetLightHsv(entity.World.BlockAccessor, null, itemSlot.Itemstack);
-                }
-                else
-                {
-                    entity.LightHsv = null;
+                    byte[] jewelryLight = itemSlot.Itemstack.Collectible.GetLightHsv(entity.World.BlockAccessor, null, itemSlot.Itemstack);
+                    if (entity.LightHsv == null || jewelryLight[2] > entity.LightHsv[2])
+                    {
+                        entity.LightHsv = jewelryLight;
+                    }
                 }
             }
         }

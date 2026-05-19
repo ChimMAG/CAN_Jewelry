@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using ImGuiNET;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -57,6 +59,7 @@ namespace canjewelry.src.gui
             _grid.SetInventory(_inv);
             EnsureJewelryRowsLoaded();   // metadata only, no slot writes
             EnsureGemsLoaded();          // gems still go into slots so the Gems tab can show icons
+            _panCacheSource = null;      // force panning tab to rebuild so injected drops are visible
             return true;
         }
 
@@ -454,85 +457,267 @@ private void EnsureGemsLoaded()
 
         // ──────────────────────────── Tab 4: Panning ────────────────────────────
 
+        // Matches "@(ore|crystalizedore)-{quality}-{ore}-.*" keys
+        private static readonly Regex _panKeyRegex = new Regex(
+            @"^@\([^)]+\)-(\w+)-(.+?)-\.\*$", RegexOptions.Compiled);
+
+        // Cached parse result — rebuilt on every guide open (cheap) so companion mods that inject
+        // into panningDrops after the first open are always reflected without a game restart.
+        private static Dictionary<string, utils.CANPanningDrop[]> _panCacheSource;
+        private static Dictionary<string, Dictionary<string, utils.CANPanningDrop[]>> _panByOre;
+        private static List<(string key, utils.CANPanningDrop[] drops)> _panSpecial     = new();
+        private static List<(string key, utils.CANPanningDrop[] drops)> _panPerkSpecial = new();
+
+        private static readonly string[] _qualityOrder = { "bountiful", "rich", "medium", "poor" };
+
+        private static readonly Dictionary<string, string> _oreDisplayNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "hematite",           "Hematite" },
+            { "malachite",          "Malachite" },
+            { "bismuthinite",       "Bismuthinite" },
+            { "cassiterite",        "Cassiterite" },
+            { "sphalerite",         "Sphalerite" },
+            { "quartz_nativesilver","Quartz (Native Silver)" },
+            { "quartz_nativegold",  "Quartz (Native Gold)" },
+            { "limonite",           "Limonite" },
+            { "ilmenite",           "Ilmenite" },
+            { "nativecopper",       "Native Copper" },
+            { "magnetite",          "Magnetite" },
+            { "uranium",            "Uranium" },
+            { "galena",             "Galena" },
+        };
+
+        private static readonly Dictionary<string, string> _gemDisplayNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "diamond",    "Diamond" },
+            { "emerald",    "Emerald" },
+            { "corundum",   "Corundum" },
+            { "malachite",  "Malachite" },
+            { "lapislazuli","Lapis Lazuli" },
+            { "olivine",    "Olivine" },
+            { "fluorite",   "Fluorite" },
+            { "quartz",     "Quartz" },
+            { "uranium",    "Uranium" },
+            { "ruby",       "Ruby" },
+            { "citrine",    "Citrine" },
+            { "amethyst",   "Amethyst" },
+        };
+
         private static void DrawTabPanning()
         {
             ImGui.BeginChild("##pan");
 
-            ImGui.TextWrapped("Use an iron or steel pan while holding ore chunks (right-click the pan block). 8 ore chunks per cycle by default. Different ore types yield different gem varieties.");
+            ImGui.TextWrapped("Use an iron or steel pan while holding ore chunks (right-click the pan block). Different ore types yield different gem varieties.");
             ImGui.Spacing();
 
-            // ── Drop chance table ──
-            ImGui.TextColored(Col_Header, "Drop chances by ore quality");
-            ImGui.Spacing();
+            var drops = canjewelry.config?.panningDrops;
+            if (drops == null || drops.Count == 0)
+            {
+                ImGui.TextDisabled("No panning drop data available.");
+                ImGui.EndChild();
+                return;
+            }
+
+            // ── Group entries (cached) ──
+            if (!ReferenceEquals(drops, _panCacheSource))
+            {
+                _panCacheSource = drops;
+                _panByOre       = new Dictionary<string, Dictionary<string, utils.CANPanningDrop[]>>(StringComparer.OrdinalIgnoreCase);
+                _panSpecial     = new List<(string, utils.CANPanningDrop[])>();
+                _panPerkSpecial = new List<(string, utils.CANPanningDrop[])>();
+
+                foreach (var kv in drops)
+                {
+                    var m = _panKeyRegex.Match(kv.Key);
+                    if (m.Success)
+                    {
+                        string quality = m.Groups[1].Value;
+                        string ore     = m.Groups[2].Value;
+                        if (!_panByOre.TryGetValue(ore, out var qualMap))
+                            _panByOre[ore] = qualMap = new Dictionary<string, utils.CANPanningDrop[]>(StringComparer.OrdinalIgnoreCase);
+                        qualMap[quality] = kv.Value;
+                    }
+                    else
+                    {
+                        bool perkGated = kv.Value.Any(d => !string.IsNullOrEmpty(d?.requiresPerk));
+                        if (perkGated) _panPerkSpecial.Add((kv.Key, kv.Value));
+                        else           _panSpecial.Add((kv.Key, kv.Value));
+                    }
+                }
+
+                // Companion runtime drops (registered via RegisterPanDrops) — always perk-gated.
+                var runtimeDrops = canjewelry.Instance?.runtimeExtraPanDrops;
+                if (runtimeDrops != null)
+                {
+                    foreach (var kv in runtimeDrops)
+                        _panPerkSpecial.Add((kv.Key, kv.Value));
+                }
+            }
+
+            var byOre      = _panByOre;
+            var special    = _panSpecial;
+            var perkSpecial = _panPerkSpecial;
 
             var tblFlags = ImGuiTableFlags.BordersOuter | ImGuiTableFlags.BordersInnerV
                          | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit;
-            if (ImGui.BeginTable("##pantbl", 4, tblFlags))
-            {
-                ImGui.TableSetupColumn("Quality",       ImGuiTableColumnFlags.WidthFixed, 110);
-                ImGui.TableSetupColumn("Small (chipped)", ImGuiTableColumnFlags.WidthFixed, 120);
-                ImGui.TableSetupColumn("Medium (flawed)", ImGuiTableColumnFlags.WidthFixed, 120);
-                ImGui.TableSetupColumn("Large (normal)",  ImGuiTableColumnFlags.WidthStretch);
-                ImGui.TableHeadersRow();
 
-                (string q, string s, string m, string l)[] rows = {
-                    ("Bountiful", "80%", "70%", "40%"),
-                    ("Rich",      "60%", "50%", "20%"),
-                    ("Medium",    "50%", "40%", "-"),
-                    ("Poor",      "40%", "-",   "-"),
-                };
-                foreach (var (q, s, m, l) in rows)
+            // ── Special entries (suevite etc.) ──
+            foreach (var (key, spDrops) in special)
+            {
+                string label = key.Contains(':') ? key.Split(':')[1] : key;
+                label = char.ToUpperInvariant(label[0]) + label.Substring(1).Replace('-', ' ');
+                ImGui.TextColored(Col_Header, label);
+                ImGui.Spacing();
+                if (ImGui.BeginTable("##sp_" + key, 2, tblFlags))
                 {
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0); ImGui.Text(q);
-                    ImGui.TableSetColumnIndex(1); ImGui.Text(s);
-                    ImGui.TableSetColumnIndex(2); ImGui.Text(m);
-                    ImGui.TableSetColumnIndex(3); ImGui.Text(l);
+                    ImGui.TableSetupColumn("Gem",    ImGuiTableColumnFlags.WidthFixed,   200);
+                    ImGui.TableSetupColumn("Chance", ImGuiTableColumnFlags.WidthStretch);
+                    ImGui.TableHeadersRow();
+                    foreach (var d in spDrops)
+                    {
+                        if (d?.Code == null) continue;
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0); ImGui.Text(FormatGemCode(d.Code.Path));
+                        ImGui.TableSetColumnIndex(1); ImGui.Text(d.Chance != null ? $"{d.Chance.avg * 100:0}%" : "-");
+                    }
+                    ImGui.EndTable();
                 }
-                ImGui.EndTable();
+                ImGui.Spacing();
+                ImGui.Separator();
+                ImGui.Spacing();
             }
 
-            ImGui.Spacing();
-            ImGui.TextDisabled("Suevite (special): drops all diamond sizes regardless of quality - 50% / 30% / 20%.");
-            ImGui.Spacing();
-            ImGui.Separator();
-            ImGui.Spacing();
-
-            // ── Ore to gem map ──
-            ImGui.TextColored(Col_Header, "Ore to gem");
-            ImGui.Spacing();
-
-            if (ImGui.BeginTable("##oregemtbl", 2, tblFlags))
+            // ── Prospector-perk special entries ──
+            if (perkSpecial.Count > 0)
             {
-                ImGui.TableSetupColumn("Ore",  ImGuiTableColumnFlags.WidthFixed,   200);
-                ImGui.TableSetupColumn("Gem",  ImGuiTableColumnFlags.WidthStretch);
-                ImGui.TableHeadersRow();
+                ImGui.Spacing();
+                ImGui.TextColored(Col_Orange, "Prospector perk (Lapidary skill)");
+                ImGui.Separator();
+                ImGui.Spacing();
 
-                (string ore, string gem)[] map = {
-                    ("Hematite",      "Corundum"),
-                    ("Malachite",     "Malachite"),
-                    ("Bismuthinite",  "Lapis Lazuli"),
-                    ("Cassiterite",   "Olivine"),
-                    ("Sphalerite",    "Fluorite"),
-                    ("Native Silver", "Quartz"),
-                    ("Native Gold",   "Quartz"),
-                    ("Limonite",      "Uranium"),
-                    ("Ilmenite",      "Diamond / Emerald"),
-                    ("Native Copper", "Ruby"),
-                    ("Magnetite",     "Citrine"),
-                    ("Uranium",       "Uranium"),
-                    ("Galena",        "Amethyst"),
-                };
-                foreach (var (ore, gem) in map)
+                foreach (var (key, spDrops) in perkSpecial)
                 {
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0); ImGui.Text(ore);
-                    ImGui.TableSetColumnIndex(1); ImGui.TextColored(Col_Orange, gem);
+                    string label = key.Contains(':') ? key.Split(':')[1] : key;
+                    label = char.ToUpperInvariant(label[0]) + label.Substring(1).Replace('-', ' ');
+                    ImGui.TextColored(Col_Orange, label);
+                    ImGui.Spacing();
+                    if (ImGui.BeginTable("##perk_" + key, 2, tblFlags))
+                    {
+                        ImGui.TableSetupColumn("Gem",    ImGuiTableColumnFlags.WidthFixed,   200);
+                        ImGui.TableSetupColumn("Chance", ImGuiTableColumnFlags.WidthStretch);
+                        ImGui.TableHeadersRow();
+                        foreach (var d in spDrops)
+                        {
+                            if (d?.Code == null) continue;
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(0); ImGui.Text(FormatGemCode(d.Code.Path));
+                            ImGui.TableSetColumnIndex(1); ImGui.Text(d.Chance != null ? $"{d.Chance.avg * 100:0}%" : "-");
+                        }
+                        ImGui.EndTable();
+                    }
+                    ImGui.Spacing();
                 }
-                ImGui.EndTable();
+                ImGui.Separator();
+                ImGui.Spacing();
+            }
+
+            // ── Per-ore tables ──
+            foreach (var ore in byOre.Keys.OrderBy(o => o))
+            {
+                var qualMap = byOre[ore];
+                string oreLabel = _oreDisplayNames.TryGetValue(ore, out var dn) ? dn : ore;
+
+                // Collect unique gem types for this ore to build columns
+                var gemTypes = new List<string>();
+                foreach (var q in _qualityOrder)
+                {
+                    if (!qualMap.TryGetValue(q, out var qdrops)) continue;
+                    foreach (var d in qdrops)
+                    {
+                        if (d?.Code == null) continue;
+                        string gt = ExtractGemType(d.Code.Path);
+                        if (gt != null && !gemTypes.Contains(gt)) gemTypes.Add(gt);
+                    }
+                }
+                if (gemTypes.Count == 0) continue;
+
+                ImGui.TextColored(Col_Header, oreLabel);
+                ImGui.Spacing();
+
+                // Columns: Quality | for each gemType: Chipped | Flawed | Normal
+                int cols = 1 + gemTypes.Count * 3;
+                if (ImGui.BeginTable("##ore_" + ore, cols, tblFlags))
+                {
+                    ImGui.TableSetupColumn("Quality", ImGuiTableColumnFlags.WidthFixed, 90);
+                    foreach (var gt in gemTypes)
+                    {
+                        string gemLabel = _gemDisplayNames.TryGetValue(gt, out var gn) ? gn : gt;
+                        ImGui.TableSetupColumn(gemLabel + " (chipped)", ImGuiTableColumnFlags.WidthFixed,   100);
+                        ImGui.TableSetupColumn(gemLabel + " (flawed)",  ImGuiTableColumnFlags.WidthFixed,   100);
+                        ImGui.TableSetupColumn(gemLabel + " (normal)",  ImGuiTableColumnFlags.WidthStretch);
+                    }
+                    ImGui.TableHeadersRow();
+
+                    foreach (var quality in _qualityOrder)
+                    {
+                        if (!qualMap.ContainsKey(quality)) continue;
+                        var qdrops = qualMap[quality];
+
+                        // Index drops by gemtype+size for quick lookup
+                        var lookup = new Dictionary<string, float>();
+                        foreach (var d in qdrops)
+                        {
+                            if (d?.Code == null) continue;
+                            string gt   = ExtractGemType(d.Code.Path);
+                            string size = ExtractGemSize(d.Code.Path);
+                            if (gt != null && size != null)
+                                lookup[gt + ":" + size] = d.Chance?.avg ?? 0f;
+                        }
+
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+                        ImGui.Text(char.ToUpperInvariant(quality[0]) + quality.Substring(1));
+
+                        int col = 1;
+                        foreach (var gt in gemTypes)
+                        {
+                            string chipped = lookup.TryGetValue(gt + ":chipped", out float c) ? $"{c * 100:0}%" : "-";
+                            string flawed  = lookup.TryGetValue(gt + ":flawed",  out float f) ? $"{f * 100:0}%" : "-";
+                            string normal  = lookup.TryGetValue(gt + ":normal",  out float n) ? $"{n * 100:0}%" : "-";
+                            ImGui.TableSetColumnIndex(col++); ImGui.Text(chipped);
+                            ImGui.TableSetColumnIndex(col++); ImGui.Text(flawed);
+                            ImGui.TableSetColumnIndex(col++); ImGui.Text(normal);
+                        }
+                    }
+                    ImGui.EndTable();
+                }
+                ImGui.Spacing();
             }
 
             ImGui.EndChild();
+        }
+
+        private static string ExtractGemType(string codePath)
+        {
+            // "gem-rough-{size}-{gemtype}" or full "canjewelry:gem-rough-..."
+            var parts = codePath.Split('-');
+            return parts.Length >= 4 ? parts[parts.Length - 1] : null;
+        }
+
+        private static string ExtractGemSize(string codePath)
+        {
+            var parts = codePath.Split('-');
+            return parts.Length >= 4 ? parts[parts.Length - 2] : null;
+        }
+
+        private static string FormatGemCode(string codePath)
+        {
+            string gt   = ExtractGemType(codePath);
+            string size = ExtractGemSize(codePath);
+            if (gt == null || size == null) return codePath;
+            string gemLabel  = _gemDisplayNames.TryGetValue(gt, out var gn) ? gn : gt;
+            string sizeLabel = size == "normal" ? "Large" : size == "flawed" ? "Medium" : "Small";
+            return $"{gemLabel} ({sizeLabel})";
         }
 
         // ──────────────────────────── helpers ────────────────────────────

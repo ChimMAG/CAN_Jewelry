@@ -15,6 +15,8 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
+using Vintagestory.API.MathTools;
+using Vintagestory.API.Server;
 using Vintagestory.API.Util;
 using static canjewelry.src.Config;
 
@@ -30,7 +32,34 @@ namespace canjewelry.src.CB
         {
             base.OnBeforeRender(capi, itemstack, target, ref renderinfo);
         }
-        public static bool TryAddSocket(InventoryBase inventory, ItemSlot encrustable, ItemSlot socketSlot, int socketNumber)
+
+        // Inscriptions are user-supplied free text on jewelry. Allowed chars: letters (Latin /
+        // Cyrillic), digits, spaces, and a small set of punctuation. The filter is conservative
+        // to keep markup-injection out of tooltips; reject anything that doesn't survive it.
+        private static readonly System.Text.RegularExpressions.Regex InscriptionAllowed =
+            new(@"^[A-Za-z0-9А-Яа-яЁё \.\,\!\?\'\-]+$", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        public static string SanitizeInscription(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return null;
+            string trimmed = input.Trim();
+            if (trimmed.Length == 0 || trimmed.Length > CANJWConstants.INSCRIPTION_MAX_LEN) return null;
+            if (!InscriptionAllowed.IsMatch(trimmed)) return null;
+            return trimmed;
+        }
+
+        public override void GetHeldItemInfo(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+        {
+            base.GetHeldItemInfo(inSlot, dsc, world, withDebugInfo);
+            string inscription = inSlot.Itemstack?.Attributes?.GetString(CANJWConstants.INSCRIPTION);
+            if (!string.IsNullOrEmpty(inscription))
+            {
+                dsc.AppendLine();
+                dsc.Append('"').Append(inscription).Append('"');
+                dsc.AppendLine();
+            }
+        }
+        public static bool TryAddSocket(InventoryBase inventory, ItemSlot encrustable, ItemSlot socketSlot, int socketNumber, IPlayer player = null)
         {
             inventory.TakeLocked = true;
             // ItemStack encrustable = encrustableSlot.Itemstack;
@@ -103,6 +132,11 @@ namespace canjewelry.src.CB
                         encrustable.MarkDirty();
                         tree["slot" + socketNumber] = socketSlotTree;
                         inventory.TakeLocked = false;
+                        // Xp = 0 here — companion mods own the XP economy and read their own
+                        // config-driven reward in OnXpAwarded. Action string is the contract.
+                        canjewelry.Instance?.FireXp(new src.integration.CANXpEvent {
+                            Player = player, Action = "addSocket", Xp = 0f
+                        });
                         return true;
                     }
                 }
@@ -153,13 +187,16 @@ namespace canjewelry.src.CB
                     encrustable.Itemstack.Attributes[CANJWConstants.ITEM_ENCRUSTED_STRING] = socketEncrusted;
                     encrustable.MarkDirty();
                     inventory.TakeLocked = false;
+                    canjewelry.Instance?.FireXp(new src.integration.CANXpEvent {
+                        Player = player, Action = "addSocket", Xp = 2f
+                    });
                     return true;
                 }
             }
             inventory.TakeLocked = false;
             return false;
         }
-        public static bool TryToEncrustGemsIntoSockets(InventoryBase inventory, ItemSlot encrustable, ItemSlot gem_slot, int socket_number)
+        public static bool TryToEncrustGemsIntoSockets(InventoryBase inventory, ItemSlot encrustable, ItemSlot gem_slot, int socket_number, IPlayer player = null)
         {
             inventory.TakeLocked = true;
             if (encrustable.Itemstack != null && encrustable.Itemstack.Attributes.HasAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING))
@@ -274,6 +311,28 @@ namespace canjewelry.src.CB
 
 
                         }
+                        // Integration hook — companion mods can scale individual buff values
+                        // (e.g. Lapidary "Steady Hand" perk → +X% to main stats).
+                        if (canjewelry.Instance != null)
+                        {
+                            int socketTier = treeSocket.GetInt(CANJWConstants.ADDED_SOCKET_TYPE);
+                            for (int bi = 0; bi < newBuffValues.Length && bi < newBuffNames.Length; bi++)
+                            {
+                                var ev = new src.integration.EncrustEvent
+                                {
+                                    Player      = player,
+                                    Jewelry     = encrustable.Itemstack,
+                                    Gem         = gem_slot.Itemstack,
+                                    SocketTier  = socketTier,
+                                    SocketIndex = socket_number,
+                                    BuffName    = newBuffNames[bi],
+                                    Value       = newBuffValues[bi]
+                                };
+                                canjewelry.Instance.FireEncrust(ev);
+                                newBuffValues[bi] = ev.Value;
+                            }
+                        }
+
                         if (!treeSocket.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_NAMES))
                         {
                             treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(newBuffNames);
@@ -288,8 +347,12 @@ namespace canjewelry.src.CB
                     treeSocket.SetInt(CANJWConstants.GEM_BUFF_TYPE, (int)EnumGemBuffType.STATS_BUFF);
                     treeSocket.SetInt("size", gem_slot.Itemstack.Collectible.Attributes["canGemType"].AsInt());
                     treeSocket.SetString("gemtype", gem_slot.Itemstack.Collectible.Code.Path.Split('-').Last());
-                                      
+
                     treeSocket.SetString(CANJWConstants.CUTTING_TYPE, cutGemTree.GetString(CANJWConstants.CUTTING_TYPE, CANJWConstants.CUTTING_ROUND));
+
+                    // Persist wasExtracted across the encrust→extract cycle so anti-farming
+                    // survives a round-trip; otherwise every other extract would earn XP.
+                    treeSocket.SetBool("wasExtracted", gem_slot.Itemstack.Attributes.GetBool("wasExtracted", false));
 
                     if (encrustable.Itemstack.Item is CANItemSimpleNecklace || encrustable.Itemstack.Item is CANItemHorusEye)
                     {
@@ -299,10 +362,19 @@ namespace canjewelry.src.CB
                     {
                         encrustable.Itemstack.Attributes.SetString("gem_" + (socket_number + 1), gem_slot.Itemstack.Collectible.Code.Path.Split('-').Last());
                     }
+                    // Anti-farming gate (spec §6): re-encrusting a previously-extracted gem
+                    // grants no XP. Flag travels with the gem ItemStack via wasExtracted.
+                    bool freshGem = !gem_slot.Itemstack.Attributes.GetBool("wasExtracted", false);
                     gem_slot.TakeOut(1);
                     gem_slot.MarkDirty();
                     encrustable.MarkDirty();
                     inventory.TakeLocked = false;
+                    if (freshGem)
+                    {
+                        canjewelry.Instance?.FireXp(new src.integration.CANXpEvent {
+                            Player = player, Action = "encrust", Xp = 0f
+                        });
+                    }
                     return true;
                 }
 
@@ -310,6 +382,240 @@ namespace canjewelry.src.CB
             inventory.TakeLocked = false;
             return false;
         }
+        // Pulls a gem out of socket {socket_number}. Default outcome is GemOutcome.Destroyed
+        // / JewelryOutcome.Intact — companion mods mutate the event to save or downgrade.
+        // Surviving gem is handed to gemOutSlot if empty, otherwise player inv, otherwise
+        // dropped at their feet. wasExtracted=true is set on the surviving gem stack so
+        // re-encrusting it earns no XP (anti-farming).
+        public static bool TryExtractGem(InventoryBase inventory, ItemSlot encrustable, ItemSlot gemOutSlot, int socket_number, IPlayer player = null)
+        {
+            inventory.TakeLocked = true;
+            try
+            {
+                if (encrustable.Itemstack == null || !encrustable.Itemstack.Attributes.HasAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING))
+                    return false;
+
+                ITreeAttribute tree = encrustable.Itemstack.Attributes.GetTreeAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING);
+                ITreeAttribute treeSocket = tree.GetTreeAttribute("slot" + socket_number);
+                if (treeSocket == null) return false;
+
+                string gemType = treeSocket.GetString(CANJWConstants.GEM_TYPE_IN_SOCKET, "");
+                if (string.IsNullOrEmpty(gemType)) return false;
+
+                int sizeInt = treeSocket.GetInt(CANJWConstants.ENCRUSTED_GEM_SIZE);
+                string sizeStr = sizeInt == 3 ? "exquisite" : sizeInt == 2 ? "flawless" : "normal";
+                string cuttingType = treeSocket.GetString(CANJWConstants.CUTTING_TYPE, CANJWConstants.CUTTING_ROUND);
+                int socketTier = treeSocket.GetInt(CANJWConstants.ADDED_SOCKET_TYPE);
+                string[] buffNames = (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute)?.value;
+                float[] buffValues = (treeSocket[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute)?.value;
+
+                IWorldAccessor world = inventory?.Api?.World ?? player?.Entity?.World;
+                if (world == null) return false;
+
+                Item gemItem = world.GetItem(new AssetLocation("canjewelry:gem-cut-" + sizeStr + "-" + gemType));
+                if (gemItem == null) return false;
+
+                ItemStack gemStack = new ItemStack(gemItem);
+                ITreeAttribute cutGemTree = new TreeAttribute();
+                cutGemTree.SetString(CANJWConstants.CUTTING_TYPE, cuttingType);
+                if (buffNames != null && buffValues != null)
+                {
+                    cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute((string[])buffNames.Clone());
+                    cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute((float[])buffValues.Clone());
+                }
+                cutGemTree.SetBool(CANJWConstants.GEM_FULL_PROCESSED, true);
+                gemStack.Attributes[CANJWConstants.CUT_GEM_TREE] = cutGemTree;
+
+                // The taint travels through the encrust→extract cycle so a single extract
+                // doesn't unlock a fresh XP roll on what was already a recycled gem.
+                bool alreadyTainted = treeSocket.GetBool("wasExtracted", false);
+                if (alreadyTainted) gemStack.Attributes.SetBool("wasExtracted", true);
+
+                var ev = new src.integration.ExtractEvent
+                {
+                    Player = player,
+                    Jewelry = encrustable.Itemstack,
+                    Gem = gemStack.Clone(),
+                    SocketTier = socketTier,
+                    ExtractionChance = canjewelry.config.gemExtractionReturnChance,
+                    JewelryBreakChance = canjewelry.config.jewelryBreakOnExtractionChance,
+                    SocketIndex = socket_number,
+                    BuffName = (buffNames != null && buffNames.Length > 0) ? buffNames[0] : null,
+                };
+                canjewelry.Instance?.FireExtract(ev);
+
+                // Built-in jewelry break roll: if no companion changed the outcome, apply config chance.
+                if (ev.JewelryOutcome == src.integration.JewelryOutcome.Intact
+                    && ev.JewelryBreakChance > 0f
+                    && world.Rand.NextDouble() < ev.JewelryBreakChance)
+                {
+                    ev.JewelryOutcome = src.integration.JewelryOutcome.Destroyed;
+                }
+
+                // Reverse candurability buff effect on the jewelry (mirrors the encrust math).
+                if (buffNames != null && buffValues != null)
+                {
+                    int currentDurability = encrustable.Itemstack.Attributes.GetInt("durability", 0);
+                    for (int i = 0; i < buffNames.Length; i++)
+                    {
+                        if (buffNames[i] != "candurability") continue;
+                        float buffVal = buffValues[i];
+                        float treeBuff = tree.TryGetFloat(CANJWConstants.CANDURABILITY_STRING).GetValueOrDefault();
+                        if (currentDurability > 0)
+                        {
+                            currentDurability = (int)((float)currentDurability / (1f + buffVal));
+                            if (currentDurability < 1) currentDurability = 1;
+                            encrustable.Itemstack.Attributes.SetInt("durability", currentDurability);
+                        }
+                        treeBuff -= buffVal;
+                        if (treeBuff == 0f) tree.RemoveAttribute(CANJWConstants.CANDURABILITY_STRING);
+                        else tree.SetFloat(CANJWConstants.CANDURABILITY_STRING, treeBuff);
+                    }
+                }
+
+                // Wipe gem-related socket attrs but keep the socket itself (ADDED_SOCKET_TYPE).
+                treeSocket.RemoveAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_NAMES);
+                treeSocket.RemoveAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_VALUES);
+                treeSocket.RemoveAttribute(CANJWConstants.GEM_BUFF_TYPE);
+                treeSocket.RemoveAttribute(CANJWConstants.ENCRUSTED_GEM_SIZE);
+                treeSocket.RemoveAttribute(CANJWConstants.CUTTING_TYPE);
+                treeSocket.SetString(CANJWConstants.GEM_TYPE_IN_SOCKET, "");
+
+                if (encrustable.Itemstack.Item is CANItemSimpleNecklace || encrustable.Itemstack.Item is CANItemHorusEye)
+                {
+                    encrustable.Itemstack.Attributes.RemoveAttribute("gem");
+                }
+                else if (encrustable.Itemstack.Item is CANItemTiara)
+                {
+                    encrustable.Itemstack.Attributes.RemoveAttribute("gem_" + (socket_number + 1));
+                }
+
+                // Resolve jewelry fate. Damage exhausting durability promotes Damaged→Destroyed
+                // — consistent with vanilla item death.
+                if (ev.JewelryOutcome == src.integration.JewelryOutcome.Damaged && ev.JewelryDamageAmount > 0)
+                {
+                    int maxDur = encrustable.Itemstack.Collectible.GetMaxDurability(encrustable.Itemstack);
+                    int curDur = encrustable.Itemstack.Attributes.GetInt("durability", maxDur);
+                    curDur -= ev.JewelryDamageAmount;
+                    if (curDur > 0) encrustable.Itemstack.Attributes.SetInt("durability", curDur);
+                    else ev.JewelryOutcome = src.integration.JewelryOutcome.Destroyed;
+                }
+                if (ev.JewelryOutcome == src.integration.JewelryOutcome.Destroyed)
+                {
+                    encrustable.Itemstack = null;
+                    (player as IServerPlayer)?.SendMessage(0, Lang.Get("canjewelry:extract-jewelry-destroyed"), EnumChatType.Notification);
+                }
+                encrustable.MarkDirty();
+
+                // Roll against final ExtractionChance (companion mod may have raised it via skill).
+                if (ev.GemOutcome == src.integration.GemOutcome.Returned
+                    && world.Rand.NextDouble() >= ev.ExtractionChance)
+                {
+                    ev.GemOutcome = src.integration.GemOutcome.Destroyed;
+                }
+
+                // DowngradeChance fallback: if the gem would be lost, give a chance to recover
+                // a smaller version instead (set by companion mods, e.g. DelicateTouch perk).
+                if (ev.GemOutcome == src.integration.GemOutcome.Destroyed
+                    && ev.DowngradeChance > 0f
+                    && world.Rand.NextDouble() < ev.DowngradeChance)
+                {
+                    ev.GemOutcome = src.integration.GemOutcome.ReturnedDowngraded;
+                }
+
+                if (ev.GemOutcome == src.integration.GemOutcome.Destroyed)
+                    (player as IServerPlayer)?.SendMessage(0, Lang.Get("canjewelry:extract-gem-destroyed"), EnumChatType.Notification);
+                else if (ev.GemOutcome == src.integration.GemOutcome.ReturnedDowngraded)
+                    (player as IServerPlayer)?.SendMessage(0, Lang.Get("canjewelry:extract-gem-downgraded"), EnumChatType.Notification);
+
+                // Resolve gem fate. ReturnedDowngraded swaps in a smaller cut variant; if the
+                // gem is already the smallest size, fall back to a full Returned (graceful).
+                // outGem is ev.Gem (not gemStack) so companion mods can modify the returned item.
+                if (ev.GemOutcome != src.integration.GemOutcome.Destroyed)
+                {
+                    ItemStack outGem = ev.Gem;
+                    if (ev.GemOutcome == src.integration.GemOutcome.ReturnedDowngraded)
+                    {
+                        outGem = TryDowngradeCutGem(world, gemStack, sizeInt, gemType, cutGemTree) ?? ev.Gem;
+                    }
+                    outGem.Attributes.SetBool("wasExtracted", true);
+                    if (gemOutSlot != null && gemOutSlot.Empty)
+                    {
+                        gemOutSlot.Itemstack = outGem;
+                        gemOutSlot.MarkDirty();
+                    }
+                    else if (player != null && player.InventoryManager.TryGiveItemstack(outGem, true))
+                    {
+                        // accepted into inventory
+                    }
+                    else
+                    {
+                        Vec3d pos = player?.Entity?.Pos.XYZ ?? new Vec3d();
+                        world.SpawnItemEntity(outGem, pos);
+                    }
+                }
+                return true;
+            }
+            finally
+            {
+                inventory.TakeLocked = false;
+            }
+        }
+
+        // Builds a smaller-cut-size variant of the given gem. Buff values are RE-ROLLED at the
+        // smaller tier from BuffAttributesDict (same buff names + same cut style, fresh values),
+        // and GEM_FULL_PROCESSED is cleared so the player can grind it again from scratch.
+        // Returns null if already the smallest size or if the smaller item code can't be resolved.
+        private static ItemStack TryDowngradeCutGem(IWorldAccessor world, ItemStack source, int currentSizeInt, string gemType, ITreeAttribute cutGemTree)
+        {
+            (string smallerSizeStr, int smallerTier) = currentSizeInt switch
+            {
+                3 => ("flawless", 2),
+                2 => ("normal",   1),
+                _ => (null,       0),
+            };
+            if (smallerSizeStr == null) return null;
+
+            Item smallerItem = world.GetItem(new AssetLocation("canjewelry:gem-cut-" + smallerSizeStr + "-" + gemType));
+            if (smallerItem == null) return null;
+
+            string cuttingType = cutGemTree.GetString(CANJWConstants.CUTTING_TYPE, CANJWConstants.CUTTING_ROUND);
+            ITreeAttribute newTree = new TreeAttribute();
+            newTree.SetString(CANJWConstants.CUTTING_TYPE, cuttingType);
+
+            string[] originalNames = (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] as StringArrayAttribute)?.value;
+            float[]  originalValues = (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute)?.value;
+
+            if (originalNames != null && originalValues != null && originalNames.Length > 0
+                && canjewelry.config.BuffAttributesDict.TryGetValue(originalNames[0], out var mainAttrs)
+                && canjewelry.config.CuttingAttributesDict.TryGetValue(cuttingType, out var cutAttrs))
+            {
+                float newMain = (float)Math.Round(mainAttrs.GetRandomMainValue(smallerTier), 3) * cutAttrs.GrindingBuffIncreaseMultipliers[0];
+                if (originalNames.Length >= 2)
+                {
+                    float newSecondary = (float)Math.Round(mainAttrs.GetRandomSecondaryValue(smallerTier), 3) / 100f;
+                    newTree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(new[] { originalNames[0], originalNames[1] });
+                    newTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(new[] { newMain, newSecondary });
+                }
+                else
+                {
+                    newTree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(new[] { originalNames[0] });
+                    newTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(new[] { newMain });
+                }
+            }
+            else if (originalNames != null && originalValues != null)
+            {
+                // Fallback when buff config is missing — preserve the original values rather than
+                // produce a buff-less gem. Won't normally trigger; sanity net.
+                newTree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute((string[])originalNames.Clone());
+                newTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute((float[])originalValues.Clone());
+            }
+
+            ItemStack smaller = new ItemStack(smallerItem);
+            smaller.Attributes[CANJWConstants.CUT_GEM_TREE] = newTree;
+            return smaller;
+        }
+
         public static bool canItemContainThisGem(string gemType, ItemStack targetItemStack)
         {
             if (canjewelry.config.buffNameToPossibleItem.TryGetValue(gemType, out var hashSetClasses))
@@ -330,7 +636,11 @@ namespace canjewelry.src.CB
             {
                 if (itemstack.ItemAttributes != null && itemstack.ItemAttributes.KeyExists(CANJWConstants.CAN_CUSTOM_VARIANTS))
                 {
-                    string searchedValue = itemstack.Attributes.GetString(itemstack.ItemAttributes[CANJWConstants.CAN_CUSTOM_VARIANTS_COMPARE_KEY].AsString(), null);
+                    string compareKey = itemstack.ItemAttributes.KeyExists(CANJWConstants.CAN_CUSTOM_VARIANTS_COMPARE_KEY)
+                        ? itemstack.ItemAttributes[CANJWConstants.CAN_CUSTOM_VARIANTS_COMPARE_KEY].AsString()
+                        : null;
+                    if (compareKey == null) return -1;
+                    string searchedValue = itemstack.Attributes.GetString(compareKey, null);
                     if (searchedValue != null)
                     {
                         var f = itemstack.ItemAttributes[CANJWConstants.CAN_CUSTOM_VARIANTS];
@@ -357,7 +667,11 @@ namespace canjewelry.src.CB
             {
                 if (itemstack.ItemAttributes != null && itemstack.ItemAttributes.KeyExists(CANJWConstants.CAN_CUSTOM_VARIANTS))
                 {
-                    string searchedValue = itemstack.Attributes.GetString(itemstack.ItemAttributes[CANJWConstants.CAN_CUSTOM_VARIANTS_COMPARE_KEY].AsString(), null);
+                    string compareKey = itemstack.ItemAttributes.KeyExists(CANJWConstants.CAN_CUSTOM_VARIANTS_COMPARE_KEY)
+                        ? itemstack.ItemAttributes[CANJWConstants.CAN_CUSTOM_VARIANTS_COMPARE_KEY].AsString()
+                        : null;
+                    if (compareKey == null) return new int[0];
+                    string searchedValue = itemstack.Attributes.GetString(compareKey, null);
                     if (searchedValue != null)
                     {
                         var f = itemstack.ItemAttributes[CANJWConstants.CAN_CUSTOM_VARIANTS];
@@ -453,6 +767,73 @@ namespace canjewelry.src.CB
                 outstack.Attributes.RemoveAttribute(CANJWConstants.CUTTING_TYPE);
             }
         }
+        // Companion-mod hook fired right after a gem-cutting work item completes.
+        // ConsumeRough=false on the event means the subscriber wants to refund a
+        // rough gem to the player; the rough has already been spent at TryPut time,
+        // so we hand a fresh stack of the same rough variant back here.
+        // XP is intentionally not fired from here — companions own their own XP economy.
+        public static void FireCutCompletionEvents(IPlayer byPlayer, ItemStack workItemStack, ItemStack outstack)
+        {
+            if (canjewelry.Instance == null || byPlayer == null || workItemStack == null) return;
+
+            string cuttingType = outstack?.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE)?.GetString(CANJWConstants.CUTTING_TYPE);
+            string gemSize = workItemStack.Attributes.GetString(CANJWConstants.ENCRUSTED_GEM_SIZE);
+            ItemStack roughGem = workItemStack.Collectible.GetBehavior<CANGemCuttableCB>()?.GetBaseMaterial(workItemStack);
+
+            var ev = new src.integration.CutEvent
+            {
+                Player = byPlayer,
+                RoughGem = roughGem,
+                CuttingType = cuttingType,
+                GemSize = gemSize,
+                ConsumeRough = true,
+            };
+            canjewelry.Instance.FireCut(ev);
+
+            if (!ev.ConsumeRough && roughGem != null)
+            {
+                ItemStack refund = roughGem.Clone();
+                if (!byPlayer.InventoryManager.TryGiveItemstack(refund))
+                {
+                    byPlayer.Entity.World.SpawnItemEntity(refund, byPlayer.Entity.Pos.XYZ);
+                }
+            }
+        }
+
+        // Companion-mod hook fired when a grinding stage begins — at first interaction with a
+        // freshly cut gem (stage=1) and at each subsequent stage transition. Subscribers shorten
+        // the grind by reducing Counter; core uses the post-fire value (floored at 1).
+        public static int FireGrindStageStartEvent(IPlayer player, ItemStack gem, int stage, int defaultCounter)
+        {
+            if (canjewelry.Instance == null || player == null) return defaultCounter;
+            var ev = new src.integration.GrindStageStartEvent
+            {
+                Player = player,
+                Gem = gem,
+                Stage = stage,
+                Counter = defaultCounter,
+            };
+            canjewelry.Instance.FireGrindStageStart(ev);
+            return Math.Max(1, ev.Counter);
+        }
+
+        // Companion-mod hook fired on each completed grind stage. Returns the
+        // (possibly mutated) multiplier subscribers want layered on top of the
+        // base grinding bonus. Returns 1f if there's no subscriber.
+        public static float FireGrindStepEvent(IPlayer player, ItemStack gem, int stage)
+        {
+            if (canjewelry.Instance == null || player == null) return 1f;
+            var ev = new src.integration.GrindEvent
+            {
+                Player = player,
+                Gem = gem,
+                Stage = stage,
+                Multiplier = 1f,
+            };
+            canjewelry.Instance.FireGrind(ev);
+            return ev.Multiplier;
+        }
+
         public static void ReduceBuffValueBecauseOfMistakes(ItemStack itemStack, float mult)
         {
             if (itemStack.Attributes.HasAttribute("cutgemtree"))
