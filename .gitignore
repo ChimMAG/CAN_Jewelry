@@ -364,3 +364,5 @@ FodyWeavers.xsd
 
 # Local docs / drafts (wiki/moddb pages, notes, etc.)
 *.md
+/canjewelry/canjewelry/.claude/settings.local.json
+/canjewelry/modpage.html
