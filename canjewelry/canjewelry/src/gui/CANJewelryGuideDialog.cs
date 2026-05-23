@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using ImGuiNET;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 using Vintagestory.GameContent;
 using VSImGui.API;
 
@@ -102,29 +103,53 @@ namespace canjewelry.src.gui
             if (_jewelryLoaded) return;
             _jewelryLoaded = true;
 
-            _simpleRows.Add(new("canring",            "Ring",             1, new[] { 1 }));
-            _simpleRows.Add(new("canarmband",         "Armband",          1, new[] { 2 }));
-            _simpleRows.Add(new("cancoronet",         "Coronet",          1, new[] { 3 }));
-            _simpleRows.Add(new("cannadiyannecklace", "Nadiyan Necklace", 1, new[] { 1 }));
-            _simpleRows.Add(new("canearrings",        "Earrings",         2, new[] { 1, 1 }));
-            _simpleRows.Add(new("cantiara",           "Tiara",            3, new[] { 2, 2, 3 }));
-            _simpleRows.Add(new("cansimplenecklace",  "Simple Necklace",  1, new[] { 2 }));
-            _simpleRows.Add(new("canmonocle",         "Monocle",          1, new[] { 1 }));
-            _simpleRows.Add(new("canglasses",         "Glasses",          2, new[] { 1, 1 }));
-            _simpleRows.Add(new("cannosering",        "Nose Ring",        1, new[] { 1 }));
-            _simpleRows.Add(new("canhoruseye",        "Horus Eye",        1, new[] { 2 }));
-            _simpleRows.Add(new("canrottenkingmask",  "Rotten King Mask", 3, new[] { 3, 3, 3 }));
-
             var cfg = canjewelry.config;
+            var cvstKeys = new HashSet<string>();
             if (cfg != null)
             {
                 foreach (var cvst in cfg.custom_variants_sockets_tiers)
                 {
-                    string key = ItemCodeToKey(cvst.ItemCode);
-                    if (_cvstRows.Exists(r => r.Key == key)) continue;
-                    _cvstRows.Add((key, FormatCode(cvst.ItemCode), cvst));
+                    string k = ItemCodeToKey(cvst.ItemCode);
+                    if (!_cvstRows.Exists(r => r.Key == k))
+                        _cvstRows.Add((k, PrettyItemLabel(cvst.ItemCode), cvst));
+                    cvstKeys.Add(k);
                 }
             }
+
+            var seen = new HashSet<string>();
+            foreach (Item item in _capi.World.Items)
+            {
+                if (item?.Code == null || item.Code.Domain != "canjewelry") continue;
+                if (item.Attributes == null) continue;
+
+                int sockets = item.Attributes[CANJWConstants.SOCKETS_NUMBER_STRING].AsInt(0);
+                if (sockets <= 0) continue;
+
+                string key = item.Code.FirstCodePart();
+                if (cvstKeys.Contains(key)) continue;
+                if (!seen.Add(key)) continue;
+
+                int[] tiers = item.Attributes[CANJWConstants.SOCKETS_TIERS_STRING].AsArray<int>(null);
+                if (tiers == null || tiers.Length == 0)
+                {
+                    tiers = new int[sockets];
+                    for (int i = 0; i < sockets; i++) tiers[i] = 1;
+                }
+
+                _simpleRows.Add(new JewelryRow(key, PrettyItemLabel(item.Code.ToString()), sockets, tiers));
+            }
+
+            _simpleRows.Sort((a, b) =>
+            {
+                int c = a.SocketCount.CompareTo(b.SocketCount);
+                return c != 0 ? c : string.Compare(a.Label, b.Label, StringComparison.OrdinalIgnoreCase);
+            });
+        }
+
+        private static string PrettyKey(string key)
+        {
+            string s = key.StartsWith("can") ? key[3..] : key;
+            return Capitalize(s);
         }
 
 private void EnsureGemsLoaded()

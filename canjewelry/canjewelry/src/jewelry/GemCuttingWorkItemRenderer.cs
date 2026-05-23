@@ -124,7 +124,7 @@ namespace canjewelry.src.jewelry
                     render.LineWidth = 1.6f;
                 }
 
-                render.GLDepthMask(on: false);
+                render.GLDepthMask(on: true);
             }
         }
 
