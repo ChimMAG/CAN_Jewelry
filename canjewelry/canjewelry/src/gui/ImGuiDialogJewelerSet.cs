@@ -33,6 +33,9 @@ namespace canjewelry.src.gui
         // needs cutting type for naming — buffs are irrelevant to the name/icon.
         private readonly Dictionary<string, ItemStack> _gemDisplayCache = new();
 
+        private int _pendingExtractSlot = -1;
+        private bool _openExtractPopup;
+
         public bool IsOpen => Opened;
 
         // ── theme (matches CANJewelryGuideDialog) ────────────────────────────────
@@ -175,6 +178,7 @@ namespace canjewelry.src.gui
             }
 
             DrawContent();
+            DrawExtractConfirmPopup();
 
             ImGui.End();
             ImGui.PopStyleVar(2);
@@ -581,13 +585,16 @@ namespace canjewelry.src.gui
                     float extractW = ImGui.CalcTextSize(extractLabel).X + padding;
                     PushButton(BtnExtract, BtnExtractHv);
                     if (ImGui.Button($"{extractLabel}##gem-ex{i}", new Vector2(extractW, 0)))
-                        SendExtract(i, 1 + i);
+                    {
+                        _pendingExtractSlot = i;
+                        _openExtractPopup = true;
+                    }
                     PopButton();
                     if (ImGui.IsItemHovered())
                     {
                         int gemPct   = (int)(canjewelry.config.gemExtractionReturnChance * 100f);
                         int breakPct = (int)(canjewelry.config.jewelryBreakOnExtractionChance * 100f);
-                        ImGui.SetTooltip($"{gemPct}%% chance to recover gem\n{breakPct}%% chance to break item");
+                        ImGui.SetTooltip(Lang.Get("canjewelry:jewelerset-extract-tooltip", gemPct, breakPct));
                     }
                 }
             }
@@ -648,12 +655,16 @@ namespace canjewelry.src.gui
                     ImGui.SameLine(0, 4);
                     PushButton(BtnExtract, BtnExtractHv);
                     if (ImGui.Button($"^##gem-ex{i}", new Vector2(sz * 0.5f - 2, 22)))
-                        SendExtract(i, 1 + i);
+                    {
+                        _pendingExtractSlot = i;
+                        _openExtractPopup = true;
+                    }
                     PopButton();
                     if (ImGui.IsItemHovered())
                     {
-                        int pct = (int)(canjewelry.config.gemExtractionReturnChance * 100f);
-                        ImGui.SetTooltip($"{Lang.Get("canjewelry:jewelerset-extract")} ({pct}%% chance to recover)");
+                        int gemPct   = (int)(canjewelry.config.gemExtractionReturnChance * 100f);
+                        int breakPct = (int)(canjewelry.config.jewelryBreakOnExtractionChance * 100f);
+                        ImGui.SetTooltip(Lang.Get("canjewelry:jewelerset-extract-tooltip", gemPct, breakPct));
                     }
                 }
             }
@@ -843,6 +854,63 @@ namespace canjewelry.src.gui
                 tree.ToBytes(bw);
             }
             _capi.Network.SendBlockEntityPacket(_pos, 1005, ms.ToArray());
+        }
+
+        private void DrawExtractConfirmPopup()
+        {
+            string popupLabel = Lang.Get("canjewelry:jewelerset-extract-confirm-title") + "##extract-confirm";
+
+            if (_openExtractPopup)
+            {
+                ImGui.OpenPopup(popupLabel);
+                _openExtractPopup = false;
+            }
+
+            var io = ImGui.GetIO();
+            ImGui.SetNextWindowSize(new Vector2(440, 0), ImGuiCond.Always);
+            ImGui.SetNextWindowPos(io.DisplaySize * 0.5f, ImGuiCond.Always, new Vector2(0.5f, 0.5f));
+
+            bool show = true;
+            if (!ImGui.BeginPopupModal(popupLabel, ref show, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove))
+            {
+                if (!show) _pendingExtractSlot = -1;
+                return;
+            }
+
+            if (!show || _pendingExtractSlot < 0)
+            {
+                _pendingExtractSlot = -1;
+                ImGui.CloseCurrentPopup();
+                ImGui.EndPopup();
+                return;
+            }
+
+            int gemPct   = (int)(canjewelry.config.gemExtractionReturnChance * 100f);
+            int breakPct = (int)(canjewelry.config.jewelryBreakOnExtractionChance * 100f);
+            string name  = _inv[0].Itemstack?.GetName() ?? "";
+
+            ImGui.TextWrapped(Lang.Get("canjewelry:jewelerset-extract-confirm-body", name, gemPct, breakPct));
+            ImGui.Spacing();
+            ImGui.Separator();
+            ImGui.Spacing();
+
+            PushButton(BtnExtract, BtnExtractHv);
+            if (ImGui.Button(Lang.Get("canjewelry:jewelerset-extract-confirm-yes") + "##ex-yes"))
+            {
+                int slot = _pendingExtractSlot;
+                _pendingExtractSlot = -1;
+                ImGui.CloseCurrentPopup();
+                SendExtract(slot, 1 + slot);
+            }
+            PopButton();
+            ImGui.SameLine();
+            if (ImGui.Button(Lang.Get("canjewelry:jewelerset-extract-confirm-no") + "##ex-no"))
+            {
+                _pendingExtractSlot = -1;
+                ImGui.CloseCurrentPopup();
+            }
+
+            ImGui.EndPopup();
         }
 
         private void SendExtract(int socketSlot, int invSlot)
