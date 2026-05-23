@@ -96,12 +96,6 @@ namespace canjewelry.src.items
             return this.Code.ToShortString() + "-" + loop + "-" + socket + "-" + gem;
         }
 
-        public override string GetHeldItemName(ItemStack itemStack)
-        {
-            string variant = itemStack.Attributes.GetString("loop", null);
-            return Lang.Get("game:material-" + variant) + Lang.Get("canjewelry:item-simple-necklace");
-        }
-
         public override void GetHeldItemInfo(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
         {
             base.GetHeldItemInfo(inSlot, dsc, world, withDebugInfo);

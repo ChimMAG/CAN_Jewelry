@@ -46,9 +46,5 @@ namespace canjewelry.src.items
             return this.Code.ToShortString() + "-" + loop;
         }
 
-        public override string GetHeldItemName(ItemStack itemStack)
-        {
-            return Lang.Get("game:material-" + itemStack.Attributes.GetString("loop", "steel")) + Lang.Get("canjewelry:item-armband");
-        }
     }
 }

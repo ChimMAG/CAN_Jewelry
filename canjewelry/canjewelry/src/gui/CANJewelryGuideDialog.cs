@@ -59,6 +59,8 @@ namespace canjewelry.src.gui
             EnsureGpuReady();
             _grid.SetInventory(_inv);
             EnsureJewelryRowsLoaded();   // metadata only, no slot writes
+            EnsureTierMetalsLoaded();
+            EnsureTierSizesLoaded();
             EnsureGemsLoaded();          // gems still go into slots so the Gems tab can show icons
             _panCacheSource = null;      // force panning tab to rebuild so injected drops are visible
             return true;
@@ -152,6 +154,87 @@ namespace canjewelry.src.gui
             return Capitalize(s);
         }
 
+        private readonly Dictionary<int, string> _tierMetals = new();
+        private readonly Dictionary<int, string> _tierSizes = new();
+
+        private void EnsureTierMetalsLoaded()
+        {
+            if (_tierMetals.Count > 0) return;
+            var lv = canjewelry.config?.LevelOfSocketByType;
+            if (lv == null) return;
+            var byTier = new Dictionary<int, List<string>>();
+            foreach (var kv in lv)
+            {
+                int dash = kv.Key.LastIndexOf('-');
+                string m = dash >= 0 ? kv.Key[(dash + 1)..] : kv.Key;
+                if (!byTier.TryGetValue(kv.Value, out var list))
+                    byTier[kv.Value] = list = new List<string>();
+                list.Add(Lang.Get("game:material-" + m).Trim());
+            }
+            foreach (var kv in byTier)
+                _tierMetals[kv.Key] = string.Join(" / ", kv.Value);
+        }
+
+        private void EnsureTierSizesLoaded()
+        {
+            if (_tierSizes.Count > 0) return;
+            var roughs = _capi.World.SearchItems(new AssetLocation("canjewelry:gem-rough-*"));
+            foreach (var item in roughs)
+            {
+                if (item?.Attributes == null) continue;
+                int tier = item.Attributes["canGemType"].AsInt(0);
+                if (tier <= 0 || _tierSizes.ContainsKey(tier)) continue;
+                string quality = item.Variant?["quality"];
+                if (quality == null) continue;
+                string lk = "canjewelry:gemsize-" + quality;
+                string label = Lang.Get(lk);
+                _tierSizes[tier] = label == lk ? Capitalize(quality) : label;
+            }
+        }
+
+        private string FormatTierMetals(int tier) =>
+            _tierMetals.TryGetValue(tier, out var s) ? s : "?";
+
+        private string FormatTierSize(int tier) =>
+            _tierSizes.TryGetValue(tier, out var s) ? s : "?";
+
+        private static string G(string key) => Lang.Get("canjewelry:guide-" + key);
+
+        private static string GemName(string gemType)
+        {
+            string lk = "canjewelry:gem-name-" + gemType;
+            string val = Lang.Get(lk);
+            return val == lk ? Capitalize(gemType) : val;
+        }
+
+        private static string OreName(string ore)
+        {
+            string lk = "canjewelry:ore-name-" + ore;
+            string val = Lang.Get(lk);
+            return val == lk ? Capitalize(ore) : val;
+        }
+
+        private static string PanningQualityName(string quality)
+        {
+            string lk = "canjewelry:panning-quality-" + quality;
+            string val = Lang.Get(lk);
+            return val == lk ? Capitalize(quality) : val;
+        }
+
+        private static string PrettyItemLabel(string itemCode)
+        {
+            int colon = itemCode.IndexOf(':');
+            string domain = colon >= 0 ? itemCode[..colon] : "canjewelry";
+            string path = colon >= 0 ? itemCode[(colon + 1)..] : itemCode;
+            string baseKey = path.Split('-')[0];
+
+            string lk = $"{domain}:itemname-{baseKey}";
+            string val = Lang.Get(lk);
+            if (!string.IsNullOrWhiteSpace(val) && val != lk)
+                return Capitalize(val.Trim());
+            return PrettyKey(baseKey);
+        }
+
 private void EnsureGemsLoaded()
         {
             if (_gemsLoaded) return;
@@ -174,13 +257,6 @@ private void EnsureGemsLoaded()
                 _inv[gemSlot].Itemstack = gemStack;
                 _gemSlots[gt] = gemSlot++;
             }
-
-            foreach (var cvst in cfg.custom_variants_sockets_tiers)
-            {
-                string key = ItemCodeToKey(cvst.ItemCode);
-                if (!_cvstRows.Exists(r => r.Key == key))
-                    _cvstRows.Add((key, FormatCode(cvst.ItemCode), cvst));
-            }
         }
 
         // ──────────────────────────── ImGui draw ────────────────────────────
@@ -196,7 +272,7 @@ private void EnsureGemsLoaded()
 
             bool open = true;
             ImGui.SetNextWindowSize(new Vector2(820, 580), ImGuiCond.FirstUseEver);
-            if (!ImGui.Begin("CAN Jewelry -Guide##canjguide", ref open,
+            if (!ImGui.Begin(G("title") + "##canjguide", ref open,
                 ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
             {
                 ImGui.End();
@@ -206,11 +282,11 @@ private void EnsureGemsLoaded()
             PushTabStyle();
             if (ImGui.BeginTabBar("##guidetabs", ImGuiTabBarFlags.Reorderable | ImGuiTabBarFlags.FittingPolicyScroll))
             {
-                if (ImGui.BeginTabItem("  Getting Started  "))  { PopTabStyle(); DrawTabGettingStarted(); ImGui.EndTabItem(); PushTabStyle(); }
-                if (ImGui.BeginTabItem("  Jewelry & Sockets  ")) { PopTabStyle(); DrawTabJewelry();        ImGui.EndTabItem(); PushTabStyle(); }
-                if (ImGui.BeginTabItem("  Gems & Buffs  "))     { PopTabStyle(); DrawTabGems();            ImGui.EndTabItem(); PushTabStyle(); }
-                if (ImGui.BeginTabItem("  Cutting Styles  "))   { PopTabStyle(); DrawTabCutting();         ImGui.EndTabItem(); PushTabStyle(); }
-                if (ImGui.BeginTabItem("  Panning  "))          { PopTabStyle(); DrawTabPanning();         ImGui.EndTabItem(); PushTabStyle(); }
+                if (ImGui.BeginTabItem(G("tab-getting-started"))) { PopTabStyle(); DrawTabGettingStarted(); ImGui.EndTabItem(); PushTabStyle(); }
+                if (ImGui.BeginTabItem(G("tab-jewelry-sockets"))) { PopTabStyle(); DrawTabJewelry();        ImGui.EndTabItem(); PushTabStyle(); }
+                if (ImGui.BeginTabItem(G("tab-gems-buffs")))      { PopTabStyle(); DrawTabGems();            ImGui.EndTabItem(); PushTabStyle(); }
+                if (ImGui.BeginTabItem(G("tab-cutting-styles")))  { PopTabStyle(); DrawTabCutting();         ImGui.EndTabItem(); PushTabStyle(); }
+                if (ImGui.BeginTabItem(G("tab-panning")))         { PopTabStyle(); DrawTabPanning();         ImGui.EndTabItem(); PushTabStyle(); }
                 ImGui.EndTabBar();
             }
             PopTabStyle();
@@ -221,40 +297,40 @@ private void EnsureGemsLoaded()
 
         // ──────────────────────────── Tab 0: Getting Started ────────────────────────────
 
-        private static void DrawTabGettingStarted()
+        private void DrawTabGettingStarted()
         {
             ImGui.BeginChild("##gs");
 
             void H(string t) { ImGui.TextColored(Col_Header, t); ImGui.Separator(); ImGui.Spacing(); }
             void B(string t) { ImGui.TextWrapped(t); ImGui.Spacing(); }
 
-            H("Overview");
-            B("CAN Jewelry lets you enhance your equipment by socketing cut gems. Each gem provides a primary stat bonus, and baguette-cut gems also roll a random secondary effect.");
+            H(G("overview-title"));
+            B(G("overview-body"));
 
-            H("Step 1 -Obtain rough gems");
-            B("Mine rocks, or pan ore chunks in an iron or steel pan. Rough gems drop as chipped (small), flawed (medium), or normal (large). Different ore types yield different gem varieties.");
+            H(G("step-1-title"));
+            B(G("step-1-body"));
 
-            H("Step 2 -Cut the gem");
-            B("At the Gem Cutting Table, use a Gem Cutting Chisel to cut the rough gem. Choose a cut style: Round (best main stat after grinding), Baguette (main stat + random secondary), or Pear (strong unground, weaker after full grind).");
+            H(G("step-2-title"));
+            B(G("step-2-body"));
 
-            H("Step 3 -Grind the gem (optional but recommended)");
-            B("Hold right-click on the Jewel Grinder while holding the cut gem. Three grinding steps apply multipliers that significantly increase the gem's bonus. Use a rough grindlayer for the first two steps, fine grindlayer for the last. The grinder needs mechanical power to spin.");
+            H(G("step-3-title"));
+            B(G("step-3-body"));
 
-            H("Step 4 -Forge a socket");
-            B("Forge a socket from metal ingots at the smithing anvil. The metal determines the socket tier: bronze = tier 1, gold/silver/iron = tier 2, steel = tier 3.");
+            H(G("step-4-title"));
+            B(Lang.Get("canjewelry:guide-step-4-body", FormatTierMetals(1), FormatTierMetals(2), FormatTierMetals(3)));
 
-            H("Step 5 -Add socket to jewelry");
-            B("At the Jeweler's Set, combine a jewelry piece + socket. Each piece has a socket count and a tier ceiling per slot - see the Jewelry & Sockets tab.");
+            H(G("step-5-title"));
+            B(G("step-5-body"));
 
-            H("Step 6 -Encrust with gem");
-            B("At the Jeweler's Set, combine socketed jewelry + cut gem. The gem size must match the socket tier. The gem grants its stat bonus while worn.");
+            H(G("step-6-title"));
+            B(G("step-6-body"));
 
             ImGui.Separator(); ImGui.Spacing();
-            ImGui.TextColored(Col_Header, "Gem size vs socket tier");
+            ImGui.TextColored(Col_Header, G("section-gem-size-vs-tier"));
             ImGui.Spacing();
-            ImGui.TextColored(Col_Green,  "  Tier 1 (green)  = bronze socket    =>  small (chipped) gem");
-            ImGui.TextColored(Col_Blue,   "  Tier 2 (blue)   = gold/iron socket  =>  medium (flawed) gem");
-            ImGui.TextColored(Col_Purple, "  Tier 3 (purple) = steel socket      =>  large (normal) gem");
+            ImGui.TextColored(Col_Green,  Lang.Get("canjewelry:guide-tab0-tier-hint-1", FormatTierMetals(1)));
+            ImGui.TextColored(Col_Blue,   Lang.Get("canjewelry:guide-tab0-tier-hint-2", FormatTierMetals(2)));
+            ImGui.TextColored(Col_Purple, Lang.Get("canjewelry:guide-tab0-tier-hint-3", FormatTierMetals(3)));
 
             ImGui.EndChild();
         }
@@ -273,14 +349,14 @@ private void EnsureGemsLoaded()
             if (ImGui.BeginTable("##jtbl", 3, tblFlags, new Vector2(0, tableH)))
             {
                 ImGui.TableSetupScrollFreeze(0, 1);
-                ImGui.TableSetupColumn("Name",       ImGuiTableColumnFlags.WidthFixed,   200);
-                ImGui.TableSetupColumn("Sockets",    ImGuiTableColumnFlags.WidthFixed,   70);
-                ImGui.TableSetupColumn("Slot tiers", ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn(G("col-name"),       ImGuiTableColumnFlags.WidthFixed,   200);
+                ImGui.TableSetupColumn(G("col-sockets"),    ImGuiTableColumnFlags.WidthFixed,   70);
+                ImGui.TableSetupColumn(G("col-slot-tiers"), ImGuiTableColumnFlags.WidthStretch);
                 ImGui.TableHeadersRow();
 
                 ImGui.TableNextRow();
                 ImGui.TableSetColumnIndex(0);
-                ImGui.TextColored(Col_Header, "Simple Jewelry");
+                ImGui.TextColored(Col_Header, G("section-simple-jewelry"));
 
                 foreach (var row in _simpleRows)
                 {
@@ -297,7 +373,7 @@ private void EnsureGemsLoaded()
                 {
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
-                    ImGui.TextColored(Col_Header, "Metal-scaled Jewelry");
+                    ImGui.TextColored(Col_Header, G("section-metal-scaled-jewelry"));
 
                     foreach (var (key, label, cvst) in _cvstRows)
                     {
@@ -306,7 +382,7 @@ private void EnsureGemsLoaded()
                         ImGui.Text(label);
                         ImGui.TableSetColumnIndex(2);
                         foreach (var kv in cvst.SocketTiers)
-                            ImGui.Text($"{Capitalize(kv.Key)}: {kv.Value.Length} socket(s) -{FormatTiers(kv.Value)}");
+                            ImGui.Text(Lang.Get("canjewelry:guide-cvst-row", Lang.Get("game:material-" + kv.Key).Trim(), kv.Value.Length, FormatTiers(kv.Value)));
                     }
                 }
 
@@ -314,9 +390,9 @@ private void EnsureGemsLoaded()
             }
 
             ImGui.Spacing();
-            ImGui.TextColored(Col_Green,  "  T1 = green  (bronze socket, small gem)");
-            ImGui.TextColored(Col_Blue,   "  T2 = blue   (gold/iron socket, medium gem)");
-            ImGui.TextColored(Col_Purple, "  T3 = purple (steel socket, large gem)");
+            ImGui.TextColored(Col_Green,  Lang.Get("canjewelry:guide-tier-hint-1", FormatTierMetals(1)));
+            ImGui.TextColored(Col_Blue,   Lang.Get("canjewelry:guide-tier-hint-2", FormatTierMetals(2)));
+            ImGui.TextColored(Col_Purple, Lang.Get("canjewelry:guide-tier-hint-3", FormatTierMetals(3)));
         }
 
         // ──────────────────────────── Tab 2: Gems & Buffs ────────────────────────────
@@ -329,7 +405,7 @@ private void EnsureGemsLoaded()
             var   cfg     = canjewelry.config;
             if (cfg == null) return;
 
-            ImGui.TextWrapped("Each cut gem grants its primary buff when socketed and worn. Baguette gems add a small random secondary on top.");
+            ImGui.TextWrapped(G("gems-intro"));
             ImGui.Spacing();
 
             float tableH = ImGui.GetContentRegionAvail().Y - 28f;
@@ -338,13 +414,13 @@ private void EnsureGemsLoaded()
             if (ImGui.BeginTable("##gtbl", 7, tblFlags, new Vector2(0, tableH)))
             {
                 ImGui.TableSetupScrollFreeze(0, 1);
-                ImGui.TableSetupColumn("",          ImGuiTableColumnFlags.WidthFixed,   slotSz + 4);
-                ImGui.TableSetupColumn("Gem",       ImGuiTableColumnFlags.WidthFixed,   120);
-                ImGui.TableSetupColumn("Main stat", ImGuiTableColumnFlags.WidthFixed,   220);
-                ImGui.TableSetupColumn("Tier 1",    ImGuiTableColumnFlags.WidthFixed,   110);
-                ImGui.TableSetupColumn("Tier 2",    ImGuiTableColumnFlags.WidthFixed,   110);
-                ImGui.TableSetupColumn("Tier 3",    ImGuiTableColumnFlags.WidthFixed,   110);
-                ImGui.TableSetupColumn("Secondary", ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn("",                  ImGuiTableColumnFlags.WidthFixed,   slotSz + 4);
+                ImGui.TableSetupColumn(G("col-gem"),         ImGuiTableColumnFlags.WidthFixed,   120);
+                ImGui.TableSetupColumn(G("col-main-stat"),   ImGuiTableColumnFlags.WidthFixed,   220);
+                ImGui.TableSetupColumn(G("col-tier-1"),      ImGuiTableColumnFlags.WidthFixed,   110);
+                ImGui.TableSetupColumn(G("col-tier-2"),      ImGuiTableColumnFlags.WidthFixed,   110);
+                ImGui.TableSetupColumn(G("col-tier-3"),      ImGuiTableColumnFlags.WidthFixed,   110);
+                ImGui.TableSetupColumn(G("col-secondary"),   ImGuiTableColumnFlags.WidthStretch);
                 ImGui.TableHeadersRow();
 
                 foreach (var kv in cfg.PossibleGemBuffs)
@@ -360,7 +436,7 @@ private void EnsureGemsLoaded()
                         _grid.DrawSingleSlot(sid);
                         ImGui.TableSetColumnIndex(1);
                         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + textOff);
-                        ImGui.Text(Capitalize(gemName));
+                        ImGui.Text(GemName(gemName));
                         ImGui.TableSetColumnIndex(2);
                         ImGui.SetCursorPosY(ImGui.GetCursorPosY() + textOff);
                         ImGui.TextColored(ColorForStat(statName), statName);
@@ -393,7 +469,7 @@ private void EnsureGemsLoaded()
                                 if (ImGui.IsItemHovered() && ba.SecondaryStatValueRange != null)
                                 {
                                     ImGui.BeginTooltip();
-                                    ImGui.Text("Secondary value range:");
+                                    ImGui.Text(G("gems-secondary-range"));
                                     ImGui.Separator();
                                     ImGui.TextColored(Col_Green,  $"  T1: {FmtRange(ba.SecondaryStatValueRange, 1)}");
                                     ImGui.TextColored(Col_Blue,   $"  T2: {FmtRange(ba.SecondaryStatValueRange, 2)}");
@@ -409,22 +485,19 @@ private void EnsureGemsLoaded()
             }
 
             ImGui.Spacing();
-            ImGui.TextDisabled("Note: negative values are beneficial for hungerrate / armorDurabilityLoss / animalSeekingRange.");
+            ImGui.TextDisabled(G("gems-note-negative"));
         }
 
         // ──────────────────────────── Tab 3: Cutting Styles ────────────────────────────
 
-        private static void DrawTabCutting()
+        private void DrawTabCutting()
         {
             ImGui.BeginChild("##cut");
 
             (string title, Vector4 color, string desc)[] cuts = {
-                ("Round",    Col_Green,
-                 "Primary stat only. After FULL processing on the jewel grinder this gives the highest main-stat value of any cut. Best long-term choice."),
-                ("Baguette", Col_Blue,
-                 "Primary stat + a small random secondary buff from a fixed pool for that stat. Trades some main-stat power for a bonus second effect."),
-                ("Pear",     Col_Orange,
-                 "Primary stat only, but the gem starts much stronger BEFORE grinding. If both gems are fully ground, Round overtakes it. Good for un-ground gems."),
+                (G("cut-round-title"),    Col_Green,  G("cut-round-desc")),
+                (G("cut-baguette-title"), Col_Blue,   G("cut-baguette-desc")),
+                (G("cut-pear-title"),     Col_Orange, G("cut-pear-desc")),
             };
 
             var cutFlags = ImGuiTableFlags.BordersInnerV | ImGuiTableFlags.SizingStretchSame;
@@ -451,21 +524,21 @@ private void EnsureGemsLoaded()
             ImGui.Separator();
             ImGui.Spacing();
 
-            ImGui.TextColored(Col_Header, "Gem size reminder");
+            ImGui.TextColored(Col_Header, G("section-gem-size-reminder"));
             ImGui.Spacing();
 
             var tblFlags = ImGuiTableFlags.BordersOuter | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit;
             if (ImGui.BeginTable("##sizetbl", 3, tblFlags))
             {
-                ImGui.TableSetupColumn("Rough gem grade",  ImGuiTableColumnFlags.WidthFixed, 200);
-                ImGui.TableSetupColumn("Socket metal",     ImGuiTableColumnFlags.WidthFixed, 270);
-                ImGui.TableSetupColumn("Slot tier",        ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn(G("col-rough-gem-grade"), ImGuiTableColumnFlags.WidthFixed, 200);
+                ImGui.TableSetupColumn(G("col-socket-metal"),    ImGuiTableColumnFlags.WidthFixed, 270);
+                ImGui.TableSetupColumn(G("col-slot-tier"),       ImGuiTableColumnFlags.WidthStretch);
                 ImGui.TableHeadersRow();
 
                 (string grade, string metal, string tier, Vector4 col)[] rows = {
-                    ("Chipped (small)",  "Bronze (tin/bismuth/black)",          "Tier 1", Col_Green),
-                    ("Flawed (medium)",  "Gold / Silver / Iron / Meteoric",     "Tier 2", Col_Blue),
-                    ("Normal (large)",   "Steel",                               "Tier 3", Col_Purple),
+                    (FormatTierSize(1), FormatTierMetals(1), G("col-tier-1"), Col_Green),
+                    (FormatTierSize(2), FormatTierMetals(2), G("col-tier-2"), Col_Blue),
+                    (FormatTierSize(3), FormatTierMetals(3), G("col-tier-3"), Col_Purple),
                 };
                 foreach (var (grade, metal, tier, col) in rows)
                 {
@@ -495,50 +568,17 @@ private void EnsureGemsLoaded()
 
         private static readonly string[] _qualityOrder = { "bountiful", "rich", "medium", "poor" };
 
-        private static readonly Dictionary<string, string> _oreDisplayNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "hematite",           "Hematite" },
-            { "malachite",          "Malachite" },
-            { "bismuthinite",       "Bismuthinite" },
-            { "cassiterite",        "Cassiterite" },
-            { "sphalerite",         "Sphalerite" },
-            { "quartz_nativesilver","Quartz (Native Silver)" },
-            { "quartz_nativegold",  "Quartz (Native Gold)" },
-            { "limonite",           "Limonite" },
-            { "ilmenite",           "Ilmenite" },
-            { "nativecopper",       "Native Copper" },
-            { "magnetite",          "Magnetite" },
-            { "uranium",            "Uranium" },
-            { "galena",             "Galena" },
-        };
-
-        private static readonly Dictionary<string, string> _gemDisplayNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "diamond",    "Diamond" },
-            { "emerald",    "Emerald" },
-            { "corundum",   "Corundum" },
-            { "malachite",  "Malachite" },
-            { "lapislazuli","Lapis Lazuli" },
-            { "olivine",    "Olivine" },
-            { "fluorite",   "Fluorite" },
-            { "quartz",     "Quartz" },
-            { "uranium",    "Uranium" },
-            { "ruby",       "Ruby" },
-            { "citrine",    "Citrine" },
-            { "amethyst",   "Amethyst" },
-        };
-
         private static void DrawTabPanning()
         {
             ImGui.BeginChild("##pan");
 
-            ImGui.TextWrapped("Use an iron or steel pan while holding ore chunks (right-click the pan block). Different ore types yield different gem varieties.");
+            ImGui.TextWrapped(G("panning-intro"));
             ImGui.Spacing();
 
             var drops = canjewelry.config?.panningDrops;
             if (drops == null || drops.Count == 0)
             {
-                ImGui.TextDisabled("No panning drop data available.");
+                ImGui.TextDisabled(G("panning-no-data"));
                 ImGui.EndChild();
                 return;
             }
@@ -595,8 +635,8 @@ private void EnsureGemsLoaded()
                 ImGui.Spacing();
                 if (ImGui.BeginTable("##sp_" + key, 2, tblFlags))
                 {
-                    ImGui.TableSetupColumn("Gem",    ImGuiTableColumnFlags.WidthFixed,   200);
-                    ImGui.TableSetupColumn("Chance", ImGuiTableColumnFlags.WidthStretch);
+                    ImGui.TableSetupColumn(G("col-gem"),    ImGuiTableColumnFlags.WidthFixed,   200);
+                    ImGui.TableSetupColumn(G("col-chance"), ImGuiTableColumnFlags.WidthStretch);
                     ImGui.TableHeadersRow();
                     foreach (var d in spDrops)
                     {
@@ -616,7 +656,7 @@ private void EnsureGemsLoaded()
             if (perkSpecial.Count > 0)
             {
                 ImGui.Spacing();
-                ImGui.TextColored(Col_Orange, "Prospector perk (Lapidary skill)");
+                ImGui.TextColored(Col_Orange, G("prospector-perk"));
                 ImGui.Separator();
                 ImGui.Spacing();
 
@@ -628,8 +668,8 @@ private void EnsureGemsLoaded()
                     ImGui.Spacing();
                     if (ImGui.BeginTable("##perk_" + key, 2, tblFlags))
                     {
-                        ImGui.TableSetupColumn("Gem",    ImGuiTableColumnFlags.WidthFixed,   200);
-                        ImGui.TableSetupColumn("Chance", ImGuiTableColumnFlags.WidthStretch);
+                        ImGui.TableSetupColumn(G("col-gem"),    ImGuiTableColumnFlags.WidthFixed,   200);
+                        ImGui.TableSetupColumn(G("col-chance"), ImGuiTableColumnFlags.WidthStretch);
                         ImGui.TableHeadersRow();
                         foreach (var d in spDrops)
                         {
@@ -650,7 +690,7 @@ private void EnsureGemsLoaded()
             foreach (var ore in byOre.Keys.OrderBy(o => o))
             {
                 var qualMap = byOre[ore];
-                string oreLabel = _oreDisplayNames.TryGetValue(ore, out var dn) ? dn : ore;
+                string oreLabel = OreName(ore);
 
                 // Collect unique gem types for this ore to build columns
                 var gemTypes = new List<string>();
@@ -673,13 +713,13 @@ private void EnsureGemsLoaded()
                 int cols = 1 + gemTypes.Count * 3;
                 if (ImGui.BeginTable("##ore_" + ore, cols, tblFlags))
                 {
-                    ImGui.TableSetupColumn("Quality", ImGuiTableColumnFlags.WidthFixed, 90);
+                    ImGui.TableSetupColumn(G("col-quality"), ImGuiTableColumnFlags.WidthFixed, 90);
                     foreach (var gt in gemTypes)
                     {
-                        string gemLabel = _gemDisplayNames.TryGetValue(gt, out var gn) ? gn : gt;
-                        ImGui.TableSetupColumn(gemLabel + " (chipped)", ImGuiTableColumnFlags.WidthFixed,   100);
-                        ImGui.TableSetupColumn(gemLabel + " (flawed)",  ImGuiTableColumnFlags.WidthFixed,   100);
-                        ImGui.TableSetupColumn(gemLabel + " (normal)",  ImGuiTableColumnFlags.WidthStretch);
+                        string gemLabel = GemName(gt);
+                        ImGui.TableSetupColumn($"{gemLabel} ({Lang.Get("canjewelry:quality-chipped")})", ImGuiTableColumnFlags.WidthFixed,   100);
+                        ImGui.TableSetupColumn($"{gemLabel} ({Lang.Get("canjewelry:quality-flawed")})",  ImGuiTableColumnFlags.WidthFixed,   100);
+                        ImGui.TableSetupColumn($"{gemLabel} ({Lang.Get("canjewelry:quality-normal")})",  ImGuiTableColumnFlags.WidthStretch);
                     }
                     ImGui.TableHeadersRow();
 
@@ -701,7 +741,7 @@ private void EnsureGemsLoaded()
 
                         ImGui.TableNextRow();
                         ImGui.TableSetColumnIndex(0);
-                        ImGui.Text(char.ToUpperInvariant(quality[0]) + quality.Substring(1));
+                        ImGui.Text(PanningQualityName(quality));
 
                         int col = 1;
                         foreach (var gt in gemTypes)
@@ -740,8 +780,10 @@ private void EnsureGemsLoaded()
             string gt   = ExtractGemType(codePath);
             string size = ExtractGemSize(codePath);
             if (gt == null || size == null) return codePath;
-            string gemLabel  = _gemDisplayNames.TryGetValue(gt, out var gn) ? gn : gt;
-            string sizeLabel = size == "normal" ? "Large" : size == "flawed" ? "Medium" : "Small";
+            string gemLabel  = GemName(gt);
+            string sizeLk = "canjewelry:gemsize-" + size;
+            string sizeLabel = Lang.Get(sizeLk);
+            if (sizeLabel == sizeLk) sizeLabel = Capitalize(size);
             return $"{gemLabel} ({sizeLabel})";
         }
 

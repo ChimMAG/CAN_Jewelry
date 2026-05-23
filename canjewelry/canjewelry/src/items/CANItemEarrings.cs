@@ -63,7 +63,10 @@ namespace canjewelry.src.items
 
         public override string GetHeldItemName(ItemStack itemStack)
         {
-            return Lang.Get("game:material-" + itemStack.Attributes.GetString("metal", "default")) + Lang.Get("canjewelry:item-" + itemStack.Collectible.Code.Path);
+            string metal = itemStack.Attributes.GetString("metal", "steel");
+            string construction = itemStack.Item?.Variant?["construction"] ?? "keys";
+            return Lang.Get($"canjewelry:itemname-canearrings-{construction}")
+                   + " (" + Lang.Get("game:material-" + metal) + ")";
         }
     }
 }

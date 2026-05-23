@@ -147,9 +147,5 @@ namespace canjewelry.src.items
             return buildStr;
         }
 
-        public override string GetHeldItemName(ItemStack itemStack)
-        {
-            return Lang.Get("canjewelry:item-" + itemStack.Collectible.Code.Path);
-        }
     }
 }

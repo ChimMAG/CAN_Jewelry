@@ -43,12 +43,6 @@ namespace canjewelry.src.items
             return this.Code.ToShortString() + "-" + metal + "-" + glass;
         }
 
-        public override string GetHeldItemName(ItemStack itemStack)
-        {
-            string carcassus = itemStack.Attributes.GetString("loop", "steel");
-            return Lang.Get("game:material-" + carcassus) + Lang.Get("canjewelry:item-glasses");
-        }
-
         public override void OnCreatedByCrafting(ItemSlot[] allInputslots, ItemSlot outputSlot, IRecipeBase byRecipe)
         {
             if (byRecipe.Name.Path == "can-monocle-change-side")

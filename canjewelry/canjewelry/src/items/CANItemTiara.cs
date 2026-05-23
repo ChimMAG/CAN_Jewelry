@@ -82,10 +82,5 @@ namespace canjewelry.src.items
             return this.Code.ToShortString() + "-" + carcassus + "-" + g1 + "-" + g2 + "-" + g3;
         }
 
-        public override string GetHeldItemName(ItemStack itemStack)
-        {
-            string variant = itemStack.Attributes.GetString("carcassus", "steel");
-            return Lang.Get("game:material-" + variant) + Lang.Get("canjewelry:item-tiara");
-        }
     }
 }

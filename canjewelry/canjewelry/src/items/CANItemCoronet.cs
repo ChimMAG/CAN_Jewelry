@@ -32,12 +32,6 @@ namespace canjewelry.src.items
             return this.Code.ToShortString() + "-" + metal;
         }
 
-        public override string GetHeldItemName(ItemStack itemStack)
-        {
-            string variant = itemStack.Item.Variant.Get("loop");
-            return Lang.Get("game:material-" + variant) + Lang.Get("canjewelry:item-coronet");
-        }
-
         internal static void FillGemPositions4(Dictionary<string, AssetLocation> dict, ItemStack itemStack, int possibleGemsNumber)
         {
             var notvis = new AssetLocation("canjewelry:item/gem/notvis.png");

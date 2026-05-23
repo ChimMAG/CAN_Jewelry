@@ -31,6 +31,33 @@ namespace canjewelry.src.items
 
         protected abstract string MeshrefsCacheName { get; }
 
+        private static readonly string[] _materialAttrKeys = { "metal", "loop", "carcassus", "construction" };
+
+        public override string GetHeldItemName(ItemStack itemStack)
+        {
+            string mat = null;
+            foreach (string k in _materialAttrKeys)
+            {
+                mat = itemStack.Attributes.GetString(k, null);
+                if (mat != null) break;
+            }
+            if (mat == null)
+            {
+                var variant = itemStack.Item?.Variant;
+                if (variant != null)
+                {
+                    foreach (string k in _materialAttrKeys)
+                    {
+                        mat = variant[k];
+                        if (mat != null) break;
+                    }
+                }
+            }
+            mat ??= "steel";
+            return Lang.Get("canjewelry:itemname-" + Code.FirstCodePart())
+                   + " (" + Lang.Get("game:material-" + mat) + ")";
+        }
+
         protected Dictionary<int, MultiTextureMeshRef> meshrefs
             => ObjectCacheUtil.GetOrCreate(api, MeshrefsCacheName, () => new Dictionary<int, MultiTextureMeshRef>());
 

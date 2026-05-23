@@ -57,10 +57,5 @@ namespace canjewelry.src.items
             string armSide = itemstack.Collectible.Variant["side"];
             return this.Code.ToShortString() + "-" + metal + "-" + armSide;
         }
-
-        public override string GetHeldItemName(ItemStack itemStack)
-        {
-            return Lang.Get("game:material-" + itemStack.Attributes.GetString("metal", "default")) + Lang.Get("canjewelry:item-canring");
-        }
     }
 }

@@ -40,9 +40,5 @@ namespace canjewelry.src.items
             return mesh;
         }
 
-        public override string GetHeldItemName(ItemStack itemStack)
-        {
-            return Lang.Get("game:material-" + itemStack.Attributes.GetString("metal", "default")) + Lang.Get("canjewelry:item-cannosering");
-        }
     }
 }
