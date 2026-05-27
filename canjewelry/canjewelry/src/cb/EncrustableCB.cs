@@ -354,6 +354,17 @@ namespace canjewelry.src.CB
                     // survives a round-trip; otherwise every other extract would earn XP.
                     treeSocket.SetBool("wasExtracted", gem_slot.Itemstack.Attributes.GetBool("wasExtracted", false));
 
+                    // Carry over grinder progress so extraction can restore it. WAS_GROUND_BEFORE
+                    // captures the "fully done" flag; savedGrindLayerInfo captures mid-process state
+                    // (which phase + how many clicks remain). Without this, partial grinding would
+                    // be silently lost on encrust→extract, OR — worse — naive reset would let the
+                    // player apply phase-1 multipliers a second time.
+                    treeSocket.SetBool(CANJWConstants.WAS_GROUND_BEFORE, cutGemTree.GetBool(CANJWConstants.GEM_FULL_PROCESSED, false));
+                    if (gem_slot.Itemstack.Attributes.HasAttribute("cangrindlayerinfo"))
+                    {
+                        treeSocket["savedGrindLayerInfo"] = gem_slot.Itemstack.Attributes["cangrindlayerinfo"].Clone();
+                    }
+
                     if (encrustable.Itemstack.Item is CANItemSimpleNecklace || encrustable.Itemstack.Item is CANItemHorusEye)
                     {
                         encrustable.Itemstack.Attributes.SetString("gem", gem_slot.Itemstack.Collectible.Code.Path.Split('-').Last());
@@ -423,8 +434,16 @@ namespace canjewelry.src.CB
                     cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute((string[])buffNames.Clone());
                     cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute((float[])buffValues.Clone());
                 }
-                cutGemTree.SetBool(CANJWConstants.GEM_FULL_PROCESSED, true);
+                // Restore grinder progress saved at encrust. WAS_GROUND_BEFORE → fully done;
+                // savedGrindLayerInfo → mid-process state (phase + remaining counter). Legacy
+                // sockets (no flag at all) are treated as fully ground for safety.
+                bool wasFullyGround = treeSocket.GetBool(CANJWConstants.WAS_GROUND_BEFORE, true);
+                cutGemTree.SetBool(CANJWConstants.GEM_FULL_PROCESSED, wasFullyGround);
                 gemStack.Attributes[CANJWConstants.CUT_GEM_TREE] = cutGemTree;
+                if (!wasFullyGround && treeSocket.HasAttribute("savedGrindLayerInfo"))
+                {
+                    gemStack.Attributes["cangrindlayerinfo"] = treeSocket["savedGrindLayerInfo"].Clone();
+                }
 
                 // The taint travels through the encrust→extract cycle so a single extract
                 // doesn't unlock a fresh XP roll on what was already a recycled gem.
