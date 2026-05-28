@@ -14,6 +14,7 @@ using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
+using Vintagestory.GameContent.Mechanics;
 
 namespace canjewelry.src.be
 {
@@ -51,6 +52,18 @@ namespace canjewelry.src.be
         private ImGuiDialogLapidaryBench imguiGui;
         private BELapidaryBenchRenderer displayRenderer;
 
+        // Block static mesh, tesselated on the client. We add it manually in
+        // OnTesselation because BEBehaviorMPConsumer always returns true from
+        // its OnTesselation, which suppresses the default block mesh.
+        private MeshData benchMesh;
+
+        // Mechanical power consumer behavior — populated from JSON entityBehaviors.
+        // Lap spin rate + cut/polish gating read from this when connected.
+        public BEBehaviorMPConsumer Mpc { get; private set; }
+        public float MpSpeed => Mpc?.TrueSpeed ?? 0f;
+        public float MpAngleRad => Mpc?.AngleRad ?? 0f;
+        public bool MpConnected => Mpc?.Network != null;
+
         // Bench-local persisted state. Everything else lives on the assembly.
         public float CurrentAngle { get; private set; } = 0f;
         public int SelectedIndex { get; private set; } = 0;
@@ -64,6 +77,14 @@ namespace canjewelry.src.be
             inventory = new InventoryLapidaryBench(null, null);
         }
 
+        // Behavior wiring. Grab the MPConsumer reference (added via JSON
+        // entityBehaviors) for later use in cut gating and lap spin.
+        public override void CreateBehaviors(Block block, IWorldAccessor worldForResolve)
+        {
+            base.CreateBehaviors(block, worldForResolve);
+            Mpc = GetBehavior<BEBehaviorMPConsumer>();
+        }
+
         public override void Initialize(ICoreAPI api)
         {
             base.Initialize(api);
@@ -74,7 +95,22 @@ namespace canjewelry.src.be
                 capi = cAPI;
                 displayRenderer = new BELapidaryBenchRenderer(capi, Pos, this);
                 UpdateDisplayText();
+
+                var shape = Vintagestory.API.Common.Shape.TryGet(api, "canjewelry:shapes/block/lapidarybench.json");
+                if (shape != null)
+                {
+                    cAPI.Tesselator.TesselateShape(Block, shape, out benchMesh);
+                }
             }
+        }
+
+        // BEBehaviorMPConsumer suppresses the default block mesh by returning
+        // true from its OnTesselation. Re-add the bench mesh ourselves.
+        public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tesselator)
+        {
+            base.OnTesselation(mesher, tesselator);
+            if (benchMesh != null) mesher.AddMeshData(benchMesh);
+            return true;
         }
 
         // ====================================================================

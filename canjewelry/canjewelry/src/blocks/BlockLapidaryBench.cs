@@ -3,6 +3,7 @@ using canjewelry.src.be;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
+using Vintagestory.GameContent.Mechanics;
 
 namespace canjewelry.src.blocks
 {
@@ -10,7 +11,7 @@ namespace canjewelry.src.blocks
     // BELapidaryBench. Front face is a control panel with discrete buttons
     // (see selection-box constants below); the left dop-arm zone keeps a
     // continuous camera-pitch input as a fast alternative for the angle.
-    public class BlockLapidaryBench : Block
+    public class BlockLapidaryBench : BlockMPBase
     {
         // Selection-box indices. Order is significant — kept stable so
         // hover-help mappings don't shift when boxes are added.
@@ -196,6 +197,20 @@ namespace canjewelry.src.blocks
             new WorldInteraction { ActionLangCode = codePlain, MouseButton = EnumMouseButton.Right },
             new WorldInteraction { ActionLangCode = codeShift, MouseButton = EnumMouseButton.Right, HotKeyCode = "shift" },
         };
+
+        // Mechanical-power wiring. Only the bottom face accepts an axle.
+        public override bool HasMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face, BlockMPBase forBlock)
+            => face == BlockFacing.DOWN;
+
+        public override void DidConnectAt(IWorldAccessor world, BlockPos pos, BlockFacing face) { }
+
+        // On placement, try to join a network through the bottom axle.
+        public override bool TryPlaceBlock(IWorldAccessor world, IPlayer byPlayer, ItemStack itemstack, BlockSelection blockSel, ref string failureCode)
+        {
+            if (!base.TryPlaceBlock(world, byPlayer, itemstack, blockSel, ref failureCode)) return false;
+            tryConnect(world, byPlayer, blockSel.Position, BlockFacing.DOWN);
+            return true;
+        }
 
         private static WorldInteraction[] AppendInteractions(WorldInteraction[] first, WorldInteraction[] second)
         {

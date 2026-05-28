@@ -221,6 +221,18 @@ namespace canjewelry.src.gui
             ImGui.SameLine();
             ImGui.SetNextItemWidth(120);
             ImGui.SliderFloat("size", ref BELapidaryBenchRenderer.PivotMarkerSize, 0.01f, 0.3f, "%.3f");
+
+            ImGui.Separator();
+            ImGui.Text("Lap disc:");
+            Vector3 lapPos = new(BELapidaryBenchRenderer.LapX, BELapidaryBenchRenderer.LapY, BELapidaryBenchRenderer.LapZ);
+            if (ImGui.SliderFloat3("Lap XYZ", ref lapPos, 0f, 1.5f, "%.3f"))
+            {
+                BELapidaryBenchRenderer.LapX = lapPos.X;
+                BELapidaryBenchRenderer.LapY = lapPos.Y;
+                BELapidaryBenchRenderer.LapZ = lapPos.Z;
+            }
+            ImGui.SliderFloat("Lap scale", ref BELapidaryBenchRenderer.LapScale, 0.1f, 2f, "%.2f");
+            ImGui.SliderFloat("Lap spin speed (rad/s)", ref BELapidaryBenchRenderer.LapSpinSpeed, 0f, 30f, "%.2f");
             Vector3 tiltPivot = new(BELapidaryBenchRenderer.TiltPivotX, BELapidaryBenchRenderer.TiltPivotY, BELapidaryBenchRenderer.TiltPivotZ);
             if (ImGui.SliderFloat3("Tilt pivot", ref tiltPivot, -3f, 3f, "%.3f"))
             {

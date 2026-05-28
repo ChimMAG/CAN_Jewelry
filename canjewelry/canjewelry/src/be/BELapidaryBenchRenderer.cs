@@ -112,7 +112,18 @@ namespace canjewelry.src.be
 
         private MeshRef dopMeshRef;
         private MeshRef gemMeshRef;
+        private MeshRef lapMeshRef;
         private MeshRef pivotMarkerRef;
+
+        // Lap disc position + tuning (block-local 0..1).
+        public static float LapX = 0.5f;
+        public static float LapY = 0.85f;
+        public static float LapZ = 0.5f;
+        public static float LapScale = 0.7f;
+        // Rotation speed in rad/sec; 6.28 = 1 full turn / sec.
+        public static float LapSpinSpeed = 6.28f;
+        // Accumulated angle, updated each frame from deltaTime.
+        private float lapAngleRad = 0f;
 
         public BELapidaryBenchRenderer(ICoreClientAPI api, BlockPos pos, BELapidaryBench be)
         {
@@ -149,6 +160,15 @@ namespace canjewelry.src.be
             {
                 api.Tesselator.TesselateItem(gemItem, out MeshData gemMesh);
                 if (gemMesh != null) gemMeshRef = api.Render.UploadMesh(gemMesh);
+            }
+
+            // Lap disc — tesselate the coarse lap as the default visual.
+            // Could later swap based on which grit is in LAP slot.
+            var lapItem = api.World.GetItem(new AssetLocation("canjewelry:lap-coarse"));
+            if (lapItem != null)
+            {
+                api.Tesselator.TesselateItem(lapItem, out MeshData lapMesh);
+                if (lapMesh != null) lapMeshRef = api.Render.UploadMesh(lapMesh);
             }
 
             // Debug pivot marker — tiny bright-red cube. Uses block atlas UV
@@ -334,6 +354,36 @@ namespace canjewelry.src.be
 
                 prog.Stop();
             }
+
+            // Spinning lap disc — independent of assembly presence. Renders
+            // whenever the LAP slot has a lap; spins only when an axle is
+            // connected and turning.
+            if (lapMeshRef != null && be?.LapSlot != null && !be.LapSlot.Empty)
+            {
+                if (be.MpConnected && be.MpSpeed > 0.001f)
+                {
+                    lapAngleRad = be.MpAngleRad;
+                }
+
+                rpi.GlToggleBlend(true, EnumBlendMode.Standard);
+                var lapProg = rpi.PreparedStandardShader(pos.X, pos.InternalY, pos.Z);
+                lapProg.Tex2D = capi.ItemTextureAtlas.AtlasTextures[0].TextureId;
+                lapProg.ViewMatrix = rpi.CameraMatrixOriginf;
+                lapProg.ProjectionMatrix = rpi.CurrentProjectionMatrix;
+                lapProg.NormalShaded = 1;
+                lapProg.RgbaLightIn = light;
+
+                lapProg.ModelMatrix = modelMat.Identity()
+                    .Translate(pos.X - camPos.X + LapX,
+                               pos.InternalY - camPos.Y + LapY,
+                               pos.Z - camPos.Z + LapZ)
+                    .RotateY(lapAngleRad)
+                    .Scale(LapScale, LapScale, LapScale)
+                    .Translate(-0.5f, 0f, -0.5f)
+                    .Values;
+                rpi.RenderMesh(lapMeshRef);
+                lapProg.Stop();
+            }
         }
 
         // Build a 4x4 rotation matrix (column-major) for rotation by `angleRad`
@@ -381,7 +431,7 @@ namespace canjewelry.src.be
         // (possibly edited) shape file.
         private static void TryAutoSetTiltPivot(ICoreClientAPI api, Item item)
         {
-            var shapeLoc = item.Shape?.Base;
+            var shapeLoc = item.Shape?.Base?.Clone();
             if (shapeLoc == null) return;
             try
             {
@@ -419,11 +469,13 @@ namespace canjewelry.src.be
             quadRef?.Dispose();
             dopMeshRef?.Dispose();
             gemMeshRef?.Dispose();
+            lapMeshRef?.Dispose();
             pivotMarkerRef?.Dispose();
             texture = null;
             quadRef = null;
             dopMeshRef = null;
             gemMeshRef = null;
+            lapMeshRef = null;
             pivotMarkerRef = null;
         }
     }

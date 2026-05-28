@@ -9,6 +9,15 @@
       "impactDamageMul": 20
     }
   ],
+  "entityBehaviors": [
+    {
+      "name": "MPConsumer",
+      "properties": {
+        "resistance": 0.5,
+        "mechPartShape": null
+      }
+    }
+  ],
   "heldTpIdleAnimation": "holdunderarm",
   "shape": { "base": "canjewelry:block/lapidarybench" },
   "creativeinventory": {
