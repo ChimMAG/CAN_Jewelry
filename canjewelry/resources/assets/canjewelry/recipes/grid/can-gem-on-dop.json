@@ -1,0 +1,25 @@
+{
+  "ingredientPattern": "RDG",
+  "ingredients": {
+    "R": {
+      "type": "item",
+      "code": "canjewelry:gem-rough-*-*"
+    },
+    "D": {
+      "type": "item",
+      "code": "canjewelry:dop-*"
+    },
+    "G": {
+      "type": "item",
+      "code": "game:resin"
+    }
+  },
+  "name": "can-gem-on-dop-mount",
+  "width": 3,
+  "height": 1,
+  "output": {
+    "type": "item",
+    "code": "canjewelry:gem-on-dop",
+    "quantity": 1
+  }
+}

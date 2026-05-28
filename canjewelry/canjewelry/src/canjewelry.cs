@@ -156,6 +156,12 @@ namespace canjewelry.src
         /// </summary>
         public static List<GemCuttingRecipe> gemCuttingRecipes = new();
 
+        /// <summary>
+        /// Loaded faceting recipes for the Lapidary Bench.
+        /// Populated by <see cref="FacetingRecipeLoader.AssetsLoaded"/>.
+        /// </summary>
+        public static List<FacetingRecipe> facetingRecipes = new();
+
         private CANJewelryGuideDialog guideDialog;
         /// <summary>
         /// Loaded wearable restrictions by name.
@@ -237,6 +243,14 @@ namespace canjewelry.src
             api.RegisterBlockClass("CANBlockPSContainer", typeof(CANBasePSContainer));
             api.RegisterBlockEntityClass("CANBENecklaceStand", typeof(CANBENecklaceStand));
             api.RegisterBlockEntityClass("CANBEHeadStand", typeof(CANBEHeadStand));
+
+            // Lapidary Bench — new faceting workflow (replaces voxel cutting table + grinder).
+            // See docs/lapidary-bench-design.md.
+            api.RegisterBlockClass("BlockLapidaryBench", typeof(BlockLapidaryBench));
+            api.RegisterBlockEntityClass("BELapidaryBench", typeof(BELapidaryBench));
+            api.RegisterItemClass("CANItemDop", typeof(CANItemDop));
+            api.RegisterItemClass("CANItemFacetingLap", typeof(CANItemFacetingLap));
+            api.RegisterItemClass("CANItemGemOnDop", typeof(CANItemGemOnDop));
         }
         /// <summary>
         /// Client-side initialization.
@@ -523,6 +537,7 @@ namespace canjewelry.src
             gems_textures_pngs?.Clear();
             gems_textures_pngs = null;
             gemCuttingRecipes = null;
+            facetingRecipes = null;
             CANItemWearable.NotVisTexture = null;
         }
         /// <summary>

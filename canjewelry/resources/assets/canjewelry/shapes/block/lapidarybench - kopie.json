@@ -1,0 +1,161 @@
+{
+  "editor": {
+    "allAngles": false,
+    "entityTextureMode": false
+  },
+  "textureWidth": 16,
+  "textureHeight": 16,
+  "textures": {
+    "wood": "game:block/wood/planks/oak",
+    "stone": "game:block/stone/polishedrock/granite",
+    "metal": "game:block/metal/ingot/iron",
+    "iron": "game:block/metal/ingot/iron",
+    "all": "game:block/metal/ingot/iron",
+    "granite": "game:block/stone/polishedrock/granite",
+    "ironbloom": "game:item/resource/ironbloom",
+    "blistersteel": "game:block/metal/ingot/blistersteel",
+    "gem": "canjewelry:item/gem/diamond"
+  },
+  "elements": [
+    {
+      "name": "BaseWoodFront",
+      "from": [ 0.0, 0.0, 0.0 ],
+      "to": [ 16.0, 5.0, 16.0 ],
+      "faces": {
+        "north": { "texture": "#wood", "uv": [ 0.0, 11.0, 16.0, 16.0 ] },
+        "east":  { "texture": "#wood", "uv": [ 0.0, 11.0, 16.0, 16.0 ] },
+        "south": { "texture": "#wood", "uv": [ 0.0, 11.0, 16.0, 16.0 ] },
+        "west":  { "texture": "#wood", "uv": [ 0.0, 11.0, 16.0, 16.0 ] },
+        "down":  { "texture": "#wood", "uv": [ 0.0, 0.0, 16.0, 16.0 ] }
+      }
+    },
+    {
+      "name": "StoneSurface",
+      "from": [ 0.0, 5.0, 0.0 ],
+      "to": [ 16.0, 8.0, 16.0 ],
+      "faces": {
+        "north": { "texture": "#stone", "uv": [ 0.0, 8.0, 16.0, 11.0 ] },
+        "east":  { "texture": "#stone", "uv": [ 0.0, 8.0, 16.0, 11.0 ] },
+        "south": { "texture": "#stone", "uv": [ 0.0, 8.0, 16.0, 11.0 ] },
+        "west":  { "texture": "#stone", "uv": [ 0.0, 8.0, 16.0, 11.0 ] },
+        "up":    { "texture": "#stone", "uv": [ 0.0, 0.0, 16.0, 16.0 ] }
+      }
+    },
+    {
+      "name": "LapDisc",
+      "__comment": "The rotating abrasive disc, centred on top surface.",
+      "from": [ 4.0, 8.0, 4.0 ],
+      "to": [ 12.0, 9.0, 12.0 ],
+      "faces": {
+        "north": { "texture": "#metal", "uv": [ 4.0, 7.0, 12.0, 8.0 ] },
+        "east":  { "texture": "#metal", "uv": [ 4.0, 7.0, 12.0, 8.0 ] },
+        "south": { "texture": "#metal", "uv": [ 4.0, 7.0, 12.0, 8.0 ] },
+        "west":  { "texture": "#metal", "uv": [ 4.0, 7.0, 12.0, 8.0 ] },
+        "up":    { "texture": "#metal", "uv": [ 4.0, 4.0, 12.0, 12.0 ] },
+        "down":  { "texture": "#metal", "uv": [ 4.0, 4.0, 12.0, 12.0 ] }
+      }
+    },
+    {
+      "name": "LapSpindle",
+      "__comment": "Hub at centre of the lap.",
+      "from": [ 7.0, 9.0, 7.0 ],
+      "to": [ 9.0, 9.5, 9.0 ],
+      "faces": {
+        "north": { "texture": "#metal", "uv": [ 7.0, 6.5, 9.0, 7.0 ] },
+        "east":  { "texture": "#metal", "uv": [ 7.0, 6.5, 9.0, 7.0 ] },
+        "south": { "texture": "#metal", "uv": [ 7.0, 6.5, 9.0, 7.0 ] },
+        "west":  { "texture": "#metal", "uv": [ 7.0, 6.5, 9.0, 7.0 ] },
+        "up":    { "texture": "#metal", "uv": [ 7.0, 7.0, 9.0, 9.0 ] }
+      }
+    },
+    {
+      "name": "FacetingColumn",
+      "__comment": "Vertical metal post that supports the dop arm — left-back corner.",
+      "from": [ 1.0, 8.0, 11.0 ],
+      "to": [ 3.0, 15.0, 13.0 ],
+      "faces": {
+        "north": { "texture": "#metal", "uv": [ 1.0, 1.0, 3.0, 8.0 ] },
+        "east":  { "texture": "#metal", "uv": [ 11.0, 1.0, 13.0, 8.0 ] },
+        "south": { "texture": "#metal", "uv": [ 1.0, 1.0, 3.0, 8.0 ] },
+        "west":  { "texture": "#metal", "uv": [ 11.0, 1.0, 13.0, 8.0 ] },
+        "up":    { "texture": "#metal", "uv": [ 1.0, 11.0, 3.0, 13.0 ] }
+      }
+    },
+    {
+      "name": "ArmCrossbar",
+      "__comment": "Horizontal arm extending from the column over the lap.",
+      "from": [ 1.0, 13.0, 5.0 ],
+      "to": [ 3.0, 15.0, 13.0 ],
+      "faces": {
+        "north": { "texture": "#metal", "uv": [ 1.0, 1.0, 3.0, 3.0 ] },
+        "east":  { "texture": "#metal", "uv": [ 5.0, 1.0, 13.0, 3.0 ] },
+        "south": { "texture": "#metal", "uv": [ 1.0, 1.0, 3.0, 3.0 ] },
+        "west":  { "texture": "#metal", "uv": [ 5.0, 1.0, 13.0, 3.0 ] },
+        "up":    { "texture": "#metal", "uv": [ 1.0, 5.0, 3.0, 13.0 ] },
+        "down":  { "texture": "#metal", "uv": [ 1.0, 5.0, 3.0, 13.0 ] }
+      }
+    },
+    {
+      "name": "DopArm",
+      "__comment": "Tilted dop holding the gem above the lap. Selection-box 17 hovers here.",
+      "from": [ 1.5, 9.0, 6.0 ],
+      "to": [ 2.5, 13.0, 7.0 ],
+      "rotationOrigin": [ 2.0, 13.0, 6.5 ],
+      "rotationZ": 35,
+      "faces": {
+        "north": { "texture": "#metal", "uv": [ 1.5, 3.0, 2.5, 7.0 ] },
+        "east":  { "texture": "#metal", "uv": [ 6.0, 3.0, 7.0, 7.0 ] },
+        "south": { "texture": "#metal", "uv": [ 1.5, 3.0, 2.5, 7.0 ] },
+        "west":  { "texture": "#metal", "uv": [ 6.0, 3.0, 7.0, 7.0 ] },
+        "up":    { "texture": "#metal", "uv": [ 1.5, 6.0, 2.5, 7.0 ] },
+        "down":  { "texture": "#metal", "uv": [ 1.5, 6.0, 2.5, 7.0 ] }
+      }
+    },
+    {
+      "name": "GemOnDop",
+      "__comment": "Tiny gem visualisation at the dop tip — placeholder until BE-driven gem mesh.",
+      "from": [ 7.0, 9.5, 7.0 ],
+      "to": [ 9.0, 10.5, 9.0 ],
+      "faces": {
+        "north": { "texture": "#gem", "uv": [ 7.0, 5.5, 9.0, 6.5 ] },
+        "east":  { "texture": "#gem", "uv": [ 7.0, 5.5, 9.0, 6.5 ] },
+        "south": { "texture": "#gem", "uv": [ 7.0, 5.5, 9.0, 6.5 ] },
+        "west":  { "texture": "#gem", "uv": [ 7.0, 5.5, 9.0, 6.5 ] },
+        "up":    { "texture": "#gem", "uv": [ 7.0, 7.0, 9.0, 9.0 ] }
+      }
+    },
+    {
+      "name": "IndexRingFront",
+      "__comment": "Decorative index marks on the stone — purely visual hint of the 16-position ring.",
+      "from": [ 7.5, 8.0, 3.5 ],
+      "to": [ 8.5, 8.1, 4.0 ],
+      "faces": {
+        "up": { "texture": "#metal", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+      }
+    },
+    {
+      "name": "IndexRingBack",
+      "from": [ 7.5, 8.0, 12.0 ],
+      "to": [ 8.5, 8.1, 12.5 ],
+      "faces": {
+        "up": { "texture": "#metal", "uv": [ 0.0, 0.0, 1.0, 0.5 ] }
+      }
+    },
+    {
+      "name": "IndexRingLeft",
+      "from": [ 3.5, 8.0, 7.5 ],
+      "to": [ 4.0, 8.1, 8.5 ],
+      "faces": {
+        "up": { "texture": "#metal", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+      }
+    },
+    {
+      "name": "IndexRingRight",
+      "from": [ 12.0, 8.0, 7.5 ],
+      "to": [ 12.5, 8.1, 8.5 ],
+      "faces": {
+        "up": { "texture": "#metal", "uv": [ 0.0, 0.0, 0.5, 1.0 ] }
+      }
+    }
+  ]
+}

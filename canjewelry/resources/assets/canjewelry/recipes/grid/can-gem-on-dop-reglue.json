@@ -1,0 +1,26 @@
+{
+  "ingredientPattern": "PDG",
+  "ingredients": {
+    "P": {
+      "type": "item",
+      "code": "canjewelry:gem-on-dop"
+    },
+    "D": {
+      "type": "item",
+      "code": "canjewelry:dop-*"
+    },
+    "G": {
+      "type": "item",
+      "code": "game:resin"
+    }
+  },
+  "name": "can-gem-on-dop-reglue",
+  "width": 3,
+  "height": 1,
+  "copyAttributesFrom": "P",
+  "output": {
+    "type": "item",
+    "code": "canjewelry:gem-on-dop",
+    "quantity": 1
+  }
+}

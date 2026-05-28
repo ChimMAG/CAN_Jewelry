@@ -1,0 +1,57 @@
+{
+  "code": "lap",
+  "class": "CANItemFacetingLap",
+  "maxstacksize": 1,
+  "variantgroups": [
+    {
+      "code": "grit",
+      "states": [ "coarse", "fine", "polish" ]
+    }
+  ],
+  "durabilityByType": {
+    "*-coarse": 80,
+    "*-fine": 120,
+    "*-polish": 150
+  },
+  "shape": { "base": "canjewelry:encrusting/grindlayer" },
+  "texturesByType": {
+    "*-coarse": { "layer": { "base": "canjewelry:item/grindlayer/rough" } },
+    "*-fine": { "layer": { "base": "canjewelry:item/grindlayer/fine" } },
+    "*-polish": { "layer": { "base": "canjewelry:item/grindlayer/fine" } }
+  },
+  "attributes": {
+    "handbook": {
+      "groupBy": [ "lap-*" ]
+    },
+    "displaycaseable": true,
+    "shelvable": true
+  },
+  "creativeinventory": {
+    "general": [ "*" ],
+    "items": [ "*" ],
+    "canjewelry": [ "*" ]
+  },
+  "guiTransform": {
+    "translation": { "x": 0, "y": 0, "z": 0 },
+    "rotation": { "x": -30, "y": 10, "z": 180 },
+    "origin": { "x": 0.5, "y": 0.05, "z": 0.5 },
+    "scale": 2
+  },
+  "fpHandTransform": {
+    "translation": { "x": 0.2, "y": 0.4, "z": 0 },
+    "rotation": { "x": 0, "y": 40, "z": 0 },
+    "origin": { "x": 0.5, "y": 0.1, "z": 0.5 },
+    "scale": 1.95
+  },
+  "tpHandTransform": {
+    "translation": { "x": -1.53, "y": -1.1, "z": -0.7 },
+    "rotation": { "x": 20, "y": 26, "z": -83 },
+    "scale": 0.71
+  },
+  "groundTransform": {
+    "translation": { "x": 0, "y": 0, "z": 0 },
+    "rotation": { "x": 3, "y": 1, "z": 0 },
+    "origin": { "x": 0.5, "y": 0, "z": 0.5 },
+    "scale": 2.65
+  }
+}

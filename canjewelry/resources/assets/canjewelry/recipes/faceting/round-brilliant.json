@@ -1,0 +1,28 @@
+{
+  "code": "canjewelry:round-brilliant",
+  "cutType": "round",
+  "ingredient": "canjewelry:gem-rough-*-*",
+  "indexResolution": 16,
+  "enabled": true,
+  "__comment": "Pavilion uses even indices (0,2,4,6,8,10,12,14); crown uses odd indices (1,3,5,7,9,11,13,15) — offset by 22.5° so the crown facets sit between pavilion edges, classic 'brilliant' arrangement.",
+  "pavilionFacets": [
+    { "angle": 43, "index": 0,  "tolerance": 10 },
+    { "angle": 43, "index": 4,  "tolerance": 10 },
+    { "angle": 43, "index": 8,  "tolerance": 10 },
+    { "angle": 43, "index": 12, "tolerance": 10 },
+    { "angle": 41, "index": 2,  "tolerance": 5  },
+    { "angle": 41, "index": 6,  "tolerance": 5  },
+    { "angle": 41, "index": 10, "tolerance": 5  },
+    { "angle": 41, "index": 14, "tolerance": 5  }
+  ],
+  "crownFacets": [
+    { "angle": 34, "index": 1,  "tolerance": 10 },
+    { "angle": 34, "index": 5,  "tolerance": 10 },
+    { "angle": 34, "index": 9,  "tolerance": 10 },
+    { "angle": 34, "index": 13, "tolerance": 10 },
+    { "angle": 30, "index": 3,  "tolerance": 5  },
+    { "angle": 30, "index": 7,  "tolerance": 5  },
+    { "angle": 30, "index": 11, "tolerance": 5  },
+    { "angle": 30, "index": 15, "tolerance": 5  }
+  ]
+}

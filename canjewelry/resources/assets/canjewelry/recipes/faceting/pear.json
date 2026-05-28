@@ -1,0 +1,28 @@
+{
+  "code": "canjewelry:pear",
+  "cutType": "pear",
+  "ingredient": "canjewelry:gem-rough-*-*",
+  "indexResolution": 16,
+  "enabled": true,
+  "__comment": "Pear = asymmetric teardrop. Point at index 0, broad end at 8. Pavilion = even, crown = odd.",
+  "pavilionFacets": [
+    { "angle": 55, "index": 0,  "tolerance": 10 },
+    { "angle": 40, "index": 4,  "tolerance": 10 },
+    { "angle": 40, "index": 12, "tolerance": 10 },
+    { "angle": 45, "index": 8,  "tolerance": 10 },
+    { "angle": 32, "index": 2,  "tolerance": 8  },
+    { "angle": 32, "index": 6,  "tolerance": 8  },
+    { "angle": 32, "index": 10, "tolerance": 8  },
+    { "angle": 32, "index": 14, "tolerance": 8  }
+  ],
+  "crownFacets": [
+    { "angle": 42, "index": 1,  "tolerance": 8 },
+    { "angle": 42, "index": 15, "tolerance": 8 },
+    { "angle": 35, "index": 7,  "tolerance": 8 },
+    { "angle": 35, "index": 9,  "tolerance": 8 },
+    { "angle": 28, "index": 3,  "tolerance": 5 },
+    { "angle": 28, "index": 5,  "tolerance": 5 },
+    { "angle": 28, "index": 11, "tolerance": 5 },
+    { "angle": 28, "index": 13, "tolerance": 5 }
+  ]
+}

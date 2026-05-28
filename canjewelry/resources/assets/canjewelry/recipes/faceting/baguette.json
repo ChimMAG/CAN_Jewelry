@@ -1,0 +1,24 @@
+{
+  "code": "canjewelry:baguette",
+  "cutType": "baguette",
+  "ingredient": "canjewelry:gem-rough-*-*",
+  "indexResolution": 16,
+  "enabled": true,
+  "__comment": "Baguette = rectangular step cut. Long sides on N/S axis (0/8), short on E/W (4/12). Pavilion uses even indices, crown uses odd (offset 22.5° — gives step-cut feel).",
+  "pavilionFacets": [
+    { "angle": 50, "index": 0,  "tolerance": 10 },
+    { "angle": 50, "index": 8,  "tolerance": 10 },
+    { "angle": 30, "index": 4,  "tolerance": 10 },
+    { "angle": 30, "index": 12, "tolerance": 10 },
+    { "angle": 35, "index": 2,  "tolerance": 8  },
+    { "angle": 35, "index": 6,  "tolerance": 8  },
+    { "angle": 35, "index": 10, "tolerance": 8  },
+    { "angle": 35, "index": 14, "tolerance": 8  }
+  ],
+  "crownFacets": [
+    { "angle": 25, "index": 1,  "tolerance": 8 },
+    { "angle": 25, "index": 9,  "tolerance": 8 },
+    { "angle": 20, "index": 5,  "tolerance": 8 },
+    { "angle": 20, "index": 13, "tolerance": 8 }
+  ]
+}
