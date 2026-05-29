@@ -82,8 +82,14 @@ namespace canjewelry.src.items
             {
                 gemAssetLocationStr = "canjewelry:item/gem/diamond.png";
             }
+            //AssetLocation asset = canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location;
 
-            capi.ItemTextureAtlas.GetOrInsertTexture(new AssetLocation(gemAssetLocationStr).Clone(), out var id, out tposMetal);
+            if(!canjewelry.gems_textures_pngs.TryGetValue(gemBase, out var gemAssetLocationStr))
+            {
+                gemAssetLocationStr = "canjewelry:item/gem/diamond.png";
+            }
+
+            capi.ItemTextureAtlas.GetOrInsertTexture(new AssetLocation(gemAssetLocationStr), out var id, out tposMetal);
 
             tposSlag = capi.BlockTextureAtlas.GetPosition(capi.World.GetBlock(new AssetLocation("game:anvil-copper")), "ironbloom", false); 
 
