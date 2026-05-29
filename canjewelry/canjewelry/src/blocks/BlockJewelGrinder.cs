@@ -150,5 +150,9 @@ namespace canjewelry.src.blocks
         {
             return face == BlockFacing.DOWN;
         }
+        /*public override bool HasMechPowerConnectorAt(IWorldAccessor world, BlockPos pos, BlockFacing face, BlockMPBase forBlock)
+        {
+            return face == BlockFacing.DOWN;
+        }*/
     }
 }
