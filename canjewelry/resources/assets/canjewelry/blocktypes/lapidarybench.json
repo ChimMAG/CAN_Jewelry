@@ -3,12 +3,6 @@
   "class": "BlockLapidaryBench",
   "entityClass": "BELapidaryBench",
   "enabled": true,
-  "behaviors": [
-    {
-      "name": "UnstableFalling",
-      "impactDamageMul": 20
-    }
-  ],
   "entityBehaviors": [
     {
       "name": "MPConsumer",
@@ -19,7 +13,18 @@
     }
   ],
   "heldTpIdleAnimation": "holdunderarm",
-  "shape": { "base": "canjewelry:block/lapidarybench" },
+  "variantgroups": [
+    {
+      "code": "side",
+      "loadFromProperties": "abstract/horizontalorientation"
+    }
+  ],
+  "shapebytype": {
+    "*-south": { "base": "canjewelry:block/lapidarybench", "rotateY": 0 },
+    "*-east":  { "base": "canjewelry:block/lapidarybench", "rotateY": 90 },
+    "*-north": { "base": "canjewelry:block/lapidarybench", "rotateY": 180 },
+    "*-west":  { "base": "canjewelry:block/lapidarybench", "rotateY": 270 }
+  },
   "creativeinventory": {
     "general": [ "*" ],
     "decorative": [ "*" ]

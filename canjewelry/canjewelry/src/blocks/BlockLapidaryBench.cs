@@ -39,18 +39,22 @@ namespace canjewelry.src.blocks
         private const int   INDEX_STEP_SMALL = 1;
         private const int   INDEX_STEP_BIG   = 4;
 
-        private Cuboidf[] cachedBoxes;
+        // Selection boxes cached per side variant (default mesh has front on
+        // +Z / south; other sides are rotated 90°/180°/270° CW around Y).
+        private readonly System.Collections.Generic.Dictionary<string, Cuboidf[]> cachedBoxesBySide
+            = new System.Collections.Generic.Dictionary<string, Cuboidf[]>();
 
         public override Cuboidf[] GetSelectionBoxes(IBlockAccessor blockAccessor, BlockPos pos)
         {
-            if (cachedBoxes != null) return cachedBoxes;
+            string side = Variant["side"] ?? "south";
+            if (cachedBoxesBySide.TryGetValue(side, out var boxes)) return boxes;
 
             // Helper: front-face button rectangle in voxel-space. z extends
             // just past the block face so the box is clickable from the front.
             static Cuboidf Btn(float x1, float y1, float x2, float y2)
                 => new Cuboidf(x1 / 16f, y1 / 16f, 15f / 16f, x2 / 16f, y2 / 16f, 17f / 16f);
 
-            cachedBoxes = new Cuboidf[]
+            var defaultBoxes = new Cuboidf[]
             {
                 // 0 — general fallback (bench body bottom half + dop arm area).
                 // Top capped at y=0.5 so downward rays aimed at front-face
@@ -79,7 +83,46 @@ namespace canjewelry.src.blocks
                 Btn(0, 8, 8,  10),    // CUT (wide)
                 Btn(8, 8, 16, 10),    // POLISH (wide)
             };
-            return cachedBoxes;
+
+            boxes = RotateBoxes(defaultBoxes, side);
+            cachedBoxesBySide[side] = boxes;
+            return boxes;
+        }
+
+        // Rotate boxes around the unit cell center (0.5, 0.5) in XZ plane.
+        // Default side is south (no rotation). Each other side rotates +90° CW
+        // around Y (looking down) compared to its predecessor: south → east →
+        // north → west.
+        private static Cuboidf[] RotateBoxes(Cuboidf[] src, string side)
+        {
+            int steps = side switch
+            {
+                "east"  => 1,
+                "north" => 2,
+                "west"  => 3,
+                _       => 0,
+            };
+            if (steps == 0) return src;
+
+            var dst = new Cuboidf[src.Length];
+            for (int i = 0; i < src.Length; i++) dst[i] = Rotate90(src[i], steps);
+            return dst;
+        }
+
+        private static Cuboidf Rotate90(Cuboidf b, int steps)
+        {
+            // CW rotation around (0.5, 0.5): (x, z) → (z, 1 - x).
+            float x1 = b.X1, z1 = b.Z1, x2 = b.X2, z2 = b.Z2;
+            for (int i = 0; i < steps; i++)
+            {
+                float nx1 = z1,       nz1 = 1f - x2;
+                float nx2 = z2,       nz2 = 1f - x1;
+                x1 = nx1; z1 = nz1; x2 = nx2; z2 = nz2;
+            }
+            return new Cuboidf(
+                Math.Min(x1, x2), b.Y1, Math.Min(z1, z2),
+                Math.Max(x1, x2), b.Y2, Math.Max(z1, z2)
+            );
         }
 
         public override Cuboidf[] GetCollisionBoxes(IBlockAccessor blockAccessor, BlockPos pos)
@@ -204,11 +247,21 @@ namespace canjewelry.src.blocks
 
         public override void DidConnectAt(IWorldAccessor world, BlockPos pos, BlockFacing face) { }
 
-        // On placement, try to join a network through the bottom axle.
+        // On placement, pick the variant whose front faces the player, then
+        // try to join a mechanical network through the bottom axle.
         public override bool TryPlaceBlock(IWorldAccessor world, IPlayer byPlayer, ItemStack itemstack, BlockSelection blockSel, ref string failureCode)
         {
-            if (!base.TryPlaceBlock(world, byPlayer, itemstack, blockSel, ref failureCode)) return false;
-            tryConnect(world, byPlayer, blockSel.Position, BlockFacing.DOWN);
+            if (!CanPlaceBlock(world, byPlayer, blockSel, ref failureCode)) return false;
+
+            // SuggestedHVOrientation returns the direction from the block toward
+            // the player. We want the bench's front (panel side) to face the
+            // player, so the side variant equals that direction.
+            BlockFacing playerDir = SuggestedHVOrientation(byPlayer, blockSel)[0];
+            Block oriented = world.GetBlock(CodeWithVariant("side", playerDir.Code));
+            if (oriented == null) oriented = this;
+            if (!oriented.DoPlaceBlock(world, byPlayer, blockSel, itemstack)) return false;
+
+            (oriented as BlockMPBase)?.tryConnect(world, byPlayer, blockSel.Position, BlockFacing.DOWN);
             return true;
         }
 

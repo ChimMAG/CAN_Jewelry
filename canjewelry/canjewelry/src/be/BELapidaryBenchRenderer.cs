@@ -1,5 +1,7 @@
 using System;
 using Cairo;
+using canjewelry.src;
+using canjewelry.src.items;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
@@ -124,6 +126,11 @@ namespace canjewelry.src.be
         public static float LapSpinSpeed = 6.28f;
         // Accumulated angle, updated each frame from deltaTime.
         private float lapAngleRad = 0f;
+        // Gear ratio between input axle and lap disc.
+        public static float LapGearRatio = 6f;
+        // Cap on lap's effective angular speed (rad/s) so a fast network
+        // doesn't make it strobe.
+        public static float LapMaxSpeedRad = 30f;
 
         public BELapidaryBenchRenderer(ICoreClientAPI api, BlockPos pos, BELapidaryBench be)
         {
@@ -162,14 +169,10 @@ namespace canjewelry.src.be
                 if (gemMesh != null) gemMeshRef = api.Render.UploadMesh(gemMesh);
             }
 
-            // Lap disc — tesselate the coarse lap as the default visual.
-            // Could later swap based on which grit is in LAP slot.
-            var lapItem = api.World.GetItem(new AssetLocation("canjewelry:lap-coarse"));
-            if (lapItem != null)
-            {
-                api.Tesselator.TesselateItem(lapItem, out MeshData lapMesh);
-                if (lapMesh != null) lapMeshRef = api.Render.UploadMesh(lapMesh);
-            }
+            // Lap disc — tesselated from the item currently in the LAP slot.
+            // Re-built via RebuildLapMesh when the slot changes (BE hooks
+            // InventoryLapidaryBench.SlotModified for that).
+            RebuildLapMesh(be?.LapSlot?.Itemstack);
 
             // Debug pivot marker — tiny bright-red cube. Uses block atlas UV
             // arbitrarily; only visible when ShowTiltPivot toggled.
@@ -184,6 +187,25 @@ namespace canjewelry.src.be
             pivotMarkerRef = api.Render.UploadMesh(markerMesh);
 
             api.Event.RegisterRenderer(this, EnumRenderStage.Opaque, "canlapidarydisplay");
+        }
+
+        // Re-tesselate the lap disc from the given itemstack (or clear the
+        // mesh if the stack is empty / not a lap). Called from the BE on
+        // initial load and whenever the LAP slot changes, so the rendered
+        // grit always matches what's actually inserted.
+        private string lapMeshGrit;
+        public void RebuildLapMesh(ItemStack lapStack)
+        {
+            string grit = lapStack?.Collectible?.Variant?[CANJWConstants.LAP_GRIT];
+            if (grit == lapMeshGrit) return;
+            lapMeshGrit = grit;
+
+            lapMeshRef?.Dispose();
+            lapMeshRef = null;
+
+            if (lapStack?.Item is not CANItemFacetingLap) return;
+            capi.Tesselator.TesselateItem(lapStack.Item, out MeshData lapMesh);
+            if (lapMesh != null) lapMeshRef = capi.Render.UploadMesh(lapMesh);
         }
 
         public void SetText(string text)
@@ -221,6 +243,9 @@ namespace canjewelry.src.be
             IRenderAPI rpi = capi.Render;
             Vec3d camPos = capi.World.Player.Entity.CameraPos;
             Vec4f light = capi.World.BlockAccessor.GetLightRGBs(pos);
+            // Block's installed yaw — applied around block-center so all
+            // per-bench visuals follow the block's facing.
+            float blockYawDeg = be?.Block?.Shape?.rotateY ?? 0f;
 
             // --- Text quad (transparent overlay) ---
             if (texture != null)
@@ -240,9 +265,9 @@ namespace canjewelry.src.be
                 tprog.Tex2D = texture.TextureId;
 
                 tprog.ModelMatrix = modelMat.Identity()
-                    .Translate(pos.X - camPos.X + TextTranslateX,
-                               pos.InternalY - camPos.Y + TextTranslateY,
-                               pos.Z - camPos.Z + TextTranslateZ)
+                    .Translate(pos.X - camPos.X + 0.5f, pos.InternalY - camPos.Y, pos.Z - camPos.Z + 0.5f)
+                    .RotateYDeg(blockYawDeg)
+                    .Translate(TextTranslateX - 0.5f, TextTranslateY, TextTranslateZ - 0.5f)
                     .Scale(0.5f * TextQuadW, 0.5f * TextQuadH, 0.5f * TextQuadW)
                     .Values;
 
@@ -289,9 +314,9 @@ namespace canjewelry.src.be
                 // own mesh origin. Set TiltPivot to a different mesh-space
                 // point to shift the pivot elsewhere within the mesh.
                 prog.ModelMatrix = modelMat.Identity()
-                    .Translate(pos.X - camPos.X + SpindleX,
-                               pos.InternalY - camPos.Y + SpindleY,
-                               pos.Z - camPos.Z + SpindleZ)
+                    .Translate(pos.X - camPos.X + 0.5f, pos.InternalY - camPos.Y, pos.Z - camPos.Z + 0.5f)
+                    .RotateYDeg(blockYawDeg)
+                    .Translate(SpindleX - 0.5f, SpindleY, SpindleZ - 0.5f)
                     .RotateY(yawRad)
                     .Translate(ArmOffsetX, ArmOffsetY, ArmOffsetZ)
                     .RotateY(DopRotY * deg2rad)
@@ -309,9 +334,9 @@ namespace canjewelry.src.be
                 if (gemMeshRef != null)
                 {
                     prog.ModelMatrix = modelMat.Identity()
-                        .Translate(pos.X - camPos.X + SpindleX,
-                                   pos.InternalY - camPos.Y + SpindleY,
-                                   pos.Z - camPos.Z + SpindleZ)
+                        .Translate(pos.X - camPos.X + 0.5f, pos.InternalY - camPos.Y, pos.Z - camPos.Z + 0.5f)
+                        .RotateYDeg(blockYawDeg)
+                        .Translate(SpindleX - 0.5f, SpindleY, SpindleZ - 0.5f)
                         .RotateY(yawRad)
                         .Translate(ArmOffsetX, ArmOffsetY, ArmOffsetZ)
                         .RotateY(GemRotY * deg2rad)
@@ -336,9 +361,9 @@ namespace canjewelry.src.be
                     float s = PivotMarkerSize / 0.025f / DopScale;
                     prog.Tex2D = capi.BlockTextureAtlas.AtlasTextures[0].TextureId;
                     prog.ModelMatrix = modelMat.Identity()
-                        .Translate(pos.X - camPos.X + SpindleX,
-                                   pos.InternalY - camPos.Y + SpindleY,
-                                   pos.Z - camPos.Z + SpindleZ)
+                        .Translate(pos.X - camPos.X + 0.5f, pos.InternalY - camPos.Y, pos.Z - camPos.Z + 0.5f)
+                        .RotateYDeg(blockYawDeg)
+                        .Translate(SpindleX - 0.5f, SpindleY, SpindleZ - 0.5f)
                         .RotateY(yawRad)
                         .Translate(ArmOffsetX, ArmOffsetY, ArmOffsetZ)
                         .RotateY(DopRotY * deg2rad)
@@ -360,9 +385,13 @@ namespace canjewelry.src.be
             // connected and turning.
             if (lapMeshRef != null && be?.LapSlot != null && !be.LapSlot.Empty)
             {
+                // Lap is geared up 6× over the input axle, but capped at
+                // LapMaxSpeedRad so a fast network doesn't make it strobe.
                 if (be.MpConnected && be.MpSpeed > 0.001f)
                 {
-                    lapAngleRad = be.MpAngleRad;
+                    float effSpeed = Math.Min(be.MpSpeed * LapGearRatio, LapMaxSpeedRad);
+                    lapAngleRad += effSpeed * deltaTime;
+                    if (lapAngleRad > 6.2831853f) lapAngleRad -= 6.2831853f;
                 }
 
                 rpi.GlToggleBlend(true, EnumBlendMode.Standard);
@@ -374,9 +403,9 @@ namespace canjewelry.src.be
                 lapProg.RgbaLightIn = light;
 
                 lapProg.ModelMatrix = modelMat.Identity()
-                    .Translate(pos.X - camPos.X + LapX,
-                               pos.InternalY - camPos.Y + LapY,
-                               pos.Z - camPos.Z + LapZ)
+                    .Translate(pos.X - camPos.X + 0.5f, pos.InternalY - camPos.Y, pos.Z - camPos.Z + 0.5f)
+                    .RotateYDeg(blockYawDeg)
+                    .Translate(LapX - 0.5f, LapY, LapZ - 0.5f)
                     .RotateY(lapAngleRad)
                     .Scale(LapScale, LapScale, LapScale)
                     .Translate(-0.5f, 0f, -0.5f)

@@ -99,8 +99,20 @@ namespace canjewelry.src.be
                 var shape = Vintagestory.API.Common.Shape.TryGet(api, "canjewelry:shapes/block/lapidarybench.json");
                 if (shape != null)
                 {
-                    cAPI.Tesselator.TesselateShape(Block, shape, out benchMesh);
+                    var rot = new Vec3f(0f, Block.Shape.rotateY, 0f);
+                    cAPI.Tesselator.TesselateShape(Block, shape, out benchMesh, rot);
                 }
+
+                // Re-tesselate the lap visual whenever the lap slot changes.
+                inventory.SlotModified += OnSlotModifiedClient;
+            }
+        }
+
+        private void OnSlotModifiedClient(int slotId)
+        {
+            if (slotId == InventoryLapidaryBench.SLOT_LAP)
+            {
+                displayRenderer?.RebuildLapMesh(LapSlot?.Itemstack);
             }
         }
 
@@ -668,6 +680,7 @@ namespace canjewelry.src.be
 
         public override void OnBlockRemoved()
         {
+            if (inventory != null) inventory.SlotModified -= OnSlotModifiedClient;
             imguiGui?.Dispose();
             imguiGui = null;
             displayRenderer?.Dispose();
@@ -677,6 +690,7 @@ namespace canjewelry.src.be
 
         public override void OnBlockUnloaded()
         {
+            if (inventory != null) inventory.SlotModified -= OnSlotModifiedClient;
             imguiGui?.Dispose();
             imguiGui = null;
             displayRenderer?.Dispose();
