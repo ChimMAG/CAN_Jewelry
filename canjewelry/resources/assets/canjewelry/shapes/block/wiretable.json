@@ -13,7 +13,7 @@
 		"platehole": "game:block/metal/sheet/steel1",
 		"pliers": "game:block/metal/sheet/steel1",
 		"sides": "game:block/wood/table/normal/sides",
-		"linen": "game:item/tool/material/linen",
+		"linen": "game:block/transparent",
 		"debarked": "game:block/wood/debarked/pine",
 		"plank": "game:block/wood/planks/pine1",
 		"wireready": "canjewelry:item/notvis",

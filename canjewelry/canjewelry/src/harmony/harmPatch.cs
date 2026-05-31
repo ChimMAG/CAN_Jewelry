@@ -9,6 +9,7 @@ using canjewelry.src.be;
 using canjewelry.src.cb;
 using canjewelry.src.CB;
 using canjewelry.src.eb;
+using canjewelry.src.gui;
 using HarmonyLib;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -25,6 +26,11 @@ namespace canjewelry.src.harmony
     [HarmonyPatch]
     public class harmPatch
     {
+        /// <summary>Prevents game from dropping mouse cursor items while ImGui inventory grid is active.</summary>
+        public static bool Prefix_DropMouseSlotItems()
+        {
+            return !ImGuiInventoryGrid.SuppressMouseDrop;
+        }
 
         /***
           
@@ -51,8 +57,8 @@ namespace canjewelry.src.harmony
                     return;
                 }
             }
-            float additionalValue = socketSlot.GetFloat("attributeBuffValue");
-            string attributeBuffName = socketSlot.GetString("attributeBuff");
+            float additionalValue = socketSlot.GetFloat(CANJWConstants.GEM_ATTRIBUTE_BUFF_VALUE);
+            string attributeBuffName = socketSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF);
             float blendedStatValue = ep.Stats[attributeBuffName].GetBlended();
             canjewelry.config.max_buff_values.TryGetValue(attributeBuffName, out float buffThreshold);
 
@@ -213,7 +219,7 @@ namespace canjewelry.src.harmony
 
         public static FieldInfo ElementBoundsSlotGrid = typeof(GuiElementItemSlotGridBase).GetField("SlotBounds");
         
-        public static FieldInfo slotQuantityTexturesSlotGrid = typeof(GuiElementItemSlotGridBase).GetField("slotQuantityTextures", BindingFlags.NonPublic | BindingFlags.Instance);
+        public static FieldInfo slotQuantityTexturesSlotGrid = typeof(GuiElementItemSlotGridBase).GetField("slotQuantityTextures");
         
         public static IEnumerable<CodeInstruction> Transpiler_ComposeSlotOverlays_Add_Socket_Overlays_Not_Draw_ItemDamage(IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
@@ -309,17 +315,15 @@ namespace canjewelry.src.harmony
                         dsc.Append("\n");
                         if (treeSlot.GetString("gemtype") != "")
                         {
-                            if (treeSlot.HasAttribute("attributeBuff"))
+                            if (treeSlot.HasAttribute(CANJWConstants.GEM_ATTRIBUTE_BUFF))
                             {
-
-
-                                if (treeSlot.GetString("attributeBuff").Equals("maxhealthExtraPoints"))
+                                if (treeSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF).Equals("maxhealthExtraPoints"))
                                 {
-                                    dsc.Append(Lang.Get("canjewelry:socket-has-attribute", i, treeSlot.GetFloat("attributeBuffValue"))).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString("attributeBuff")));
+                                    dsc.Append(Lang.Get("canjewelry:socket-has-attribute", i, treeSlot.GetFloat(CANJWConstants.GEM_ATTRIBUTE_BUFF_VALUE))).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF)));
                                 }
                                 else
                                 {
-                                    dsc.Append(Lang.Get("canjewelry:socket-has-attribute-percent", i, treeSlot.GetFloat("attributeBuffValue") * 100)).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString("attributeBuff")));
+                                    dsc.Append(Lang.Get("canjewelry:socket-has-attribute-percent", i, treeSlot.GetFloat(CANJWConstants.GEM_ATTRIBUTE_BUFF_VALUE) * 100)).Append(Lang.Get("canjewelry:buff-name-" + treeSlot.GetString(CANJWConstants.GEM_ATTRIBUTE_BUFF)));
                                 }
                                 dsc.AppendLine();
                             }

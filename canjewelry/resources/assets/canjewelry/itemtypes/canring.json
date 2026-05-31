@@ -12,6 +12,11 @@
             "*-right-*":  "RightPalm" 
         },
         "rackable": true,
+        "atlasGuiTransform": {
+            "rotation": { "x": -180, "y": 131, "z": -35 },
+            "origin": { "x": 0.5, "y": 0.9, "z": 0.8 },
+            "scale": 6
+        },
         "wearableAttachment": true,
         "groundStorageTransformByType": {
             "*": {

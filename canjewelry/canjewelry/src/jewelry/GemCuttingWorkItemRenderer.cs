@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using canjewelry.src.be;
+using canjewelry.src.items;
+using System;
 using Vintagestory.API.Client;
-using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Common;
+using Vintagestory.API.Common.Entities;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
-using canjewelry.src.be;
-using canjewelry.src.items;
 
 namespace canjewelry.src.jewelry
 {
@@ -20,7 +16,7 @@ namespace canjewelry.src.jewelry
 
         private BlockPos pos;
 
-        private MeshRef workItemMeshRef;
+        private MultiTextureMeshRef workItemMeshRef;
 
         private MeshRef recipeOutlineMeshRef;
 
@@ -81,7 +77,7 @@ namespace canjewelry.src.jewelry
             glowRgb.B = incandescenceColorAsColor4f[2];
             glowRgb.A = (float)num2 / 255f;
             render.GlDisableCullFace();
-            IShaderProgram anvilShaderProg = coreMod.anvilShaderProg;
+            IShaderProgram anvilShaderProg = coreMod.smithingWorkItemShader;
             anvilShaderProg.Use();
             render.BindTexture2d(texId);
             anvilShaderProg.Uniform("rgbaAmbientIn", render.AmbientColor);
@@ -97,7 +93,7 @@ namespace canjewelry.src.jewelry
             anvilShaderProg.UniformMatrix("modelMatrix", ModelMat.Identity().Translate((double)pos.X - cameraPos.X, (double)pos.Y - cameraPos.Y, (double)pos.Z - cameraPos.Z).Values);
             anvilShaderProg.UniformMatrix("viewMatrix", render.CameraMatrixOriginf);
             anvilShaderProg.UniformMatrix("projectionMatrix", render.CurrentProjectionMatrix);
-            render.RenderMesh(workItemMeshRef);
+            render.RenderMultiTextureMesh(workItemMeshRef, "tex", 0);
             anvilShaderProg.UniformMatrix("modelMatrix", render.CurrentModelviewMatrix);
             anvilShaderProg.Stop();
         }
@@ -112,7 +108,7 @@ namespace canjewelry.src.jewelry
                 Vec3d cameraPos = world.Player.Entity.CameraPos;
                 ModelMat.Set(render.CameraMatrixOriginf).Translate((double)pos.X - cameraPos.X, (double)pos.Y - cameraPos.Y, (double)pos.Z - cameraPos.Z);
                 outLineColorMul.A = 1f - GameMath.Clamp((float)Math.Sqrt(entityPos.SquareDistanceTo(pos.X, pos.Y, pos.Z)) / 5f - 1f, 0f, 1f);
-                float num2 = (render.LineWidth = 2f * api.Settings.Float["wireframethickness"]);
+                float num2 = (render.LineWidth = 3.5f * api.Settings.Float["wireframethickness"]);
                 render.GLEnableDepthTest();
                 render.GlToggleBlend(blend: true);
                 IShaderProgram engineShader = render.GetEngineShader(EnumShaderProgram.Wireframe);
@@ -128,28 +124,31 @@ namespace canjewelry.src.jewelry
                     render.LineWidth = 1.6f;
                 }
 
-                render.GLDepthMask(on: false);
+                render.GLDepthMask(on: true);
             }
         }
 
         public void RegenMesh(ItemStack workitemStack, byte[,,] voxels, bool[,,] recipeToOutlineVoxels)
         {
-            workItemMeshRef?.Dispose();
-            workItemMeshRef = null;
-            ingot = workitemStack;
-            if (workitemStack != null)
-            {
-                ObjectCacheUtil.Delete(api, workitemStack.Attributes.GetInt("meshRefId").ToString() ?? "");
-                workitemStack.Attributes.RemoveAttribute("meshRefId");
-                if (recipeToOutlineVoxels != null)
-                {
-                    RegenOutlineMesh(recipeToOutlineVoxels, voxels);
-                }
-
-                MeshData data = CANItemGemCuttingWorkItem.GenMesh(api, workitemStack, voxels, out texId);
-                workItemMeshRef?.Dispose();
-                workItemMeshRef = api.Render.UploadMesh(data);
-            }
+            MultiTextureMeshRef multiTextureMeshRef = this.workItemMeshRef;
+			if (multiTextureMeshRef != null)
+			{
+				multiTextureMeshRef.Dispose();
+			}
+			this.workItemMeshRef = null;
+			this.ingot = workitemStack;
+			if (workitemStack == null)
+			{
+				return;
+			}
+			ObjectCacheUtil.Delete(this.api, workitemStack.Attributes.GetInt("meshRefId", 0).ToString() ?? "");
+			workitemStack.Attributes.RemoveAttribute("meshRefId");
+			if (recipeToOutlineVoxels != null)
+			{
+				this.RegenOutlineMesh(recipeToOutlineVoxels, voxels);
+			}
+			MeshData workItemMesh = CANItemGemCuttingWorkItem.GenMesh(this.api, workitemStack, voxels);
+			this.workItemMeshRef = this.api.Render.UploadMultiTextureMesh(workItemMesh);
         }
 
         private void RegenOutlineMesh(bool[,,] recipeToOutlineVoxels, byte[,,] voxels)
@@ -207,8 +206,19 @@ namespace canjewelry.src.jewelry
         {
             api.Event.UnregisterRenderer(this, EnumRenderStage.Opaque);
             api.Event.UnregisterRenderer(this, EnumRenderStage.AfterFinalComposition);
-            recipeOutlineMeshRef?.Dispose();
-            workItemMeshRef?.Dispose();
+            MeshRef meshRef = this.recipeOutlineMeshRef;
+            if (meshRef != null)
+            {
+                meshRef.Dispose();
+            }
+            MultiTextureMeshRef multiTextureMeshRef = this.workItemMeshRef;
+            if (multiTextureMeshRef == null)
+            {
+                return;
+            }
+            multiTextureMeshRef.Dispose();
+            /*recipeOutlineMeshRef?.Dispose();
+            workItemMeshRef?.Dispose();*/
         }
     }
 }

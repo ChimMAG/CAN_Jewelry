@@ -78,7 +78,7 @@ namespace canjewelry.src.blocks
             return base.GetPlacedBlockInteractionHelp(world, selection, forPlayer).Append(itemSlottableInteractions);
         }
 
-        public override bool DoParticalSelection(IWorldAccessor world, BlockPos pos)
+        public override bool DoPartialSelection(IWorldAccessor world, BlockPos pos)
         {
             return true;
         }
@@ -184,14 +184,29 @@ namespace canjewelry.src.blocks
             renderinfo.ModelRef = meshRef;
         }
 
+        public virtual MeshData GenMesh(ItemSlot slot, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
+        {
+            return Meshing.GenBlockVariantMesh(api, slot.Itemstack);
+        }
         public virtual MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
         {
             return Meshing.GenBlockVariantMesh(api, itemstack);
         }
-
         public virtual string GetMeshCacheKey(ItemStack itemstack)
         {
             if (itemstack.Attributes[PSAttributes] is not ITreeAttribute tree) return Code;
+
+            List<string> parts = [];
+            foreach (var pair in tree)
+            {
+                parts.Add($"{pair.Key}-{pair.Value}"); // No support for various domains across mods. (eg. cloth from "game:" and "wool:" domains)
+            }
+
+            return $"{Code}-{string.Join("-", parts)}";
+        }
+        public virtual string GetMeshCacheKey(ItemSlot slot)
+        {
+            if (slot.Itemstack.Attributes[PSAttributes] is not ITreeAttribute tree) return Code;
 
             List<string> parts = [];
             foreach (var pair in tree)

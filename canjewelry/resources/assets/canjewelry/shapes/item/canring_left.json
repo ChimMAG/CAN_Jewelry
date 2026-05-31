@@ -3,7 +3,7 @@
 		"backDropShape": "C:/Users/koeni/Desktop/seraph-faceless",
 		"collapsedPaths": "",
 		"allAngles": true,
-		"entityTextureMode": true
+		"entityTextureMode": false
 	},
 	"textureWidth": 64,
 	"textureHeight": 64,

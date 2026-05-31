@@ -18,12 +18,48 @@ namespace canjewelry.src.blocks
         public override void OnLoaded(ICoreAPI api)
         {
             base.OnLoaded(api);
-            this.dropsBySourceMat = this.Attributes["panningDrops"].AsObject<Dictionary<string, CANPanningDrop[]>>(null);
+
+            // Bootstrap admin's config from the canpan.json seed when missing. After bootstrap
+            // canjewelry.config.panningDrops is the canonical admin-editable source.
+            var fromAttr = this.Attributes["panningDrops"]
+                .AsObject<Dictionary<string, CANPanningDrop[]>>(null);
+            if (canjewelry.config.panningDrops == null)
+            {
+                canjewelry.config.panningDrops = fromAttr != null
+                    ? new Dictionary<string, CANPanningDrop[]>(fromAttr)
+                    : new Dictionary<string, CANPanningDrop[]>();
+                if (api.Side == EnumAppSide.Server)
+                {
+                    api.StoreModConfig(canjewelry.config, "canjewelry.json");
+                }
+            }
+
+            // Working table = admin's persistent config + runtime extras pushed by companion
+            // mods via canjewelry.RegisterPanDrops. Companion contributions never flow back to
+            // canjewelry.json so admins don't have to clean them up if a companion is removed.
+            this.dropsBySourceMat = new Dictionary<string, CANPanningDrop[]>(canjewelry.config.panningDrops);
+            if (canjewelry.Instance != null)
+            {
+                foreach (var kv in canjewelry.Instance.runtimeExtraPanDrops)
+                {
+                    if (this.dropsBySourceMat.TryGetValue(kv.Key, out var existing))
+                    {
+                        var combined = new CANPanningDrop[existing.Length + kv.Value.Length];
+                        System.Array.Copy(existing, 0, combined, 0, existing.Length);
+                        System.Array.Copy(kv.Value, 0, combined, existing.Length, kv.Value.Length);
+                        this.dropsBySourceMat[kv.Key] = combined;
+                    }
+                    else
+                    {
+                        this.dropsBySourceMat[kv.Key] = kv.Value;
+                    }
+                }
+            }
             foreach (CANPanningDrop[] drops in this.dropsBySourceMat.Values)
             {
                 for (int i = 0; i < drops.Length; i++)
                 {
-                    if (!drops[i].Code.Path.Contains("{rocktype}"))
+                    if (drops[i].Code != null && !drops[i].Code.Path.Contains("{rocktype}"))
                     {
                         drops[i].Resolve(api.World, "panningdrop", true);
                     }
@@ -334,6 +370,10 @@ namespace canjewelry.src.blocks
             }
             Block block = this.api.World.GetBlock(new AssetLocation(fromBlockCode));
             string rocktype = (block != null) ? block.Variant["rock"] : null;
+
+            // Filter out perk-gated entries the player can't unlock. Entries without
+            // requiresPerk pass through unchanged (preserves vanilla behaviour).
+            drops = FilterDropsByPerk(drops, player);
             drops.Shuffle(this.api.World.Rand);
             int i = 0;
             while (i < drops.Length)
@@ -345,15 +385,28 @@ namespace canjewelry.src.blocks
                 {
                     extraMul = byEntity.Stats.GetBlended(drop.DropModbyStat);
                 }
+                if (drop.Chance == null) { i++; continue; }
                 float val2 = drop.Chance.nextFloat() * extraMul;
                 ItemStack stack = drop.ResolvedItemstack;
-                if (drops[i].Code.Path.Contains("{rocktype}"))
+                if (drops[i].Code != null && drops[i].Code.Path.Contains("{rocktype}"))
                 {
                     stack = this.Resolve(drops[i].Type, drops[i].Code.Path.Replace("{rocktype}", rocktype));
                 }
                 if (num < (double)val2 && stack != null)
                 {
                     stack = stack.Clone();
+                    if (canjewelry.Instance != null && player != null)
+                    {
+                        var ev = new src.integration.PanEvent
+                        {
+                            Player = player,
+                            Drop = stack,
+                            SourceMaterial = fromBlockCode,
+                        };
+                        canjewelry.Instance.FirePan(ev);
+                        stack = ev.Drop;
+                        if (stack == null || stack.StackSize <= 0) return;
+                    }
                     if (player == null || !player.InventoryManager.TryGiveItemstack(stack, true))
                     {
                         this.api.World.SpawnItemEntity(stack, byEntity.ServerPos.XYZ, null);
@@ -367,6 +420,54 @@ namespace canjewelry.src.blocks
                 }
             }
         }
+        // Returns true if at least one drop entry for this material is unlocked for the
+        // player — used to short-circuit material consumption when every drop is gated and
+        // the player has no perks that satisfy any of them.
+        private bool PlayerHasAnyAllowedDrop(IPlayer player, string itemCode)
+        {
+            foreach (string val in this.dropsBySourceMat.Keys)
+            {
+                if (!WildcardUtil.Match(val, itemCode)) continue;
+                foreach (var drop in this.dropsBySourceMat[val])
+                {
+                    if (IsDropAllowed(drop, player)) return true;
+                }
+                return false;
+            }
+            return false;
+        }
+
+        private static CANPanningDrop[] FilterDropsByPerk(CANPanningDrop[] source, IPlayer player)
+        {
+            // Fast path — nothing in the table is gated.
+            bool anyGated = false;
+            for (int i = 0; i < source.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(source[i].requiresPerk)) { anyGated = true; break; }
+            }
+            if (!anyGated) return source;
+
+            var list = new List<CANPanningDrop>(source.Length);
+            for (int i = 0; i < source.Length; i++)
+            {
+                if (IsDropAllowed(source[i], player)) list.Add(source[i]);
+            }
+            return list.ToArray();
+        }
+
+        private static bool IsDropAllowed(CANPanningDrop drop, IPlayer player)
+        {
+            if (string.IsNullOrEmpty(drop.requiresPerk)) return true;
+            if (player == null || canjewelry.Instance == null) return false;
+            var ev = new src.integration.CanPanDropEvent
+            {
+                Player = player,
+                PerkCode = drop.requiresPerk,
+            };
+            canjewelry.Instance.FireCanPanDrop(ev);
+            return ev.Allowed;
+        }
+
         public virtual bool IsPannableMaterial(Block block)
         {
             JsonObject attributes = block.Attributes;
@@ -428,16 +529,34 @@ namespace canjewelry.src.blocks
                     {
                         return;
                     }
+                    // Pre-flight: if every drop in this material's table has a requiresPerk that
+                    // the player can't satisfy, refuse to accept the material so the player
+                    // doesn't spend it on a guaranteed empty pan.
+                    if (byEntity is EntityPlayer epPan && epPan.Player != null && !PlayerHasAnyAllowedDrop(epPan.Player, itemCode))
+                    {
+                        return;
+                    }
                     
                     this.SetMaterial(slot, itemCode);
-                    if (oreSlot.Itemstack.Item.Code.Path.Contains("stone-"))
+
+                    int amount = oreSlot.Itemstack.Item.Code.Path.Contains("stone-")
+                        ? canjewelry.config.pan_take_per_use * 4
+                        : canjewelry.config.pan_take_per_use;
+
+                    // Companion-mod hook — Lapidary "Light Touch" reduces this. Floor at 1.
+                    if (canjewelry.Instance != null && byEntity is EntityPlayer ep && ep.Player != null)
                     {
-                        oreSlot.TakeOut(canjewelry.config.pan_take_per_use * 4);
+                        var ev = new src.integration.PanTakeEvent
+                        {
+                            Player = ep.Player,
+                            MaterialCode = itemCode,
+                            Amount = amount,
+                        };
+                        canjewelry.Instance.FirePanMaterialTake(ev);
+                        amount = System.Math.Max(1, ev.Amount);
                     }
-                    else
-                    {
-                        oreSlot.TakeOut(canjewelry.config.pan_take_per_use);
-                    }
+
+                    oreSlot.TakeOut(amount);
                     oreSlot.MarkDirty();
                     slot.MarkDirty();
                     return;

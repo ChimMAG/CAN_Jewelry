@@ -30,6 +30,7 @@
     ]
   ],
   "name": "canpan",
+  "code": "canpan-{metal}",
   "output": {
     "type": "block",
     "code": "canjewelry:canpan-{metal}",

@@ -34,7 +34,7 @@ namespace canjewelry.src.commands
                                     .EndSub()
                                     .BeginSub("setgembuffs")
                                         .WithAlias("sgb")
-                                        .WithArgs(parsers.WordRange("cutting", "round", "baguette", "pear"), parsers.OptionalAll("buffNamesAndValues"))
+                                        .WithArgs(parsers.WordRange("cutting", CANJWConstants.CUTTING_ROUND, CANJWConstants.CUTTING_BAGUETTE, CANJWConstants.CUTTING_PEAR), parsers.OptionalAll("buffNamesAndValues"))
                                         .HandleWith(SetGemParams)
                                     .EndSub()
                                     ;
@@ -127,7 +127,7 @@ namespace canjewelry.src.commands
             //playerBackpacks.Player
             if (charakterInv != null)
             {
-                for (int i = 0; i < 16; ++i)
+                for (int i = 0; i < charakterInv.Count; ++i)
                 {
                     if (charakterInv[i] != null)
                     {

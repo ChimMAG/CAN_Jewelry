@@ -36,12 +36,12 @@ namespace canjewelry.src.compat.playermodellib
         public override void Start(ICoreAPI api)
         {
             base.Start(api);
-            var field = typeof(PlayerModelLib.WearablesTesselatorBehavior).GetField(
-                "InventoriesToProcess",
-                BindingFlags.Public | BindingFlags.Instance
-            );
-
-            var value = (HashSet<string>)field.GetValue(myClassInstance);
+            // TODO: incomplete experimental code - needs a WearablesTesselatorBehavior instance to read InventoriesToProcess
+            //var field = typeof(PlayerModelLib.WearablesTesselatorBehavior).GetField(
+            //    "InventoriesToProcess",
+            //    BindingFlags.Public | BindingFlags.Instance
+            //);
+            //var value = (HashSet<string>)field.GetValue(myClassInstance);
         }
         public override void StartServerSide(ICoreServerAPI api)
         {

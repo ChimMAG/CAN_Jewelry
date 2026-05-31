@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
@@ -44,14 +42,6 @@ namespace canjewelry.src.eb
             : base(entity)
         {
         }
-        public override void Initialize(EntityProperties properties, JsonObject attributes)
-        {
-            base.Initialize(properties, attributes);
-        }
-        /*protected override Shape addGearToShape(Shape entityShape, ItemStack stack, IAttachableToEntity iatta, string slotCode, string shapePathForLogging, ref string[] willDeleteElements, Dictionary<string, StepParentElementTo> overrideStepParent = null)
-        {
-            return base.addGearToShape(entityShape, stack, iatta, slotCode, shapePathForLogging, ref willDeleteElements, overrideStepParent);
-        }*/
         public override void OnEntityDespawn(EntityDespawnData despawn)
         {
             base.OnEntityDespawn(despawn);
@@ -81,7 +71,7 @@ namespace canjewelry.src.eb
                 }
             }
             base.OnGameTick(deltaTime);
-            this.accum += deltaTime;
+            /*this.accum += deltaTime;
             if (this.accum > 1f)
             {
                 TreeAttribute attributes = this.entity.Attributes;
@@ -104,7 +94,7 @@ namespace canjewelry.src.eb
                     flag = false;
                 }
                 attributes.SetBool(text, flag);
-            }
+            }*/
         }
         public override void OnTesselation(ref Shape entityShape, string shapePathForLogging, ref bool shapeIsCloned, ref string[] willDeleteElements)
         {

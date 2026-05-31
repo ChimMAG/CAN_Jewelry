@@ -1,32 +1,184 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Text;
+using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
+using Vintagestory.API.Config;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.MathTools;
-using Vintagestory.Client.NoObf;
+using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace canjewelry.src.items
 {
-    public class CANItemWearable : Item, IContainedMeshSource, ITexPositionSource
+    public abstract class CANItemWearable : Item, IContainedMeshSource, ITexPositionSource, IWearableShapeSupplier, IAttachableToEntity
     {
         protected Shape nowTesselatingShape;
         public static AssetLocation NotVisTexture;
-        protected Dictionary<string, AssetLocation> tmpTextures = new Dictionary<string, AssetLocation>();
-        public virtual TextureAtlasPosition this[string textureCode] => throw new NotImplementedException();
-        public virtual Size2i AtlasSize => throw new NotImplementedException();
-        public virtual MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
+
+        protected ITextureAtlasAPI curAtlas;
+        protected ICoreClientAPI capi;
+        protected float offY;
+        protected float curOffY;
+        protected readonly Dictionary<string, AssetLocation> tmpTextures = new Dictionary<string, AssetLocation>();
+
+        public StatModifiers StatModifers;
+        public EnumCharacterDressType DressType { get; protected set; }
+        public int RequiresBehindSlots { get; set; }
+        public virtual Size2i AtlasSize => curAtlas.Size;
+
+        protected abstract string MeshrefsCacheName { get; }
+
+        private static readonly string[] _materialAttrKeys = { "metal", "loop", "carcassus", "construction" };
+
+        public override string GetHeldItemName(ItemStack itemStack)
         {
-            throw new NotImplementedException();
+            string mat = null;
+            foreach (string k in _materialAttrKeys)
+            {
+                mat = itemStack.Attributes.GetString(k, null);
+                if (mat != null) break;
+            }
+            if (mat == null)
+            {
+                var variant = itemStack.Item?.Variant;
+                if (variant != null)
+                {
+                    foreach (string k in _materialAttrKeys)
+                    {
+                        mat = variant[k];
+                        if (mat != null) break;
+                    }
+                }
+            }
+            mat ??= "steel";
+            return Lang.Get("canjewelry:itemname-" + Code.FirstCodePart())
+                   + " (" + Lang.Get("game:material-" + mat) + ")";
         }
-        public virtual string GetMeshCacheKey(ItemStack itemstack)
+
+        protected Dictionary<int, MultiTextureMeshRef> meshrefs
+            => ObjectCacheUtil.GetOrCreate(api, MeshrefsCacheName, () => new Dictionary<int, MultiTextureMeshRef>());
+
+        public override void OnLoaded(ICoreAPI api)
         {
-            throw new NotImplementedException();
+            base.OnLoaded(api);
+            this.curOffY = (this.offY = this.FpHandTransform.Translation.Y);
+            this.capi = api as ICoreClientAPI;
+
+            AddAllTypesToCreativeInventory();
+
+            string value = Attributes["clothescategory"].AsString();
+            EnumCharacterDressType result = EnumCharacterDressType.Unknown;
+            Enum.TryParse<EnumCharacterDressType>(value, ignoreCase: true, out result);
+            DressType = result;
+
+            JsonObject jsonObject = Attributes?["statModifiers"];
+            if (jsonObject != null && jsonObject.Exists)
+            {
+                try { StatModifers = jsonObject.AsObject<StatModifiers>(); }
+                catch (Exception ex)
+                {
+                    api.World.Logger.Error("Failed loading statModifiers for item/block {0}. Will ignore. Exception: {1}", Code, ex);
+                    StatModifers = null;
+                }
+            }
+
+            jsonObject = Attributes?["defaultProtLoss"];
+            if (jsonObject != null && jsonObject.Exists)
+            {
+                try { jsonObject.AsObject<ProtectionModifiers>(); }
+                catch (Exception ex2)
+                {
+                    api.World.Logger.Error("Failed loading defaultProtLoss for item/block {0}. Will ignore. Exception: {1}", Code, ex2);
+                }
+            }
         }
+
+        protected virtual void AddAllTypesToCreativeInventory()
+        {
+            var vg = this.Attributes["variantGroups"].AsObject<Dictionary<string, string[]>>(null);
+            if (vg == null || !vg.TryGetValue("metal", out string[] metals)) return;
+
+            var stacks = new List<JsonItemStack>();
+            foreach (string metal in metals)
+            {
+                stacks.Add(GenJstack(string.Format("{{ metal: \"{0}\"}}", metal)));
+            }
+            this.CreativeInventoryStacks = new[]
+            {
+                new CreativeTabAndStackList
+                {
+                    Stacks = stacks.ToArray(),
+                    Tabs = new[] { "general", "items", "canjewelry" }
+                }
+            };
+        }
+
+        protected virtual string JstackResolveLabel => Code.Path + " type";
+
+        protected JsonItemStack GenJstack(string json)
+        {
+            var jstack = new JsonItemStack
+            {
+                Code = this.Code,
+                Type = EnumItemClass.Item,
+                Attributes = new JsonObject(JToken.Parse(json))
+            };
+            jstack.Resolve(this.api.World, JstackResolveLabel, true);
+            return jstack;
+        }
+
+        protected TextureAtlasPosition getOrCreateTexPos(AssetLocation texturePath)
+        {
+            ICoreClientAPI clientApi = api as ICoreClientAPI;
+            curAtlas.GetOrInsertTexture(texturePath, out _, out var texPos, delegate
+            {
+                IAsset asset = clientApi.Assets.TryGet(texturePath.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
+                if (asset != null) return asset.ToBitmap(clientApi);
+                clientApi.World.Logger.Warning("Item {0} defined texture {1}, not no such texture found.", Code, texturePath);
+                return null;
+            }, 0.1f);
+            return texPos;
+        }
+
+        public virtual TextureAtlasPosition this[string textureCode]
+        {
+            get
+            {
+                if (this.tmpTextures.TryGetValue(textureCode, out var res))
+                    return this.getOrCreateTexPos(res);
+
+                AssetLocation value = null;
+                if (textureCode == "metal" && Textures.TryGetValue("metal", out var metalTex))
+                    value = metalTex.Base;
+
+                if (Textures.TryGetValue(textureCode, out var value2))
+                    value = value2.Baked.BakedName;
+
+                if (value == null && Textures.TryGetValue("all", out value2))
+                    value = value2.Baked.BakedName;
+
+                if (value == null)
+                    nowTesselatingShape?.Textures.TryGetValue(textureCode, out value);
+
+                if (value == null)
+                {
+                    api.World.Logger.Debug("[CANItemWearable] {0}: texture key '{1}' not found, falling back to AssetLocation('{1}')", Code, textureCode);
+                    value = new AssetLocation(textureCode);
+                }
+
+                return getOrCreateTexPos(value);
+            }
+        }
+
+        protected abstract void FillTextureDict(Dictionary<string, AssetLocation> dict, ItemStack itemStack);
+
         public virtual MeshData genMesh(ICoreClientAPI capi, ItemStack itemstack, ITexPositionSource texSource)
         {
+            this.tmpTextures.Clear();
+            this.FillTextureDict(tmpTextures, itemstack);
             JsonObject attributes = itemstack.Collectible.Attributes;
             EntityProperties entityType = capi.World.GetEntityType(new AssetLocation(attributes?["wearerEntityCode"].ToString() ?? "player"));
             Shape loadedShape = entityType.Client.LoadedShape;
@@ -45,8 +197,8 @@ namespace canjewelry.src.items
             if (attributes["wearableInvShape"].Exists)
             {
                 AssetLocation shapePath = new AssetLocation("shapes/" + attributes["wearableInvShape"]?.ToString() + ".json");
-                Shape shape2 = Vintagestory.API.Common.Shape.TryGet(capi, shapePath);
-                capi.Tesselator.TesselateShape(itemstack.Collectible, shape2, out modeldata);
+                Shape invShape = Vintagestory.API.Common.Shape.TryGet(capi, shapePath);
+                capi.Tesselator.TesselateShape(itemstack.Collectible, invShape, out modeldata);
             }
             else
             {
@@ -58,75 +210,25 @@ namespace canjewelry.src.items
                 }
 
                 AssetLocation assetLocation = compositeShape.Base.CopyWithPathPrefixAndAppendixOnce("shapes/", ".json");
-                Shape shape3 = Vintagestory.API.Common.Shape.TryGet(capi, assetLocation);
-                if (shape3 == null)
+                Shape attachedShape = Vintagestory.API.Common.Shape.TryGet(capi, assetLocation);
+                if (attachedShape == null)
                 {
                     capi.World.Logger.Warning("Wearable shape {0} defined in {1} {2} not found or errored, was supposed to be at {3}. Item will be invisible.", compositeShape.Base, itemstack.Class, itemstack.Collectible.Code, assetLocation);
                     return null;
                 }
 
-                shape.StepParentShape(shape3, assetLocation.ToShortString(), @base.ToShortString(), capi.Logger, delegate
-                {
-                });
+                shape.StepParentShape(attachedShape, assetLocation.ToShortString(), @base.ToShortString(), capi.Logger, delegate { });
                 if (compositeShape.Overlays != null)
                 {
-                    CompositeShape[] overlays = compositeShape.Overlays;
-                    foreach (CompositeShape compositeShape2 in overlays)
+                    foreach (var overlayShape in compositeShape.Overlays)
                     {
-                        Shape shape4 = Vintagestory.API.Common.Shape.TryGet(capi, compositeShape2.Base.CopyWithPathPrefixAndAppendixOnce("shapes/", ".json"));
-                        if (shape4 == null)
-                        {
-                            capi.World.Logger.Warning("Wearable shape {0} overlay {4} defined in {1} {2} not found or errored, was supposed to be at {3}. Item will be invisible.", compositeShape.Base, itemstack.Class, itemstack.Collectible.Code, assetLocation, compositeShape2.Base);
-                        }
+                        Shape overlay = Vintagestory.API.Common.Shape.TryGet(capi, overlayShape.Base.CopyWithPathPrefixAndAppendixOnce("shapes/", ".json"));
+                        if (overlay == null)
+                            capi.World.Logger.Warning("Wearable shape {0} overlay {4} defined in {1} {2} not found or errored, was supposed to be at {3}. Item will be invisible.", compositeShape.Base, itemstack.Class, itemstack.Collectible.Code, assetLocation, overlayShape.Base);
                         else
-                        {
-                            shape.StepParentShape(shape4, compositeShape2.Base.ToShortString(), @base.ToShortString(), capi.Logger, delegate
-                            {
-                            });
-                        }
+                            shape.StepParentShape(overlay, overlayShape.Base.ToShortString(), @base.ToShortString(), capi.Logger, delegate { });
                     }
                 }
-                /*foreach (var texture in tmpTextures)
-                {
-                    CompositeTexture ctex = new CompositeTexture() { Base = texture.Value };
-                    AssetLocation armorTexLoc = texture.Value;
-                    if (!api.Assets.Exists(armorTexLoc.CopyWithPathPrefixAndAppendixOnce("textures/", ".png")))
-                    {
-                        ctex.Base.Path = "unknown";
-                        ctex.Base.Domain = "game";
-                    }
-                    ctex.Bake(api.Assets);
-                    //intoDict[texture.Key] = ctex;
-                    (texSource as Item).Textures[texture.Key] = ctex;
-                }*/
-                   /* foreach ((string textureCode, CompositeTexture texture) in (texSource as CANItemWearable).tmpTextures)
-                {
-                    CompositeTexture ctex = texture.Clone();
-                    //ctex = variants.ReplacePlaceholders(ctex);
-                    if (!api.Assets.Exists(ctex.Base.CopyWithPathPrefixAndAppendixOnce("textures/", ".png")))
-                    {
-                        ctex.Base.Path = "unknown";
-                        ctex.Base.Domain = "game";
-                    }
-                    ctex.Bake(api.Assets);
-                    //(this.api as ICoreClientAPI).EntityTextureAtlas
-                    (texSource as Item).Textures[textureCode] = ctex;*/
-
-                ////
-
-                   /* if (prefixedTextureCodes is { Count: > 0 } && prefixedTextureCodes.ContainsKey(textureCode))
-                    {
-                        textureSource.textures[overlayPrefix + textureCode] = ctex;
-                    }
-                    else
-                    {
-                        textureSource.textures[textureCode] = ctex;
-                    }*/
-
-                ///
-              // }
-
-
 
                 nowTesselatingShape = shape;
                 capi.Tesselator.TesselateShapeWithJointIds("entity", shape, out modeldata, texSource, new Vec3f());
@@ -134,6 +236,120 @@ namespace canjewelry.src.items
             }
 
             return modeldata;
+        }
+
+        public virtual MeshData GenMesh(ItemSlot slot, ITextureAtlasAPI targetAtlas, BlockPos atBlockPos)
+            => GenMesh(slot.Itemstack, targetAtlas, atBlockPos);
+
+        public virtual MeshData GenMesh(ItemStack itemstack, ITextureAtlasAPI targetAtlas, BlockPos forBlockPos = null)
+        {
+            ICoreClientAPI coreClientAPI = api as ICoreClientAPI;
+            curAtlas = targetAtlas;
+            if (targetAtlas == coreClientAPI.ItemTextureAtlas)
+            {
+                return genMesh(coreClientAPI, itemstack, this);
+            }
+
+            MeshData meshData = genMesh(coreClientAPI, itemstack, this);
+            meshData.RenderPassesAndExtraBits.Fill(MeshDefaultRenderPass);
+            return meshData;
+        }
+
+        protected virtual short MeshDefaultRenderPass => 1;
+
+        public override void OnBeforeRender(ICoreClientAPI capi, ItemStack itemstack, EnumItemRenderTarget target, ref ItemRenderInfo renderinfo)
+        {
+            if (target == EnumItemRenderTarget.HandTp)
+            {
+                bool sneak = capi.World.Player.Entity.Controls.Sneak;
+                this.curOffY += ((sneak ? 0.4f : this.offY) - this.curOffY) * renderinfo.dt * 8f;
+                renderinfo.Transform.Translation.X = this.curOffY;
+                renderinfo.Transform.Translation.Y = this.curOffY * 1.2f;
+                renderinfo.Transform.Translation.Z = this.curOffY * 1.2f;
+            }
+            int meshrefid = itemstack.TempAttributes.GetInt("meshRefId", 0);
+            if (meshrefid == 0 || !this.meshrefs.TryGetValue(meshrefid, out renderinfo.ModelRef))
+            {
+                int id = this.meshrefs.Count + 1;
+                MultiTextureMeshRef modelref = capi.Render.UploadMultiTextureMesh(this.GenMesh(itemstack, capi.ItemTextureAtlas));
+                renderinfo.ModelRef = (this.meshrefs[id] = modelref);
+                itemstack.TempAttributes.SetInt("meshRefId", id);
+            }
+            base.OnBeforeRender(capi, itemstack, target, ref renderinfo);
+        }
+
+        public virtual Shape GetShape(ItemStack stack, Entity forEntity, string texturePrefixCode)
+        {
+            JsonObject attrObj = stack.Collectible.Attributes;
+            CompositeShape compGearShape = (!attrObj["attachShape"].Exists)
+                ? ((stack.Class == EnumItemClass.Item) ? stack.Item.Shape : stack.Block.Shape)
+                : attrObj["attachShape"].AsObject<CompositeShape>(null, stack.Collectible.Code.Domain);
+
+            AssetLocation shapePath = compGearShape.Base.CopyWithPath("shapes/" + compGearShape.Base.Path + ".json");
+            Shape gearShape = Vintagestory.API.Common.Shape.TryGet(api, shapePath);
+            if (gearShape == null)
+            {
+                api.World.Logger.Warning("Entity armor shape {0} defined in {1} {2} not found or errored, was supposed to be at {3}. Armor piece will be invisible.",
+                    compGearShape.Base, stack.Class, stack.Collectible.Code, shapePath);
+                return null;
+            }
+            return gearShape;
+        }
+
+        public virtual void CollectTextures(ItemStack stack, Shape shape, string texturePrefixCode, Dictionary<string, CompositeTexture> intoDict)
+        {
+            if (this.api.Side is EnumAppSide.Server) return;
+
+            tmpTextures.Clear();
+            FillTextureDict(tmpTextures, stack);
+
+            foreach (var texture in tmpTextures)
+            {
+                CompositeTexture ctex = new CompositeTexture { Base = texture.Value };
+                AssetLocation armorTexLoc = texture.Value;
+                int textureSubId;
+
+                (this.api as ICoreClientAPI).EntityTextureAtlas.GetOrInsertTexture(armorTexLoc, out textureSubId, out _, () =>
+                {
+                    IAsset texAsset = this.capi.Assets.TryGet(armorTexLoc.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
+                    return texAsset?.ToBitmap(capi);
+                });
+
+                ctex.Baked = new BakedCompositeTexture { BakedName = armorTexLoc, TextureSubId = textureSubId };
+                intoDict[texture.Key] = ctex;
+            }
+        }
+
+        public abstract string GetCategoryCode(ItemStack stack);
+
+        public virtual CompositeShape GetAttachedShape(ItemStack stack, string slotCode) => this.Shape;
+        public virtual string[] GetDisableElements(ItemStack stack) => null;
+        public virtual string[] GetKeepElements(ItemStack stack) => null;
+        public virtual string GetTexturePrefixCode(ItemStack stack) => GetMeshCacheKey(stack);
+        public virtual bool IsAttachable(Entity toEntity, ItemStack itemStack) => true;
+
+        public virtual string GetMeshCacheKey(ItemSlot slot) => GetMeshCacheKey(slot.Itemstack);
+        public abstract string GetMeshCacheKey(ItemStack itemstack);
+
+        public override void GetHeldItemInfo(ItemSlot inSlot, StringBuilder dsc, IWorldAccessor world, bool withDebugInfo)
+        {
+            base.GetHeldItemInfo(inSlot, dsc, world, withDebugInfo);
+
+            if ((api as ICoreClientAPI).Settings.Bool["extendedDebugInfo"])
+            {
+                if (inSlot.Itemstack.Attributes.HasAttribute("clothescategory"))
+                {
+                    dsc.AppendLine(Lang.Get("Cloth Category: {0}", Lang.Get("canjewelry:clothcategory-" + inSlot.Itemstack.Attributes.GetString("clothescategory"))));
+                }
+                else if (DressType == EnumCharacterDressType.Unknown)
+                {
+                    dsc.AppendLine(Lang.Get("Cloth Category: Unknown"));
+                }
+                else
+                {
+                    dsc.AppendLine(Lang.Get("Cloth Category: {0}", Lang.Get("canjewelry:clothcategory-" + inSlot.Itemstack.ItemAttributes["clothescategory"].AsString())));
+                }
+            }
         }
     }
 }

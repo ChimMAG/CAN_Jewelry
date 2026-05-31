@@ -81,11 +81,15 @@ namespace canjewelry.src.be
 
                 if (canStore)
                 {
-                    AssetLocation sound = slot.Itemstack?.Block?.Sounds?.Place;
+                    SoundAttributes? sound = slot.Itemstack?.Block?.Sounds?.Place;
 
                     if (TryPut(byPlayer, slot, blockSel))
                     {
-                        Api.World.PlaySoundAt(sound ?? new AssetLocation("sounds/player/build"), byPlayer.Entity, byPlayer, true, 16);
+                       /// Api.World.PlaySoundAt(sound ?? new AssetLocation("sounds/player/build"), byPlayer.Entity, byPlayer, true, 16);
+                        /*
+        void PlaySoundAt(AssetLocation? location, Entity atEntity, IPlayer? dualCallByPlayer = null, bool randomizePitch = true, float range = 32, float volume = 1);
+
+        void PlaySoundAt(AssetLocation? location, Entity atEntity, IPlayer? dualCallByPlayer, float pitch, float range = 32, float volume = 1);*/
                         return true;
                     }
                 }
@@ -152,8 +156,10 @@ namespace canjewelry.src.be
 
                     if (byPlayer.InventoryManager.TryGiveItemstack(stack))
                     {
-                        AssetLocation sound = stack.Block?.Sounds?.Place;
-                        Api.World.PlaySoundAt(sound ?? new AssetLocation("sounds/player/build"), byPlayer.Entity, byPlayer, true, 16);
+                        SoundAttributes? sound = stack.Block?.Sounds?.Place;
+                        //BlockSounds sounds = stack.Block.GetSounds(this.Api, stack.Block);
+                        //1, byPlayer.Entity, byPlayer, true, 16
+                        //Api.World.PlaySoundAt(sound ?? new SoundAttributes(new AssetLocation("sounds/player/build"), false), byPlayer);
                     }
 
                     if (stack.StackSize > 0)

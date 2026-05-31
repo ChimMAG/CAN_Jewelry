@@ -42,6 +42,8 @@ namespace canjewelry.src.be
 
         public override string InventoryClassName => "canwiredrawingbench";
         public string woodType;
+        // Set in StartSqueeze, consumed in onSqueezing — needed so OnWireDrawn knows who to refund.
+        private IPlayer pendingSqueezer;
 
         public TextureAtlasPosition this[string textureCode]
         {
@@ -164,13 +166,24 @@ namespace canjewelry.src.be
                 }
                 if(this.Api.Side == EnumAppSide.Server && !this.inventory[0].Empty)
                 {
-                    this.inventory[0].Itemstack = new ItemStack(canjewelry.sapi.World.GetItem(new AssetLocation("canjewelry:canwirehank-" + GetWireType())), canjewelry.config.wirehank_per_strap);
+                    ItemStack output = new ItemStack(canjewelry.sapi.World.GetItem(new AssetLocation("canjewelry:canwirehank-" + GetWireType())), canjewelry.config.wirehank_per_strap);
+
+                    var ev = new src.integration.WireDrawEvent
+                    {
+                        Player = this.pendingSqueezer,
+                        Input = this.inventory[0].Itemstack,
+                        Output = output,
+                    };
+                    canjewelry.Instance?.FireWireDraw(ev);
+
+                    this.inventory[0].Itemstack = ev.Output;
                 }
                 else
                 {
                     this.tmpAssets.Remove("wire");
 
                 }
+                this.pendingSqueezer = null;
                 this.Api.World.UnregisterGameTickListener(this.listenerId);
                 
                 listenerId = 0;
@@ -184,6 +197,7 @@ namespace canjewelry.src.be
             {
                 return;
             }
+            this.pendingSqueezer = byPlayer;
             if (this.Api.Side == EnumAppSide.Client)
             {
                 this.startWiringAnim();

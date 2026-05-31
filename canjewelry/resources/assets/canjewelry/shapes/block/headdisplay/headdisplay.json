@@ -10,7 +10,7 @@
 	},
 	"textures": {
 		"clear": "game:block/wood/displaycase/clear",
-		"wood": "/Users/koeni/Desktop/ebony",
+		"wood": "game:block/wood/debarked/oak",
 		"black": "game:item/armor/cloth/black"
 	},
 	"elements": [

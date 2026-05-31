@@ -10,7 +10,7 @@
 	},
 	"textures": {
 		"layer": "canjewelry:item/grindlayer/rough",
-		"wood": "game:item/tool/material/wood"
+		"wood": "game:block/wood/planks/oak1"
 	},
 	"elements": [
 		{

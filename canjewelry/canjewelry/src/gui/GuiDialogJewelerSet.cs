@@ -117,7 +117,7 @@ namespace canjewelry.src.jewelry
                                 float[] currentBuffValues = (imaginaryGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute)?.value;
                                 imaginaryGemTreeNew[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(currentBuffNames);
                                 imaginaryGemTreeNew[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(currentBuffValues);
-                                imaginaryGemTreeNew.SetString(CANJWConstants.CUTTING_TYPE, imaginaryGemTree.GetString(CANJWConstants.CUTTING_TYPE, "round"));
+                                imaginaryGemTreeNew.SetString(CANJWConstants.CUTTING_TYPE, imaginaryGemTree.GetString(CANJWConstants.CUTTING_TYPE, CANJWConstants.CUTTING_ROUND));
                                 bucketSatck.Attributes[CANJWConstants.CUT_GEM_TREE] = imaginaryGemTreeNew;
                              }
                             var sli = new SlideshowItemstackTextComponent(capi, new ItemStack[] { bucketSatck }, 48, EnumFloat.Inline);

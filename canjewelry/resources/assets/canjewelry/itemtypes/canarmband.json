@@ -47,7 +47,7 @@
     "texturesByType": {
         "*": {
             "seraph": { "base": "game:block/transparent" },
-            "metal": { "base": "game:block/metal/plate/{loop}" }
+            "metal": { "base": "game:block/metal/ingot/iron" }
         }
     },
     "fpHandTransformByType": {
