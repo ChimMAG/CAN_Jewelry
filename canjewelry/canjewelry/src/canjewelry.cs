@@ -714,14 +714,13 @@ namespace canjewelry.src
                     return;
                 }
                 var currVersion = api.ModLoader.Mods.FirstOrDefault(mod => mod.Info.ModID == "canjewelry")?.Info.Version ?? "0.0.0";
-                if(currVersion != null) 
+                if (currVersion != null)
                 {
-                    /*if(currVersion != config.config_version)
+                    if (currVersion != config.config_version)
                     {
                         config.FillDefaultValues(true);
                         config.config_version = currVersion;
-                    }*/
-                    config.config_version = currVersion;
+                    }
                 }
 
 
