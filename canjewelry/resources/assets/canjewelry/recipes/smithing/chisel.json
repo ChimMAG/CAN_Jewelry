@@ -6,6 +6,7 @@
 		"________#_#____",
 	]],
 	name: "gem cutting chisel",
+	code: "cangemchisel-{metal}",
 	output: {
 		"type": "item",
 		"code": "canjewelry:cangemchisel-{metal}"

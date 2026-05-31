@@ -70,7 +70,8 @@
     },
     "texturesByType": {
         "*": {
-            "seraph": { "base": "game:block/transparent" }
+            "seraph": { "base": "game:block/transparent" },
+            "gem": { "base": "game:block/transparent" }
         }
     },
     "shapeByType": {

@@ -193,6 +193,7 @@ namespace canjewelry.src.be
             if (texPos == null)
             {
                 IAsset asset = this.capi.Assets.TryGet(texturePath.Clone().WithPathPrefixOnce("textures/").WithPathAppendixOnce(".png"));
+                
                 if (asset != null)
                 {
                     BitmapRef bitmap = asset.ToBitmap(this.capi);
@@ -247,7 +248,7 @@ namespace canjewelry.src.be
             }*/
             if (shape == null)
             {
-                shape = Vintagestory.API.Common.Shape.TryGet(capi, "canjewelry:shapes/block/gemcuttingtable.json");
+                shape = Vintagestory.API.Common.Shape.TryGet(capi, "canjewelry:shapes/block/gemcuttingtable.json").Clone();
             }
 
             if (shape == null)
@@ -313,6 +314,7 @@ namespace canjewelry.src.be
                     EncrustableCB.ReduceBuffValueBecauseOfMistakes(outstack, mistakeValueMult);
                     //ApplyCuttingBuff(outstack);
                     //outstack.Collectible.SetTemperature(Api.World, outstack, workItemStack.Collectible.GetTemperature(Api.World, workItemStack));
+                    EncrustableCB.FireCutCompletionEvents(byPlayer, workItemStack, outstack);
                     workItemStack = null;
 
                     SelectedRecipeId = -1;
@@ -333,7 +335,7 @@ namespace canjewelry.src.be
                     return false;
                 }
             }
-            
+
 
             if (byPlayer.InventoryManager.ActiveHotbarSlot.Itemstack?.Collectible is CANItemGemChisel)
             {
@@ -348,6 +350,7 @@ namespace canjewelry.src.be
             {
                 return TryTake(world, byPlayer, blockSel);
             }
+
         }
 
         private bool RotateWorkItem(bool ccw)
@@ -758,6 +761,7 @@ namespace canjewelry.src.be
                 EncrustableCB.ApplyCuttingBuff(outstack);
                 //ApplyCuttingBuff(outstack);
                 //outstack.Collectible.SetTemperature(Api.World, outstack, workItemStack.Collectible.GetTemperature(Api.World, workItemStack));
+                EncrustableCB.FireCutCompletionEvents(byPlayer, workItemStack, outstack);
                 workItemStack = null;
 
                 SelectedRecipeId = -1;

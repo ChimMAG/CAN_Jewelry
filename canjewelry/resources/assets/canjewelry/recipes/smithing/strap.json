@@ -19,6 +19,7 @@
     ]
   ],
   "name": "Strap",
+  "code": "canstrap-{metal}",
   "output": {
     "type": "item",
     "code": "canjewelry:canstrap-{metal}",

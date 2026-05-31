@@ -30,6 +30,7 @@
     ]
   ],
   "name": "cantiara",
+  "code": "cantiara-{metal}",
   "output": {
     "type": "item",
     "code": "canjewelry:cantiara-normal-tiara",

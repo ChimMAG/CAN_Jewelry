@@ -10,7 +10,8 @@
 	"textures": {
 		"rotten-king-mask": "game:entity/humanoid/seraphclothes/face/rottenking",
 		"rotten-king-cloth": "game:entity/humanoid/seraphclothes/face/rottenkingcloth",
-		"silver1": "game:block/metal/plate/steel"
+		"silver1": "game:block/metal/plate/steel",
+		"seraph": "game:block/transparent" 
 	},
 	"elements": [
 		{

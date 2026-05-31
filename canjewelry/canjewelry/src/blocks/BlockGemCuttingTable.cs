@@ -43,24 +43,14 @@ namespace canjewelry.src.blocks
             get
             {
                 if (tmpAssets.TryGetValue(textureCode, out var assetCode))
-                {
                     return this.getOrCreateTexPos(assetCode);
-                }
 
-                Dictionary<string, CompositeTexture> dictionary;
-                dictionary = new Dictionary<string, CompositeTexture>();
-                foreach (var it in this.Textures)
-                {
-                    dictionary.Add(it.Key, it.Value);
-                }
-                AssetLocation texturePath = (AssetLocation)null;
-                CompositeTexture compositeTexture;
-                if (dictionary.TryGetValue(textureCode, out compositeTexture))
-                    texturePath = compositeTexture.Baked.BakedName;
-                if ((object)texturePath == null && dictionary.TryGetValue("all", out compositeTexture))
-                    texturePath = compositeTexture.Baked.BakedName;
+                if (this.Textures.TryGetValue(textureCode, out var ct))
+                    return this.getOrCreateTexPos(ct.Baked.BakedName);
+                if (this.Textures.TryGetValue("all", out ct))
+                    return this.getOrCreateTexPos(ct.Baked.BakedName);
 
-                return this.getOrCreateTexPos(texturePath);
+                return null;
             }
         }
         public override void OnLoaded(ICoreAPI api)
@@ -180,8 +170,8 @@ namespace canjewelry.src.blocks
             List<JsonItemStack> stacks = new List<JsonItemStack>();
             Dictionary<string, string[]> vg = this.Attributes["variantGroups"].AsObject<Dictionary<string, string[]>>(null);
 
-            string[] metals = vg["metal"][0..2];
-            string[] stones = vg["stone"][0..2];
+            string[] metals = vg["metal"][..Math.Min(2, vg["metal"].Length)];
+            string[] stones = vg["stone"][..Math.Min(2, vg["stone"].Length)];
             foreach (string metal in metals) 
             {
                 foreach (string stone in stones)
@@ -214,7 +204,7 @@ namespace canjewelry.src.blocks
         public override void OnDecalTesselation(IWorldAccessor world, MeshData decalMesh, BlockPos pos)
         {
             base.OnDecalTesselation(world, decalMesh, pos);
-            BlockEntityAnvil bect = world.BlockAccessor.GetBlockEntity(pos) as BlockEntityAnvil;
+            BlockEntityGemCuttingTable bect = world.BlockAccessor.GetBlockEntity(pos) as BlockEntityGemCuttingTable;
             if (bect != null)
             {
                 decalMesh.Rotate(new Vec3f(0.5f, 0.5f, 0.5f), 0, bect.MeshAngle, 0);
@@ -227,8 +217,7 @@ namespace canjewelry.src.blocks
             if (bea != null)
             {
                 Cuboidf[] selectionBoxes = bea.GetSelectionBoxes(blockAccessor, pos);
-                float angledeg = Math.Abs(bea.MeshAngle * GameMath.RAD2DEG);
-                selectionBoxes[0] = angledeg == 0 || angledeg == 180 ? SelectionBoxes[0] : SelectionBoxes[1];
+                selectionBoxes[0] = SelectionBoxes[0];
                 return selectionBoxes;
             }
 
@@ -244,7 +233,6 @@ namespace canjewelry.src.blocks
         {
             return true;
         }
-
         public override bool OnBlockInteractStart(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel)
         {
             BlockEntityGemCuttingTable bea = world.BlockAccessor.GetBlockEntity(blockSel.Position) as BlockEntityGemCuttingTable;
@@ -273,7 +261,7 @@ namespace canjewelry.src.blocks
 
             if (val)
             {
-                BlockEntityAnvil bect = world.BlockAccessor.GetBlockEntity(blockSel.Position) as BlockEntityAnvil;
+                BlockEntityGemCuttingTable bect = world.BlockAccessor.GetBlockEntity(blockSel.Position) as BlockEntityGemCuttingTable;
                 if (bect != null)
                 {
                     BlockPos targetPos = blockSel.DidOffset ? blockSel.Position.AddCopy(blockSel.Face.Opposite) : blockSel.Position;

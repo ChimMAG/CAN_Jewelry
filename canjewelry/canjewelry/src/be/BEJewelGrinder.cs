@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
+using canjewelry.src.CB;
 using canjewelry.src.inventories;
 using canjewelry.src.items.resource;
 using Vintagestory.API.Client;
@@ -536,7 +537,7 @@ namespace canjewelry.src.jewelry
                     ITreeAttribute tree = new TreeAttribute();
 
                     tree.SetInt("grindtype", 1);
-                    tree.SetInt("grindcounter", 10);
+                    tree.SetInt("grindcounter", EncrustableCB.FireGrindStageStartEvent(player, activeItemStack, 1, canjewelry.config.grinderStage1Counter));
                     activeItemStack.Attributes["cangrindlayerinfo"] = tree;
                     return;
                 }
@@ -567,7 +568,9 @@ namespace canjewelry.src.jewelry
                         cutGemTree = activeItemStack.Attributes.GetTreeAttribute(CANJWConstants.CUT_GEM_TREE);
                         canjewelry.config.CuttingAttributesDict.TryGetValue(cutGemTree.GetString(CANJWConstants.CUTTING_TYPE), out var cuttingAttributes);
                         var currentValues = (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value;
-                        currentValues[0] = currentValues[0] * cuttingAttributes.GrindingBuffIncreaseMultipliers[itree.GetInt("grindtype")];
+                        int grindStage = itree.GetInt("grindtype");
+                        float companionMult = EncrustableCB.FireGrindStepEvent(player, activeItemStack, grindStage);
+                        currentValues[0] = currentValues[0] * cuttingAttributes.GrindingBuffIncreaseMultipliers[grindStage] * companionMult;
                         (cutGemTree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] as FloatArrayAttribute).value = currentValues;
                         if (itree.GetInt("grindtype") == 2)
                         {
@@ -576,8 +579,9 @@ namespace canjewelry.src.jewelry
                             activeSlot.MarkDirty();
                             return;
                         }
-                        itree.SetInt("grindtype", itree.GetInt("grindtype") + 1);
-                        itree.SetInt("grindcounter", 20);
+                        int nextStage = itree.GetInt("grindtype") + 1;
+                        itree.SetInt("grindtype", nextStage);
+                        itree.SetInt("grindcounter", EncrustableCB.FireGrindStageStartEvent(player, activeItemStack, nextStage, canjewelry.config.grinderStage2Counter));
                         player.InventoryManager.ActiveHotbarSlot.MarkDirty();
                         //activeSlot.MarkDirty();
                     }

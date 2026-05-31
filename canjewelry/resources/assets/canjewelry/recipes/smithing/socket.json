@@ -32,6 +32,7 @@
     ]
   ],
   "name": "Socket",
+  "code": "cansocket-{metal}",
   "output": {
     "type": "item",
     "code": "canjewelry:cansocket-{metal}",

@@ -2,10 +2,15 @@
   "code": "jewelgrinder",
   "class": "BlockJewelGrinder",
   "entityClass": "BEJewelGrinder",
-  "entityBehaviors": [ { "name": "MPConsumer" } ],
+  "entityBehaviors": [
+    {
+      "name": "MPConsumer",
+      "properties": { "mechPartShape": null }
+    }
+  ],
   "behaviors": [
     { "name": "Container" }
-    
+
   ],
   "attributes": {
     "handbook": {
@@ -32,7 +37,7 @@
     "all": true
   },
   "sideopaque": {
-    "all": false,
+    "all": false
   },
   "lightAbsorption": 1,
   "maxStackSize": 1,

@@ -8,6 +8,7 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
+using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
@@ -88,18 +89,35 @@ namespace canjewelry.src.eb
 
         public override void OnTesselation(ref Shape entityShape, string shapePathForLogging, ref bool shapeIsCloned, ref string[] willDeleteElements)
         {
-            addGearToShape(ref entityShape, shapePathForLogging, ref shapeIsCloned, ref willDeleteElements);
+            return;
+            try
+            {
+                this.addGearToShape(ref entityShape, shapePathForLogging, ref shapeIsCloned, ref willDeleteElements);
+            }
+            catch (Exception e)
+            {
+                string text = "Error tesselating entity ";
+                string text2 = this.entity.Code;
+                string text3 = " at ";
+                BlockPos asBlockPos = this.entity.Pos.AsBlockPos;
+                throw new Exception(text + text2 + text3 + ((asBlockPos != null) ? asBlockPos.ToString() : null), e);
+            }
             base.OnTesselation(ref entityShape, shapePathForLogging, ref shapeIsCloned, ref willDeleteElements);
+
+
+
+            //addGearToShape(ref entityShape, shapePathForLogging, ref shapeIsCloned, ref willDeleteElements);
+            //base.OnTesselation(ref entityShape, shapePathForLogging, ref shapeIsCloned, ref willDeleteElements);
             if (Inventory != null)
             {
                 ItemSlot itemSlot = Inventory.MaxBy((ItemSlot slot) => (!slot.Empty) ? slot.Itemstack.Collectible.LightHsv[2] : 0);
-                if (!itemSlot.Empty)
+                if (!itemSlot.Empty && itemSlot.Itemstack.Collectible.LightHsv[2] > 0)
                 {
-                    entity.LightHsv = itemSlot.Itemstack.Collectible.GetLightHsv(entity.World.BlockAccessor, null, itemSlot.Itemstack);
-                }
-                else
-                {
-                    entity.LightHsv = null;
+                    byte[] jewelryLight = itemSlot.Itemstack.Collectible.GetLightHsv(entity.World.BlockAccessor, null, itemSlot.Itemstack);
+                    if (entity.LightHsv == null || jewelryLight[2] > entity.LightHsv[2])
+                    {
+                        entity.LightHsv = jewelryLight;
+                    }
                 }
             }
         }
@@ -271,12 +289,13 @@ namespace canjewelry.src.eb
 
             if (capi != null)
             {
-                foreach (KeyValuePair<string, CompositeTexture> item in dictionary)
+                foreach (KeyValuePair<string, CompositeTexture> val2 in dictionary)
                 {
-                    CompositeTexture compositeTexture2 = (textures[item.Key] = item.Value.Clone());
-                    CompositeTexture compositeTexture3 = compositeTexture2;
-                    capi.EntityTextureAtlas.GetOrInsertTexture(compositeTexture3, out var textureSubId, out var _);
-                    compositeTexture3.Baked.TextureSubId = textureSubId;
+                    CompositeTexture cmpt = (textures[val2.Key] = val2.Value.Clone());
+                    int textureSubid;
+                    TextureAtlasPosition textureAtlasPosition;
+                    capi.EntityTextureAtlas.GetOrInsertTexture(cmpt, out textureSubid, out textureAtlasPosition, 0f);
+                    cmpt.Baked.TextureSubId = textureSubid;
                 }
             }
 

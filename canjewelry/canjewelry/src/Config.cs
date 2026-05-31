@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vintagestory.API.Common;
+using Vintagestory.API.MathTools;
 
 namespace canjewelry.src
 {
@@ -34,6 +35,17 @@ namespace canjewelry.src
         public float maxFineForMistake = 0.08f;
         public bool TurnOffBuffs = false;
         public float minGrinderProcessingSpeed = 0.3f;
+        // doGrind tick counts per stage (lower = faster). Values get reduced by Lapidary's
+        // Workshop Speedup perk when the companion mod is installed; without it these are the
+        // raw stage durations. Floored at 1 server-side regardless of value.
+        public int grinderStage1Counter = 10;
+        public int grinderStage2Counter = 20;
+        // Pan drops table. Null on first run — CANBlockPan.OnLoaded auto-bootstraps it from
+        // the canpan.json block attribute and saves the config back, so admins get an editable
+        // copy. Subsequent runs always read from here, ignoring the asset attribute.
+        public Dictionary<string, utils.CANPanningDrop[]> panningDrops = null;
+        public float gemExtractionReturnChance = 0.5f;
+        public float jewelryBreakOnExtractionChance = 0.1f;
         public Dictionary<string, int> LevelOfSocketByType = new Dictionary<string, int>();
         public void FillDefaultValues(bool onlyEmptyStructs = false)
         {
@@ -1424,6 +1436,92 @@ namespace canjewelry.src
                                                                 { "canjewelry:cansocket-iron", 2},
                                                                 { "canjewelry:cansocket-meteoriciron", 2},
                                                                 { "canjewelry:cansocket-steel", 3 }};
+
+            if (panningDrops == null)
+            {
+                utils.CANPanningDrop D(string code, float chance) => new utils.CANPanningDrop
+                {
+                    Code = new AssetLocation(code),
+                    Type = EnumItemClass.Item,
+                    StackSize = 1,
+                    Chance = new NatFloat(chance, 0f, EnumDistribution.UNIFORM)
+                };
+                utils.CANPanningDrop[] OreDrops(string gem, float n, float fl, float ch) => new[]
+                {
+                    D("canjewelry:gem-rough-normal-"  + gem, n),
+                    D("canjewelry:gem-rough-flawed-"  + gem, fl),
+                    D("canjewelry:gem-rough-chipped-" + gem, ch),
+                };
+                panningDrops = new Dictionary<string, utils.CANPanningDrop[]>
+                {
+                    { "game:rock-suevite",                                    OreDrops("diamond",    0.2f, 0.3f, 0.5f) },
+
+                    { "@(ore|crystalizedore)-bountiful-hematite-.*",         OreDrops("corundum",   0.4f, 0.7f, 0.8f) },
+                    { "@(ore|crystalizedore)-rich-hematite-.*",              OreDrops("corundum",   0.2f, 0.5f, 0.6f) },
+                    { "@(ore|crystalizedore)-medium-hematite-.*",            new[] { D("canjewelry:gem-rough-flawed-corundum",  0.4f), D("canjewelry:gem-rough-chipped-corundum",  0.5f) } },
+                    { "@(ore|crystalizedore)-poor-hematite-.*",              new[] { D("canjewelry:gem-rough-chipped-corundum", 0.4f) } },
+
+                    { "@(ore|crystalizedore)-bountiful-malachite-.*",        OreDrops("malachite",  0.4f, 0.7f, 0.8f) },
+                    { "@(ore|crystalizedore)-rich-malachite-.*",             OreDrops("malachite",  0.2f, 0.5f, 0.6f) },
+                    { "@(ore|crystalizedore)-medium-malachite-.*",           new[] { D("canjewelry:gem-rough-flawed-malachite",  0.4f), D("canjewelry:gem-rough-chipped-malachite",  0.5f) } },
+                    { "@(ore|crystalizedore)-poor-malachite-.*",             new[] { D("canjewelry:gem-rough-chipped-malachite", 0.4f) } },
+
+                    { "@(ore|crystalizedore)-bountiful-bismuthinite-.*",     OreDrops("lapislazuli", 0.4f, 0.7f, 0.8f) },
+                    { "@(ore|crystalizedore)-rich-bismuthinite-.*",          OreDrops("lapislazuli", 0.2f, 0.5f, 0.6f) },
+                    { "@(ore|crystalizedore)-medium-bismuthinite-.*",        new[] { D("canjewelry:gem-rough-flawed-lapislazuli",  0.4f), D("canjewelry:gem-rough-chipped-lapislazuli",  0.5f) } },
+                    { "@(ore|crystalizedore)-poor-bismuthinite-.*",          new[] { D("canjewelry:gem-rough-chipped-lapislazuli", 0.4f) } },
+
+                    { "@(ore|crystalizedore)-bountiful-cassiterite-.*",      OreDrops("olivine",    0.4f, 0.7f, 0.8f) },
+                    { "@(ore|crystalizedore)-rich-cassiterite-.*",           OreDrops("olivine",    0.2f, 0.5f, 0.6f) },
+                    { "@(ore|crystalizedore)-medium-cassiterite-.*",         new[] { D("canjewelry:gem-rough-flawed-olivine",  0.4f), D("canjewelry:gem-rough-chipped-olivine",  0.5f) } },
+                    { "@(ore|crystalizedore)-poor-cassiterite-.*",           new[] { D("canjewelry:gem-rough-chipped-olivine", 0.4f) } },
+
+                    { "@(ore|crystalizedore)-bountiful-sphalerite-.*",       OreDrops("fluorite",   0.4f, 0.7f, 0.8f) },
+                    { "@(ore|crystalizedore)-rich-sphalerite-.*",            OreDrops("fluorite",   0.2f, 0.5f, 0.6f) },
+                    { "@(ore|crystalizedore)-medium-sphalerite-.*",          new[] { D("canjewelry:gem-rough-flawed-fluorite",  0.4f), D("canjewelry:gem-rough-chipped-fluorite",  0.5f) } },
+                    { "@(ore|crystalizedore)-poor-sphalerite-.*",            new[] { D("canjewelry:gem-rough-chipped-fluorite", 0.4f) } },
+
+                    { "@(ore|crystalizedore)-bountiful-quartz_nativesilver-.*", OreDrops("quartz",  0.4f, 0.7f, 0.8f) },
+                    { "@(ore|crystalizedore)-rich-quartz_nativesilver-.*",      OreDrops("quartz",  0.2f, 0.5f, 0.6f) },
+                    { "@(ore|crystalizedore)-medium-quartz_nativesilver-.*",    new[] { D("canjewelry:gem-rough-flawed-quartz",  0.4f), D("canjewelry:gem-rough-chipped-quartz",  0.5f) } },
+                    { "@(ore|crystalizedore)-poor-quartz_nativesilver-.*",      new[] { D("canjewelry:gem-rough-chipped-quartz", 0.4f) } },
+
+                    { "@(ore|crystalizedore)-bountiful-quartz_nativegold-.*",   OreDrops("quartz",  0.4f, 0.7f, 0.8f) },
+                    { "@(ore|crystalizedore)-rich-quartz_nativegold-.*",        OreDrops("quartz",  0.2f, 0.5f, 0.6f) },
+                    { "@(ore|crystalizedore)-medium-quartz_nativegold-.*",      new[] { D("canjewelry:gem-rough-flawed-quartz",  0.4f), D("canjewelry:gem-rough-chipped-quartz",  0.5f) } },
+                    { "@(ore|crystalizedore)-poor-quartz_nativegold-.*",        new[] { D("canjewelry:gem-rough-chipped-quartz", 0.4f) } },
+
+                    { "@(ore|crystalizedore)-bountiful-limonite-.*",         OreDrops("uranium",    0.4f, 0.7f, 0.8f) },
+                    { "@(ore|crystalizedore)-rich-limonite-.*",              OreDrops("uranium",    0.2f, 0.5f, 0.6f) },
+                    { "@(ore|crystalizedore)-medium-limonite-.*",            new[] { D("canjewelry:gem-rough-flawed-uranium",  0.4f), D("canjewelry:gem-rough-chipped-uranium",  0.5f) } },
+                    { "@(ore|crystalizedore)-poor-limonite-.*",              new[] { D("canjewelry:gem-rough-chipped-uranium", 0.4f) } },
+
+                    { "@(ore|crystalizedore)-bountiful-ilmenite-.*",         new[] { D("canjewelry:gem-rough-normal-diamond",  0.4f), D("canjewelry:gem-rough-flawed-diamond",  0.7f), D("canjewelry:gem-rough-chipped-diamond",  0.8f), D("canjewelry:gem-rough-normal-emerald",  0.4f), D("canjewelry:gem-rough-flawed-emerald",  0.7f), D("canjewelry:gem-rough-chipped-emerald",  0.8f) } },
+                    { "@(ore|crystalizedore)-rich-ilmenite-.*",              new[] { D("canjewelry:gem-rough-normal-diamond",  0.2f), D("canjewelry:gem-rough-flawed-diamond",  0.5f), D("canjewelry:gem-rough-chipped-diamond",  0.6f), D("canjewelry:gem-rough-normal-emerald",  0.2f), D("canjewelry:gem-rough-flawed-emerald",  0.5f), D("canjewelry:gem-rough-chipped-emerald",  0.6f) } },
+                    { "@(ore|crystalizedore)-medium-ilmenite-.*",            new[] { D("canjewelry:gem-rough-flawed-diamond",  0.4f), D("canjewelry:gem-rough-chipped-diamond",  0.5f), D("canjewelry:gem-rough-flawed-emerald",  0.4f), D("canjewelry:gem-rough-chipped-emerald",  0.5f) } },
+                    { "@(ore|crystalizedore)-poor-ilmenite-.*",              new[] { D("canjewelry:gem-rough-chipped-diamond", 0.4f), D("canjewelry:gem-rough-chipped-emerald", 0.4f) } },
+
+                    { "@(ore|crystalizedore)-bountiful-nativecopper-.*",     OreDrops("ruby",       0.4f, 0.7f, 0.8f) },
+                    { "@(ore|crystalizedore)-rich-nativecopper-.*",          OreDrops("ruby",       0.2f, 0.5f, 0.6f) },
+                    { "@(ore|crystalizedore)-medium-nativecopper-.*",        new[] { D("canjewelry:gem-rough-flawed-ruby",  0.4f), D("canjewelry:gem-rough-chipped-ruby",  0.5f) } },
+                    { "@(ore|crystalizedore)-poor-nativecopper-.*",          new[] { D("canjewelry:gem-rough-chipped-ruby", 0.4f) } },
+
+                    { "@(ore|crystalizedore)-bountiful-magnetite-.*",        OreDrops("citrine",    0.4f, 0.7f, 0.8f) },
+                    { "@(ore|crystalizedore)-rich-magnetite-.*",             OreDrops("citrine",    0.2f, 0.5f, 0.6f) },
+                    { "@(ore|crystalizedore)-medium-magnetite-.*",           new[] { D("canjewelry:gem-rough-flawed-citrine",  0.4f), D("canjewelry:gem-rough-chipped-citrine",  0.5f) } },
+                    { "@(ore|crystalizedore)-poor-magnetite-.*",             new[] { D("canjewelry:gem-rough-chipped-citrine", 0.4f) } },
+
+                    { "@(ore|crystalizedore)-bountiful-uranium-.*",          OreDrops("uranium",    0.5f, 0.75f, 0.9f) },
+                    { "@(ore|crystalizedore)-rich-uranium-.*",               OreDrops("uranium",    0.3f, 0.6f,  0.7f) },
+                    { "@(ore|crystalizedore)-medium-uranium-.*",             new[] { D("canjewelry:gem-rough-flawed-uranium",  0.5f), D("canjewelry:gem-rough-chipped-uranium",  0.6f) } },
+                    { "@(ore|crystalizedore)-poor-uranium-.*",               new[] { D("canjewelry:gem-rough-chipped-uranium", 0.6f) } },
+
+                    { "@(ore|crystalizedore)-bountiful-galena-.*",           OreDrops("amethyst",   0.5f, 0.75f, 0.9f) },
+                    { "@(ore|crystalizedore)-rich-galena-.*",                OreDrops("amethyst",   0.3f, 0.6f,  0.7f) },
+                    { "@(ore|crystalizedore)-medium-galena-.*",              new[] { D("canjewelry:gem-rough-flawed-amethyst",  0.5f), D("canjewelry:gem-rough-chipped-amethyst",  0.6f) } },
+                    { "@(ore|crystalizedore)-poor-galena-.*",                new[] { D("canjewelry:gem-rough-chipped-amethyst", 0.6f) } },
+                };
+            }
         }
         public class DropInfo
         {

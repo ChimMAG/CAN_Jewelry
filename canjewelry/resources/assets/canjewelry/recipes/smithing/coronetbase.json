@@ -30,6 +30,7 @@
     ]
   ],
   "name": "cancoronet",
+  "code": "cancoronet-{metal}",
   "output": {
     "type": "item",
     "code": "canjewelry:cancoronet-{metal}",

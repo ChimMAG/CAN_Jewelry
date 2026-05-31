@@ -10,8 +10,8 @@
 	"textureSizes": {
 	},
 	"textures": {
-		"canglasses_quartz": "",
-		"can_glasses_metal": ""
+		"canglasses_quartz": "game:block/glass/plain",
+		"can_glasses_metal": "game:block/metal/ingot/iron"
 	},
 	"elements": [
 		{
