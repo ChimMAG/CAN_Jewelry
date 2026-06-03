@@ -172,7 +172,12 @@ namespace canjewelry.src
         /// </summary>
         public override void StartPre(ICoreAPI api)
         {
-            PlayerInventoryManager.defaultInventories = PlayerInventoryManager.defaultInventories.Append("additionaljewelrycharacter");
+            // Guard against appending twice within a single VS process (e.g. leave and rejoin a
+            // world with the mod active), which would otherwise leave a duplicate entry behind.
+            if (!PlayerInventoryManager.defaultInventories.Contains("additionaljewelrycharacter"))
+            {
+                PlayerInventoryManager.defaultInventories = PlayerInventoryManager.defaultInventories.Append("additionaljewelrycharacter");
+            }
             base.StartPre(api);
         }
 
@@ -506,6 +511,11 @@ namespace canjewelry.src
         public override void Dispose()
         {
             base.Dispose();
+            // defaultInventories is a static field on the engine's PlayerInventoryManager and
+            // outlives this mod's assembly. Undo the StartPre append, otherwise a stale
+            // "additionaljewelrycharacter" entry remains after the mod is unloaded and the next
+            // world load crashes trying to instantiate an inventory class that is no longer registered.
+            PlayerInventoryManager.defaultInventories = PlayerInventoryManager.defaultInventories.Remove("additionaljewelrycharacter");
             if (harmonyInstance != null)
             {
                 harmonyInstance.UnpatchAll(harmonyID);

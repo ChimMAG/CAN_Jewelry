@@ -24,7 +24,22 @@
     },
 
     "displaycaseable": true,
-    "shelvable": true
+    "shelvable": true,
+    "displayable": {
+      "shelf": {
+        "sizeByType": {
+          "*-exquisite-*": { "width": 4, "height": 2, "length": 4 },
+          "*-flawless-*": { "width": 3, "height": 1, "length": 3 },
+          "*-normal-*": { "width": 2, "height": 1, "length": 2 }
+        },
+        "transform": {
+          "translation": { "x": 0, "y": 0, "z": 0 },
+          "rotation": { "x": 0, "y": 0, "z": 0 },
+          "origin": { "x": 0.5, "y": 0, "z": 0.5 },
+          "scale": 1
+        }
+      }
+    }
   },
   "texturesByType": {   
     "*": {

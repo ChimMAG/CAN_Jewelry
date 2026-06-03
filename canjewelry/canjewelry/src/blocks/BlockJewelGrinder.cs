@@ -78,6 +78,7 @@ namespace canjewelry.src.blocks
             }
             else
             {
+                blockEntity.StartGrindSound();
                 byPlayer.InventoryManager.ActiveHotbarSlot.TryFlipWith(byPlayer.InventoryManager.ActiveHotbarSlot);
             }
             return true;
@@ -91,6 +92,8 @@ namespace canjewelry.src.blocks
         {
             if (!(world.BlockAccessor.GetBlockEntity(blockSel.Position) is BEJewelGrinder blockEntity))
                 return;
+            if (world.Side == EnumAppSide.Client)
+                blockEntity.StopGrindSound();
             blockEntity.SetPlayerGrinding(byPlayer, false);
         }
 
@@ -102,7 +105,11 @@ namespace canjewelry.src.blocks
           EnumItemUseCancelReason cancelReason)
         {
             if (world.BlockAccessor.GetBlockEntity(blockSel.Position) is BEJewelGrinder blockEntity)
+            {
+                if (world.Side == EnumAppSide.Client)
+                    blockEntity.StopGrindSound();
                 blockEntity.SetPlayerGrinding(byPlayer, false);
+            }
             return true;
         }
 

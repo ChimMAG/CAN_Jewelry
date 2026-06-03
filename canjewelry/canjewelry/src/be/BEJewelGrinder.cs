@@ -159,7 +159,7 @@ namespace canjewelry.src.jewelry
             if (this.ambientSound == null && api.Side == EnumAppSide.Client)
                 this.ambientSound = ((IClientWorldAccessor)api.World).LoadSound(new SoundParams()
                 {
-                    Location = new AssetLocation("sounds/block/quern.ogg"),
+                    Location = new AssetLocation("canjewelry:sounds/grinder.ogg"),
                     ShouldLoop = true,
                     Position = this.Pos.ToVec3f().Add(0.5f, 0.25f, 0.5f),
                     DisposeOnFinish = false,
@@ -546,13 +546,15 @@ namespace canjewelry.src.jewelry
                 {
                     this.InputStack.Collectible.DamageItem(canjewelry.sapi.World, player.Entity, this.InputSlot);
                     float grindSpeed = this.GrindSpeed;
-                    float num1 = 1f * grindSpeed;
-                    float num2 = 5f * grindSpeed;
-                    float num3 = 1f * grindSpeed;
-                    float num4 = 20f * grindSpeed;
+                    float num1 = 2f * grindSpeed;
+                    float num2 = 10f * grindSpeed;
+                    float num3 = 2f * grindSpeed;
+                    float num4 = 35f * grindSpeed;
                     gemTypeToColor.TryGetValue(activeItemStack.Collectible.Variant["gemtype"], out int colorParticles);
+                    if (colorParticles == 0) colorParticles = -421266951;
 
-                    BEJewelGrinder.FlourDustParticles.Color = -421266951;//colorParticles;
+                    BEJewelGrinder.FlourDustParticles.Color = colorParticles;
+                    BEJewelGrinder.FlourParticles.Color = colorParticles;
                     BEJewelGrinder.FlourDustParticles.MinQuantity = num1;
                     BEJewelGrinder.FlourDustParticles.AddQuantity = num2;
                     BEJewelGrinder.FlourDustParticles.MinPos.Set((double)this.Pos.X - 1.0 / 32.0, (double)this.Pos.Y + 11.0 / 16.0, (double)this.Pos.Z - 1.0 / 32.0);
@@ -595,6 +597,17 @@ namespace canjewelry.src.jewelry
             }
 
         }
+        public void StartGrindSound()
+        {
+            if (ambientSound != null && !ambientSound.IsPlaying)
+                ambientSound.Start();
+        }
+
+        public void StopGrindSound()
+        {
+            ambientSound?.Stop();
+        }
+
         ~BEJewelGrinder()
         {
             if (this.ambientSound == null)

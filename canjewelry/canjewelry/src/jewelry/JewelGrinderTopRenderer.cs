@@ -75,7 +75,7 @@ namespace canjewelry.src.jewelry
 
                 if (ShouldRotateAutomated)
                 {
-                    AngleRad = mechPowerPart.AngleRad;
+                    AngleRad = mechPowerPart.AngleRad * 3f;
                 }
             }
         }

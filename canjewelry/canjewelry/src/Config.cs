@@ -747,6 +747,77 @@ namespace canjewelry.src
             { "spear-generic-meteoricsteel", new int[3] {3, 3, 3} },
 
             #endregion
+            #region canadditionalmetals
+            { "*pickaxe-blacksteel",        new int[3] {3, 3, 3} },
+            { "*pickaxe-redsteel",          new int[3] {3, 3, 3} },
+            { "*pickaxe-bluesteel",         new int[3] {3, 3, 3} },
+
+            { "*shovel-blacksteel",         new int[3] {3, 3, 3} },
+            { "*shovel-redsteel",           new int[3] {3, 3, 3} },
+            { "*shovel-bluesteel",          new int[3] {3, 3, 3} },
+
+            { "*scythe-blacksteel",         new int[3] {3, 3, 3} },
+            { "*scythe-redsteel",           new int[3] {3, 3, 3} },
+            { "*scythe-bluesteel",          new int[3] {3, 3, 3} },
+
+            { "*knife-generic-blacksteel",  new int[3] {3, 3, 3} },
+            { "*knife-generic-redsteel",    new int[3] {3, 3, 3} },
+            { "*knife-generic-bluesteel",   new int[3] {3, 3, 3} },
+
+            { "armory:axe-long-plain-blacksteel",    new int[3] {3, 3, 3} },
+            { "armory:axe-long-plain-redsteel",      new int[3] {3, 3, 3} },
+            { "armory:axe-long-plain-bluesteel",     new int[3] {3, 3, 3} },
+
+            { "armory:sword-great-plain-blacksteel", new int[3] {3, 3, 3} },
+            { "armory:sword-great-plain-redsteel",   new int[3] {3, 3, 3} },
+            { "armory:sword-great-plain-bluesteel",  new int[3] {3, 3, 3} },
+
+            { "armory:sword-long-plain-blacksteel",  new int[3] {3, 3, 3} },
+            { "armory:sword-long-plain-redsteel",    new int[3] {3, 3, 3} },
+            { "armory:sword-long-plain-bluesteel",   new int[3] {3, 3, 3} },
+
+            { "armory:sword-short-plain-blacksteel", new int[3] {3, 3, 3} },
+            { "armory:sword-short-plain-redsteel",   new int[3] {3, 3, 3} },
+            { "armory:sword-short-plain-bluesteel",  new int[3] {3, 3, 3} },
+
+            { "armory:javelin-plain-blacksteel",     new int[3] {3, 3, 3} },
+            { "armory:javelin-plain-redsteel",       new int[3] {3, 3, 3} },
+            { "armory:javelin-plain-bluesteel",      new int[3] {3, 3, 3} },
+
+            { "armory:pike-plain-blacksteel",        new int[3] {3, 3, 3} },
+            { "armory:pike-plain-redsteel",          new int[3] {3, 3, 3} },
+            { "armory:pike-plain-bluesteel",         new int[3] {3, 3, 3} },
+
+            { "armory:club-plain-blacksteel",        new int[3] {3, 3, 3} },
+            { "armory:club-plain-redsteel",          new int[3] {3, 3, 3} },
+            { "armory:club-plain-bluesteel",         new int[3] {3, 3, 3} },
+
+            { "armory:mace-plain-blacksteel",        new int[3] {3, 3, 3} },
+            { "armory:mace-plain-redsteel",          new int[3] {3, 3, 3} },
+            { "armory:mace-plain-bluesteel",         new int[3] {3, 3, 3} },
+
+            { "armory:poleaxe-plain-blacksteel",     new int[3] {3, 3, 3} },
+            { "armory:poleaxe-plain-redsteel",       new int[3] {3, 3, 3} },
+            { "armory:poleaxe-plain-bluesteel",      new int[3] {3, 3, 3} },
+
+            { "armory:halberd-plain-blacksteel",     new int[3] {3, 3, 3} },
+            { "armory:halberd-plain-redsteel",       new int[3] {3, 3, 3} },
+            { "armory:halberd-plain-bluesteel",      new int[3] {3, 3, 3} },
+
+            { "armory:quarterstaff-plain-blacksteel",new int[3] {3, 3, 3} },
+            { "armory:quarterstaff-plain-redsteel",  new int[3] {3, 3, 3} },
+            { "armory:quarterstaff-plain-bluesteel", new int[3] {3, 3, 3} },
+
+            { "armory:sabre-plain-blacksteel",       new int[3] {3, 3, 3} },
+            { "armory:sabre-plain-redsteel",         new int[3] {3, 3, 3} },
+            { "armory:sabre-plain-bluesteel",        new int[3] {3, 3, 3} },
+
+            { "*blade-falx-blacksteel",              new int[3] {3, 3, 3} },
+            { "*blade-falx-redsteel",                new int[3] {3, 3, 3} },
+            { "*blade-falx-bluesteel",               new int[3] {3, 3, 3} },
+            { "*blade-falx-rosegold",                new int[3] {3, 3, 3} },
+            { "*blade-falx-sterlingsilver",          new int[3] {3, 3, 3} },
+            #endregion
            /* {  "game:shears-", new int[1] {3} },
 
             {  "game:shears-blackbronze", new int[1] {2} },
@@ -990,62 +1061,87 @@ namespace canjewelry.src
             {
                 custom_variants_sockets_tiers.Add(
                     new CustomVariantSocketsTiers("canjewelry:cantiara-normal-tiara", "carcassus", new Dictionary<string, int[]> {
-                        { "tinbronze", new int[] { 1 } },
-                        { "bismuthbronze", new int[] { 1 } },
-                        { "blackbronze", new int[] { 1 } },
-                         { "gold", new int[] { 1, 1 } },
-                         { "silver", new int[] { 1, 1 } },
-                         { "iron", new int[] { 1, 1, 1 } },
-                         { "meteoriciron", new int[] { 1, 2, 1 } },
-                         { "steel", new int[] { 1, 2, 1 } }
+                        { "tinbronze",      new int[] { 1 } },
+                        { "bismuthbronze",  new int[] { 1 } },
+                        { "blackbronze",    new int[] { 1 } },
+                        { "gold",           new int[] { 1, 1 } },
+                        { "silver",         new int[] { 1, 1 } },
+                        { "iron",           new int[] { 1, 1, 1 } },
+                        { "meteoriciron",   new int[] { 1, 2, 1 } },
+                        { "steel",          new int[] { 1, 2, 1 } },
+                        { "rosegold",       new int[] { 1, 1 } },
+                        { "sterlingsilver", new int[] { 1, 1 } },
+                        { "blacksteel",     new int[] { 2, 2, 2 } },
+                        { "redsteel",       new int[] { 2, 3, 2 } },
+                        { "bluesteel",      new int[] { 2, 3, 2 } },
                     })
                  );
                 custom_variants_sockets_tiers.Add(
                     new CustomVariantSocketsTiers("canjewelry:canrottenkingmask-normal", "metal", new Dictionary<string, int[]> {
-                        { "tinbronze", new int[] { 1 } },
-                        { "bismuthbronze", new int[] { 1 } },
-                        { "blackbronze", new int[] { 1 } },
-                         { "gold", new int[] { 1} },
-                         { "silver", new int[] { 1 } },
-                         { "iron", new int[] { 1 } },
-                         { "meteoriciron", new int[] { 2} },
-                         { "steel", new int[] { 2 } }
+                        { "tinbronze",      new int[] { 1 } },
+                        { "bismuthbronze",  new int[] { 1 } },
+                        { "blackbronze",    new int[] { 1 } },
+                        { "gold",           new int[] { 1 } },
+                        { "silver",         new int[] { 1 } },
+                        { "iron",           new int[] { 1 } },
+                        { "meteoriciron",   new int[] { 2 } },
+                        { "steel",          new int[] { 2 } },
+                        { "rosegold",       new int[] { 1 } },
+                        { "sterlingsilver", new int[] { 1 } },
+                        { "blacksteel",     new int[] { 2 } },
+                        { "redsteel",       new int[] { 3 } },
+                        { "bluesteel",      new int[] { 3 } },
                     })
                  );
                 custom_variants_sockets_tiers.Add(
                     new CustomVariantSocketsTiers("canjewelry:cansimplenecklace-normal-neck", "loop", new Dictionary<string, int[]> {
-                        { "tinbronze", new int[] { 1 } },
-                        { "bismuthbronze", new int[] { 1 } },
-                        { "blackbronze", new int[] { 1 } },
-                         { "gold", new int[] { 1} },
-                         { "silver", new int[] { 1 } },
-                         { "iron", new int[] { 1 } },
-                         { "meteoriciron", new int[] { 2} },
-                         { "steel", new int[] { 2 } }
+                        { "tinbronze",      new int[] { 1 } },
+                        { "bismuthbronze",  new int[] { 1 } },
+                        { "blackbronze",    new int[] { 1 } },
+                        { "gold",           new int[] { 1 } },
+                        { "silver",         new int[] { 1 } },
+                        { "iron",           new int[] { 1 } },
+                        { "meteoriciron",   new int[] { 2 } },
+                        { "steel",          new int[] { 2 } },
+                        { "rosegold",       new int[] { 1 } },
+                        { "sterlingsilver", new int[] { 1 } },
+                        { "blacksteel",     new int[] { 2 } },
+                        { "redsteel",       new int[] { 3 } },
+                        { "bluesteel",      new int[] { 3 } },
                     })
                  );
                 custom_variants_sockets_tiers.Add(
                     new CustomVariantSocketsTiers("canjewelry:canmonocle-normal", "loop", new Dictionary<string, int[]> {
-                        { "tinbronze", new int[] { 1 } },
-                        { "bismuthbronze", new int[] { 1 } },
-                        { "blackbronze", new int[] { 1 } },
-                         { "gold", new int[] { 1} },
-                         { "silver", new int[] { 1 } },
-                         { "iron", new int[] { 1 } },
-                         { "meteoriciron", new int[] { 2} },
-                         { "steel", new int[] { 2 } }
+                        { "tinbronze",      new int[] { 1 } },
+                        { "bismuthbronze",  new int[] { 1 } },
+                        { "blackbronze",    new int[] { 1 } },
+                        { "gold",           new int[] { 1 } },
+                        { "silver",         new int[] { 1 } },
+                        { "iron",           new int[] { 1 } },
+                        { "meteoriciron",   new int[] { 2 } },
+                        { "steel",          new int[] { 2 } },
+                        { "rosegold",       new int[] { 1 } },
+                        { "sterlingsilver", new int[] { 1 } },
+                        { "blacksteel",     new int[] { 2 } },
+                        { "redsteel",       new int[] { 3 } },
+                        { "bluesteel",      new int[] { 3 } },
                     })
                  );
                 custom_variants_sockets_tiers.Add(
                     new CustomVariantSocketsTiers("canjewelry:canhoruseye-normal", "metal", new Dictionary<string, int[]> {
-                        { "tinbronze", new int[] { 1 } },
-                        { "bismuthbronze", new int[] { 1 } },
-                        { "blackbronze", new int[] { 1 } },
-                         { "gold", new int[] { 1} },
-                         { "silver", new int[] { 1 } },
-                         { "iron", new int[] { 1 } },
-                         { "meteoriciron", new int[] { 1} },
-                         { "steel", new int[] { 1 } }
+                        { "tinbronze",      new int[] { 1 } },
+                        { "bismuthbronze",  new int[] { 1 } },
+                        { "blackbronze",    new int[] { 1 } },
+                        { "gold",           new int[] { 1 } },
+                        { "silver",         new int[] { 1 } },
+                        { "iron",           new int[] { 1 } },
+                        { "meteoriciron",   new int[] { 1 } },
+                        { "steel",          new int[] { 1 } },
+                        { "rosegold",       new int[] { 1 } },
+                        { "sterlingsilver", new int[] { 1 } },
+                        { "blacksteel",     new int[] { 2 } },
+                        { "redsteel",       new int[] { 2 } },
+                        { "bluesteel",      new int[] { 2 } },
                     })
                  );
             }
@@ -1409,19 +1505,15 @@ namespace canjewelry.src
 
             if (LevelOfSocketByType.Count == 0) LevelOfSocketByType = new Dictionary<string, int>
             {
-                TemporalGraspBlockList = new HashSet<string> { "game:soil-*", "game:rawclay-blue-*", "game:forestfloor-*", "game:stalagsection-*", "game:ore-bountiful-*", "game:ore-rich-*", "game:ore-poor-*", "game:ore-medium-*", "game:peat-*", "game:lakeice"//,  
-                    /*"game:leaves-placed-*",
-                    "game:leavesbranchy-placed*",
-                    "game:bambooleaves-*",*/ };
-            }
-            LevelOfSocketByType = new Dictionary<string, int> { { "canjewelry:cansocket-gold", 2 },
-                                                                { "canjewelry:cansocket-silver", 2 },
-                                                                { "canjewelry:cansocket-bismuthbronze", 1 },
-                                                                { "canjewelry:cansocket-tinbronze", 1},
-                                                                { "canjewelry:cansocket-blackbronze", 1},
-                                                                { "canjewelry:cansocket-iron", 2},
-                                                                { "canjewelry:cansocket-meteoriciron", 2},
-                                                                { "canjewelry:cansocket-steel", 3 }};
+                { "canjewelry:cansocket-gold",         2 },
+                { "canjewelry:cansocket-silver",       2 },
+                { "canjewelry:cansocket-bismuthbronze",1 },
+                { "canjewelry:cansocket-tinbronze",    1 },
+                { "canjewelry:cansocket-blackbronze",  1 },
+                { "canjewelry:cansocket-iron",         2 },
+                { "canjewelry:cansocket-meteoriciron", 2 },
+                { "canjewelry:cansocket-steel",        3 },
+            };
 
             if (panningDrops == null)
             {

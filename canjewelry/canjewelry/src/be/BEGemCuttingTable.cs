@@ -29,71 +29,6 @@ namespace canjewelry.src.be
 
     public class BlockEntityGemCuttingTable : BlockEntity, IRotatable, ITexPositionSource
     {
-        #region Particle
-
-        public static SimpleParticleProperties bigMetalSparks;
-        public static SimpleParticleProperties smallMetalSparks;
-        public static SimpleParticleProperties slagPieces;
-
-        static BlockEntityGemCuttingTable()
-        {
-            smallMetalSparks = new SimpleParticleProperties(
-                2, 5,
-                ColorUtil.ToRgba(255, 255, 233, 83),
-                new Vec3d(), new Vec3d(),
-                new Vec3f(-3f, 8f, -3f),
-                new Vec3f(3f, 12f, 3f),
-                0.1f,
-                1f,
-                0.25f, 0.25f,
-                EnumParticleModel.Quad
-            );
-            smallMetalSparks.VertexFlags = 128;
-            smallMetalSparks.AddPos.Set(1 / 16f, 0, 1 / 16f);
-            smallMetalSparks.SizeEvolve = new EvolvingNatFloat(EnumTransformFunction.LINEAR, -0.05f);
-            smallMetalSparks.ParticleModel = EnumParticleModel.Quad;
-            smallMetalSparks.LifeLength = 0.03f;
-            smallMetalSparks.MinVelocity = new Vec3f(-2f, 1f, -2f);
-            smallMetalSparks.AddVelocity = new Vec3f(4f, 2f, 4f);
-            smallMetalSparks.MinQuantity = 6;
-            smallMetalSparks.AddQuantity = 12;
-            smallMetalSparks.MinSize = 0.1f;
-            smallMetalSparks.MaxSize = 0.1f;
-            smallMetalSparks.SizeEvolve = new EvolvingNatFloat(EnumTransformFunction.LINEAR, -0.1f);
-
-
-
-            bigMetalSparks = new SimpleParticleProperties(
-                4, 8,
-                ColorUtil.ToRgba(255, 255, 233, 83),
-                new Vec3d(), new Vec3d(),
-                new Vec3f(-1.5f, 0.9f, -1.5f),
-                new Vec3f(3f, 2f, 3f),
-                0.5f,
-                1f,
-                0.25f, 0.25f
-            );
-            bigMetalSparks.VertexFlags = 128;
-            bigMetalSparks.AddPos.Set(1 / 16f, 0, 1 / 16f);
-            bigMetalSparks.SizeEvolve = new EvolvingNatFloat(EnumTransformFunction.LINEAR, -0.25f);
-
-
-
-            slagPieces = new SimpleParticleProperties(
-                2, 12,
-                ColorUtil.ToRgba(255, 255, 233, 83),
-                new Vec3d(), new Vec3d(),
-                new Vec3f(-1f, 0.5f, -1f),
-                new Vec3f(2f, 1.5f, 2f),
-                0.5f,
-                1f,
-                0.25f, 0.5f
-            );
-            slagPieces.AddPos.Set(1 / 16f, 0, 1 / 16f);
-            slagPieces.SizeEvolve = new EvolvingNatFloat(EnumTransformFunction.LINEAR, -0.25f);
-
-        }
-        #endregion
         // Permanent data
         ItemStack workItemStack;
         public int SelectedRecipeId = -1;
@@ -544,7 +479,7 @@ namespace canjewelry.src.be
 
             if (voxelMat != EnumVoxelMaterial.Empty)
             {
-                //spawnParticles(voxelPos, voxelMat, byPlayer);
+                spawnParticles(voxelPos, voxelMat, byPlayer);
                 switch (toolMode)
                 {
                     case 0:
@@ -556,13 +491,13 @@ namespace canjewelry.src.be
                     case 2:
                         OnCleanVertical(voxelPos, BlockFacing.EAST.FaceWhenRotatedBy(0, yaw - GameMath.PIHALF, 0));
                         break;
-                        // case 0: OnHit(voxelPos); break;
-                        /*case 1: OnUpset(voxelPos, BlockFacing.NORTH.FaceWhenRotatedBy(0, yaw - GameMath.PIHALF, 0)); break;
-                        case 2: OnUpset(voxelPos, BlockFacing.EAST.FaceWhenRotatedBy(0, yaw - GameMath.PIHALF, 0)); break;
-                        case 3: OnUpset(voxelPos, BlockFacing.SOUTH.FaceWhenRotatedBy(0, yaw - GameMath.PIHALF, 0)); break;
-                        case 4: OnUpset(voxelPos, BlockFacing.WEST.FaceWhenRotatedBy(0, yaw - GameMath.PIHALF, 0)); break;
-                        case 5: OnSplit(voxelPos); break;*/
                 }
+
+                Api.World.PlaySoundAt(
+                    new AssetLocation("sounds/player/knap" + (Api.World.Rand.Next(2) > 0 ? 1 : 2)),
+                    Pos.X + 0.5, Pos.Y + 0.5, Pos.Z + 0.5,
+                    byPlayer, true, 12f, 1f
+                );
 
                 RegenMeshAndSelectionBoxes();
                 Api.World.BlockAccessor.MarkBlockDirty(Pos);
@@ -582,30 +517,39 @@ namespace canjewelry.src.be
 
         private void spawnParticles(Vec3i voxelPos, EnumVoxelMaterial voxelMat, IPlayer byPlayer)
         {
-            if (voxelMat == EnumVoxelMaterial.Metal)
+            Random rnd = Api.World.Rand;
+            Vec3d spawnPos = Pos.ToVec3d().AddCopy(
+                voxelPos.X / 16f + 0.03f,
+                voxYOff + voxelPos.Y / 16f + 0.07f,
+                voxelPos.Z / 16f + 0.03f
+            );
+
+            int color = ColorUtil.ToRgba(255, 170, 170, 170);
+            if (workItemStack != null)
+                color = workItemStack.Collectible.GetRandomColor(Api as ICoreClientAPI, workItemStack);
+
+            for (int i = 0; i < 4; i++)
             {
-                bigMetalSparks.MinPos = Pos.ToVec3d().AddCopy(voxelPos.X / 16f, voxYOff + voxelPos.Y / 16f + 0.0625f, voxelPos.Z / 16f);
-                bigMetalSparks.AddPos.Set(1 / 16f, 0, 1 / 16f);
-                bigMetalSparks.VertexFlags = (byte)GameMath.Clamp((int)(100 - 700) / 2, 32, 128);
-                bigMetalSparks.Bounciness = 0.7f;
-                Api.World.SpawnParticles(bigMetalSparks, byPlayer);
-
-
-                smallMetalSparks.MinPos = Pos.ToVec3d().AddCopy(voxelPos.X / 16f, voxYOff + voxelPos.Y / 16f + 0.0625f, voxelPos.Z / 16f);
-                smallMetalSparks.VertexFlags = (byte)GameMath.Clamp((int)(100 - 770) / 3, 32, 128);
-                smallMetalSparks.AddPos.Set(1 / 16f, 0, 1 / 16f);
-
-
-
-                Api.World.SpawnParticles(smallMetalSparks, byPlayer);
-            }
-
-            if (voxelMat == EnumVoxelMaterial.Slag)
-            {
-                slagPieces.Color = workItemStack.Collectible.GetRandomColor(Api as ICoreClientAPI, workItemStack);
-                slagPieces.MinPos = Pos.ToVec3d().AddCopy(voxelPos.X / 16f, voxYOff + voxelPos.Y / 16f + 0.0625f, voxelPos.Z / 16f);
-
-                Api.World.SpawnParticles(slagPieces, byPlayer);
+                Api.World.SpawnParticles(new SimpleParticleProperties
+                {
+                    MinQuantity = 1f,
+                    AddQuantity = 2f,
+                    Color = color,
+                    MinPos = spawnPos.Clone(),
+                    AddPos = new Vec3d(0.0625, 0.01, 0.0625),
+                    MinVelocity = new Vec3f(0f, 0.5f, 0f),
+                    AddVelocity = new Vec3f(
+                        5f * (float)(rnd.NextDouble() - 0.5f),
+                        2.5f * (float)rnd.NextDouble(),
+                        5f * (float)(rnd.NextDouble() - 0.5f)
+                    ),
+                    LifeLength = 0.3f + 0.2f * (float)rnd.NextDouble(),
+                    GravityEffect = 1f,
+                    MinSize = 0.04f,
+                    MaxSize = 0.25f,
+                    ParticleModel = EnumParticleModel.Cube,
+                    SizeEvolve = new EvolvingNatFloat(EnumTransformFunction.LINEAR, -0.1f)
+                }, byPlayer);
             }
         }
 
@@ -905,30 +849,32 @@ namespace canjewelry.src.be
         }
         public virtual void OnSplit(Vec3i voxelPos)
         {
-            if (Voxels[voxelPos.X, voxelPos.Y, voxelPos.Z] == (byte)EnumVoxelMaterial.Slag)
+            bool[,,] recipe = recipeVoxels;
+
+            for (int dx = -1; dx <= 1; dx++)
             {
-                for (int dx = -1; dx <= 1; dx++)
+                for (int dy = -1; dy <= 1; dy++)
                 {
                     for (int dz = -1; dz <= 1; dz++)
                     {
                         int x = voxelPos.X + dx;
+                        int y = voxelPos.Y + dy;
                         int z = voxelPos.Z + dz;
 
-                        if (x < 0 || z < 0 || x >= 16 || z >= 16) continue;
+                        if (x < 0 || y < 0 || z < 0 || x >= 16 || y >= 14 || z >= 16) continue;
+                        if (Voxels[x, y, z] == (byte)EnumVoxelMaterial.Empty) continue;
 
-                        if (Voxels[x, voxelPos.Y, z] == (byte)EnumVoxelMaterial.Slag)
-                        {
-                            Voxels[x, voxelPos.Y, z] = 0;
-                        }
+                        bool recipeNeedsThis = recipe != null
+                            && x < recipe.GetLength(0)
+                            && y < recipe.GetLength(1)
+                            && z < recipe.GetLength(2)
+                            && recipe[x, y, z];
 
+                        if (!recipeNeedsThis)
+                            Voxels[x, y, z] = 0;
                     }
                 }
             }
-
-            Voxels[voxelPos.X, voxelPos.Y, voxelPos.Z] = 0;
-
-
-
         }
         public virtual void OnCleanHorizontal(Vec3i voxelPos, BlockFacing facing)
         {

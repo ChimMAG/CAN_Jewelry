@@ -23,7 +23,22 @@
       "*-chipped-*": 1
     },
     "displaycaseable": true,
-    "shelvable": true
+    "shelvable": true,
+    "displayable": {
+      "shelf": {
+        "sizeByType": {
+          "*-normal-*": { "width": 3, "height": 2, "length": 3 },
+          "*-flawed-*": { "width": 2, "height": 2, "length": 2 },
+          "*-chipped-*": { "width": 2, "height": 2, "length": 2 }
+        },
+        "transform": {
+          "translation": { "x": 0, "y": 0, "z": 0 },
+          "rotation": { "x": 0, "y": 0, "z": 0 },
+          "origin": { "x": 0.5, "y": 0, "z": 0.5 },
+          "scale": 1
+        }
+      }
+    }
   },
   "variantgroups": [
     {
