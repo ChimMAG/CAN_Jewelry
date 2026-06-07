@@ -49,7 +49,7 @@ namespace canjewelry.src.be
                 ItemStack itemstack = Inventory[index].Itemstack;
                 if (itemstack != null && !(itemstack.Collectible?.Code == null))
                 {
-                    getOrCreateMesh(Inventory[index], index);
+                    getOrCreateMesh(Inventory[index].Itemstack, index);
                 }
             }
         }
@@ -83,7 +83,7 @@ namespace canjewelry.src.be
                 ItemSlot itemSlot = Inventory[i];
                 if (!itemSlot.Empty && tfMatrices != null && !(itemSlot.Itemstack.Collectible?.Code == null))
                 {
-                    mesher.AddMeshData(getMesh(itemSlot), tfMatrices[i]);
+                    mesher.AddMeshData(getMesh(itemSlot.Itemstack), tfMatrices[i]);
                 }
             }
 

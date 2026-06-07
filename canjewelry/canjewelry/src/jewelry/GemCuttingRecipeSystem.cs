@@ -76,103 +76,8 @@ namespace canjewelry.src.jewelry
             }
             public override void AssetsLoaded(ICoreAPI api)
             {
-                // canjewelry.gemCuttingRecipes = api.RegisterRecipeRegistry<RecipeRegistryGeneric<GemCuttingRecipe>>("gemcuttingrecipes").Recipes;
-                 if(api.Side == EnumAppSide.Client)
-                  {
-                      return;
-                  }
-                //api.ModLoader.GetModSystem<RecipeLoader>().
-                LoadRecipes<GemCuttingRecipe>(api as ICoreServerAPI, "gemcuttingrecipes", "recipes/gemcutting", false, delegate (IRecipeBase r)
-                {
-                    r.RecipeId = canjewelry.gemCuttingRecipes.Count() + 1;
-                    canjewelry.gemCuttingRecipes.Add(r as GemCuttingRecipe);
-                    //serverApi.RegisterSmithingRecipe(r as SmithingRecipe);
-                });
-               // LoadPotionCauldronRecipes(api);
-            }
-
-            private static void LoadRecipes<TRecipe>(ICoreServerAPI api, string name, string path, bool classExclusiveRecipes, Action<IRecipeBase> registerDelegate) where TRecipe : IRecipeBase
-            {
-                Dictionary<AssetLocation, JToken> files = api.Assets.GetMany<JToken>(api.Logger, path);
-                int recipeQuantity = 0;
-
-                int recipesLoaded = 0;
-                int failedResolveCount = 0;
-
-                foreach ((AssetLocation location, JToken content) in files)
-                {
-                    if (content is JObject recipeObject)
-                    {
-                        TRecipe? parsedContent = recipeObject.ToObject<TRecipe>(location.Domain);
-                        if (parsedContent == null)
-                        {
-                            api.Logger.Error($"Failed to parse {name} recipe: {location}");
-                            continue;
-                        }
-
-                        LoadRecipe(api, location, parsedContent, classExclusiveRecipes, registerDelegate, loaded: ref recipesLoaded, failedResolveCount: ref failedResolveCount);
-                        recipeQuantity++;
-                    }
-                    else if (content is JArray arrayOfRecipes)
-                    {
-                        foreach (JToken token in arrayOfRecipes)
-                        {
-                            TRecipe? parsedContent = token.ToObject<TRecipe>(location.Domain);
-                            if (parsedContent == null)
-                            {
-                                api.Logger.Error($"Failed to parse {name} recipe: {location}");
-                                continue;
-                            }
-
-                            LoadRecipe(api, location, parsedContent, classExclusiveRecipes, registerDelegate, loaded: ref recipesLoaded, failedResolveCount: ref failedResolveCount);
-                            recipeQuantity++;
-                        }
-                    }
-                }
-
-                if (failedResolveCount > 0)
-                {
-                    api.Logger.Event($"{recipeQuantity} {name} recipes loaded from {files.Count} files, failed to resolve {failedResolveCount} recipes");
-                }
-                else
-                {
-                    api.Logger.Event($"{recipeQuantity} {name} recipes loaded from {files.Count} files");
-                }
-
-
-                RecipeBase.CollectiblePreSearchResultsCache.Clear();
-            }
-
-            private static void LoadRecipe(ICoreServerAPI api, AssetLocation assetLocation, IRecipeBase recipe, bool classExclusiveRecipes, Action<IRecipeBase> registerDelegate, ref int loaded, ref int failedResolveCount)
-            {
-                if (!recipe.Enabled) return;
-
-                if (!classExclusiveRecipes)
-                {
-                    recipe.RequiresTrait = null;
-                }
-
-                if (recipe.Name == null)
-                {
-                    recipe.Name = assetLocation;
-                }
-
-                recipe.OnParsed(api.World);
-
-                IEnumerable<IRecipeBase> recipes = recipe.GenerateRecipesForAllIngredientCombinations(api.World);
-
-                foreach (IRecipeBase subRecipe in recipes)
-                {
-                    if (subRecipe.Resolve(api.World, "RecipeLoader"))
-                    {
-                        registerDelegate.Invoke(subRecipe);
-                        loaded++;
-                    }
-                    else
-                    {
-                        failedResolveCount++;
-                    }
-                }
+                if (api.Side == EnumAppSide.Client) return;
+                LoadPotionCauldronRecipes(api);
             }
 
 
@@ -242,100 +147,69 @@ namespace canjewelry.src.jewelry
 
             private void AddRecipe(JToken readToken, ICoreAPI api)
             {
-                GemCuttingRecipe potionCauldronRecipe = readToken.ToObject<GemCuttingRecipe>();
-                bool flag2 = !potionCauldronRecipe.Enabled;
-                if (flag2)
+                GemCuttingRecipe recipe = readToken.ToObject<GemCuttingRecipe>();
+                if (!recipe.Enabled) return;
+
+                Dictionary<string, string[]> nameToCodeMapping = recipe.GetNameToCodeMapping(api.World);
+                if (nameToCodeMapping.Count == 0)
                 {
+                    if (recipe.Resolve(api.World, "gem cutting"))
+                    {
+                        recipe.RecipeId = canjewelry.gemCuttingRecipes.Count() + 1;
+                        canjewelry.gemCuttingRecipes.Add(recipe);
+                    }
                     return;
                 }
-                GemCuttingRecipe potionCauldronRecipe2 = potionCauldronRecipe;
-                var c = potionCauldronRecipe.GenerateRecipesForAllIngredientCombinations(api.World);
-                //Dictionary<string, string[]> nameToCodeMapping = //potionCauldronRecipe.GetNameToCodeMapping(api.World);
-                //var nameToCodeMapping = potionCauldronRecipe.GenerateRecipesForAllIngredientCombinations(api.World);
-                var subRecipes = potionCauldronRecipe.GenerateRecipesForAllIngredientCombinations(api.World);
-                foreach (GemCuttingRecipe subRecipe in subRecipes)
-                {
-                    if (!subRecipe.Resolve(api.World, "gem cutting"))
-                    {
-                        //quantityIgnored++;
-                        continue;
-                    }
-                    subRecipe.RecipeId = canjewelry.gemCuttingRecipes.Count() + 1;
-                    canjewelry.gemCuttingRecipes.Add(subRecipe);
-                    //RegisterMethod(subRecipe);
-                    //quantityRegistered++;
-                }
 
-                //TODO
-                /*if (nameToCodeMapping.Count > 0)
+                // Expand wildcard variants (mirrors GridRecipeLoader pattern)
+                int variantsCombinations = 1;
+                foreach (var mapping in nameToCodeMapping)
+                    variantsCombinations *= mapping.Value.Length;
+
+                List<GemCuttingRecipe> subRecipes = new List<GemCuttingRecipe>();
+                bool first = true;
+                int variantCodeIndexDivider = 1;
+
+                foreach (var kvp in nameToCodeMapping)
                 {
-                    List<GemCuttingRecipe> subRecipes = new List<GemCuttingRecipe>();
-                    int qCombs = 0;
-                    bool first = true;
-                    foreach (KeyValuePair<string, string[]> val2 in nameToCodeMapping)
+                    string variantCode = kvp.Key;
+                    string[] variants = kvp.Value;
+                    if (variants.Length == 0) continue;
+
+                    for (int i = 0; i < variantsCombinations; i++)
                     {
+                        string currentVariant = variants[i / variantCodeIndexDivider % variants.Length];
+                        GemCuttingRecipe currentRecipe;
                         if (first)
                         {
-                            qCombs = val2.Value.Length;
+                            currentRecipe = recipe.Clone();
+                            subRecipes.Add(currentRecipe);
                         }
                         else
                         {
-                            qCombs *= val2.Value.Length;
+                            currentRecipe = subRecipes[i];
                         }
-                        first = false;
-                    }
-                    first = true;
-                    foreach (KeyValuePair<string, string[]> val3 in nameToCodeMapping)
-                    {
-                        string variantCode = val3.Key;
-                        string[] variants = val3.Value;
-                        for (int i = 0; i < qCombs; i++)
+                        CraftingRecipeIngredient ingred = currentRecipe.Ingredient;
+                        if (ingred != null && ingred.Name == variantCode)
                         {
-                            GemCuttingRecipe rec;
-                            if (first)
-                            {
-                                subRecipes.Add(rec = potionCauldronRecipe2.Clone());
-                            }
-                            else
-                            {
-                                rec = subRecipes[i];
-                            }
-                            if (rec.Ingredients != null)
-                            {
-                                foreach (IRecipeIngredient ingred in rec.Ingredients)
-                                {
-                                    if (ingred.Name == variantCode)
-                                    {
-                                        ingred.Code = ingred.Code.CopyWithPath(ingred.Code.Path.Replace("*", variants[i % variants.Length]));
-                                    }
-                                }
-                            }
-                            rec.Output.FillPlaceHolder(val3.Key, variants[i % variants.Length]);
+                            ingred.FillPlaceHolder(variantCode, currentVariant);
+                            ingred.Code.Path = ingred.Code.Path.Replace("*", currentVariant);
+                            ingred.IsBasicWildCard = false;
                         }
-                        first = false;
+                        currentRecipe.Output.FillPlaceHolder(variantCode, currentVariant);
                     }
-                    if (subRecipes.Count == 0)
-                    {
-                        this.api.World.Logger.Warning("{1} file {0} make uses of wildcards, but no blocks or item matching those wildcards were found.", new object[]
-                        {
+                    variantCodeIndexDivider *= variants.Length;
+                    first = false;
+                }
 
-                        });
-                    }
-                    foreach (GemCuttingRecipe subRecipe in subRecipes)
+                foreach (GemCuttingRecipe subRecipe in subRecipes)
+                {
+                    if (subRecipe.Resolve(api.World, "gem cutting"))
                     {
-                        if (!subRecipe.Resolve(api.World, "gem cutting"))
-                        {
-                            //quantityIgnored++;
-                            continue;
-                        }
                         subRecipe.RecipeId = canjewelry.gemCuttingRecipes.Count() + 1;
                         canjewelry.gemCuttingRecipes.Add(subRecipe);
-                        //RegisterMethod(subRecipe);
-                        //quantityRegistered++;
                     }
                 }
-                */
-
             }
             public ICoreServerAPI api;
             public ICoreClientAPI capi;

@@ -78,7 +78,7 @@ namespace canjewelry.src.blocks
             return base.GetPlacedBlockInteractionHelp(world, selection, forPlayer).Append(itemSlottableInteractions);
         }
 
-        public override bool DoPartialSelection(IWorldAccessor world, BlockPos pos)
+        public override bool DoParticalSelection(IWorldAccessor world, BlockPos pos)
         {
             return true;
         }

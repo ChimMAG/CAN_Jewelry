@@ -68,7 +68,7 @@ namespace canjewelry.src.items
             return this.Code.ToShortString() + "-" + metal;
         }
 
-        public override void OnCreatedByCrafting(ItemSlot[] allInputslots, ItemSlot outputSlot, IRecipeBase byRecipe)
+        public override void OnCreatedByCrafting(ItemSlot[] allInputslots, ItemSlot outputSlot, GridRecipe byRecipe)
         {
             if (byRecipe.Name.Path == "can-monocle-change-side")
             {

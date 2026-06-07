@@ -289,9 +289,8 @@ namespace canjewelry.src.jewelry
             }
             return "";          
         }
-        public string GetMeshCacheKey(ItemSlot slot)
+        public string GetMeshCacheKey(ItemStack itemstack)
         {
-            var itemstack = slot.Itemstack;
             string gemBase = itemstack.Attributes.GetString("gembase", null);
             string gemSize = itemstack.Attributes.GetString("gemsize", null);
             return string.Concat(new string[]

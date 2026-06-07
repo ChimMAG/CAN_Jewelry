@@ -426,7 +426,7 @@ namespace canjewelry.src.jewelry
             IContainedMeshSource meshSource = slot.Itemstack.Collectible as IContainedMeshSource;
             if (meshSource != null)
             {
-                return meshSource.GetMeshCacheKey(slot);
+                return meshSource.GetMeshCacheKey(slot.Itemstack);
             }
             return slot.Itemstack.Collectible.Code.ToString();
         }
@@ -676,7 +676,7 @@ namespace canjewelry.src.jewelry
             IContainedMeshSource meshSource = slot.Itemstack.Collectible as IContainedMeshSource;
             if (meshSource != null)
             {
-                MeshData m = meshSource.GenMesh(slot, this.capi.BlockTextureAtlas, this.Pos);
+                MeshData m = meshSource.GenMesh(slot.Itemstack, this.capi.BlockTextureAtlas, this.Pos);
                 if (m != null) return m;
             }
 

@@ -60,7 +60,7 @@ namespace canjewelry.src.cb
                 {
                     //return false;
                 }
-                if (it.Ingredient.MatchingType != EnumRecipeMatchType.Exact)
+                if (it.Ingredient.ResolvedItemstack == null)
                 {
                     if (it.Ingredient.Type != stack.Class)
                     {
@@ -78,14 +78,10 @@ namespace canjewelry.src.cb
                     {
                         //return false;
                     }
-                    if (!it.Ingredient.CheckTags(stack, stack.Collectible))
-                    {
-                        //return false;
-                    }
                 }
                 else
                 {
-                    ItemStack resolvedItemStack = it.Ingredient.ResolvedItemStack;
+                    ItemStack resolvedItemStack = it.Ingredient.ResolvedItemstack;
                     if (resolvedItemStack == null)
                     {
                         continue;

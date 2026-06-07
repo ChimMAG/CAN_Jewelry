@@ -77,7 +77,7 @@ namespace canjewelry.src.jewelry
             glowRgb.B = incandescenceColorAsColor4f[2];
             glowRgb.A = (float)num2 / 255f;
             render.GlDisableCullFace();
-            IShaderProgram anvilShaderProg = coreMod.smithingWorkItemShader;
+            IShaderProgram anvilShaderProg = coreMod.anvilShaderProg;
             anvilShaderProg.Use();
             render.BindTexture2d(texId);
             anvilShaderProg.Uniform("rgbaAmbientIn", render.AmbientColor);

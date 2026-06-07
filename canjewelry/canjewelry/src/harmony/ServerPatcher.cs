@@ -20,7 +20,7 @@ namespace canjewelry.src.harmony
             {
                 harmonyInstance.Patch(typeof(Vintagestory.Server.CoreServerEventManager).GetMethod("TriggerAfterActiveSlotChanged"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_TriggerAfterActiveSlotChanged")));
             }
-            harmonyInstance.Patch(typeof(Vintagestory.API.Common.CollectibleObject).GetMethod("DamageItem", new Type[] { typeof(IWorldAccessor), typeof(Entity), typeof(ItemSlot), typeof(int), typeof(bool) }), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_CollectibleObject_DamageItem")));
+            harmonyInstance.Patch(typeof(Vintagestory.API.Common.CollectibleObject).GetMethod("DamageItem", new Type[] { typeof(IWorldAccessor), typeof(Entity), typeof(ItemSlot), typeof(int) }), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_CollectibleObject_DamageItem")));
 
             harmonyInstance.Patch(typeof(ServerWorldPlayerData).GetMethod("ToPacketForOtherPlayers"), transpiler: new HarmonyMethod(typeof(harmPatch).GetMethod("Transpiler_ServerWorldPlayerData_ToPacketForOtherPlayers")));
 

@@ -81,7 +81,7 @@ namespace canjewelry.src.be
 
                 if (canStore)
                 {
-                    SoundAttributes? sound = slot.Itemstack?.Block?.Sounds?.Place;
+                    AssetLocation? sound = slot.Itemstack?.Block?.Sounds?.Place;
 
                     if (TryPut(byPlayer, slot, blockSel))
                     {
@@ -156,7 +156,7 @@ namespace canjewelry.src.be
 
                     if (byPlayer.InventoryManager.TryGiveItemstack(stack))
                     {
-                        SoundAttributes? sound = stack.Block?.Sounds?.Place;
+                        AssetLocation? sound = stack.Block?.Sounds?.Place;
                         //BlockSounds sounds = stack.Block.GetSounds(this.Api, stack.Block);
                         //1, byPlayer.Entity, byPlayer, true, 16
                         //Api.World.PlaySoundAt(sound ?? new SoundAttributes(new AssetLocation("sounds/player/build"), false), byPlayer);

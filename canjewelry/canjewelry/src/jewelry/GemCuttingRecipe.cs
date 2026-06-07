@@ -14,9 +14,7 @@ using Vintagestory.GameContent;
 
 namespace canjewelry.src.jewelry
 {
-    public class GemCuttingRecipe : LayeredVoxelRecipe, IConcreteCloneable<GemCuttingRecipe>, ICloneable//
-                                                                                                        //IRecipeBase, IByteSerializable, ICloneable, IConcreteCloneable<RecipeBase>
-                                                                                                        //, RecipeBase, IByteSerializable, IConcreteCloneable<GridRecipe>, ICloneable
+    public class GemCuttingRecipe : LayeredVoxelRecipe<GemCuttingRecipe>, IByteSerializable
     {
         public override int QuantityLayers
         {
@@ -50,7 +48,7 @@ namespace canjewelry.src.jewelry
                 RecipeId = this.RecipeId
             };
         }
-        public override void ToBytes(BinaryWriter writer)
+        public new void ToBytes(BinaryWriter writer)
         {
            
             if (this.Ingredient == null || base.Name == null)
@@ -70,7 +68,7 @@ namespace canjewelry.src.jewelry
                 writer.WriteArray(this.Pattern[i]);
             }
             writer.Write(base.Name.ToShortString());
-            this.RecipeOutput.ToBytes(writer);
+            this.Output.ToBytes(writer);
             writer.Write((bool)(Output.ResolvedItemstack != null));
             if (Output.ResolvedItemstack != null)
             {
@@ -111,7 +109,7 @@ namespace canjewelry.src.jewelry
             //Output.ToBytes(writer);
             //base.ToBytes(writer);
         }
-        public override void FromBytes(BinaryReader reader, IWorldAccessor resolver)
+        public new void FromBytes(BinaryReader reader, IWorldAccessor resolver)
         {
             
             base.RecipeId = reader.ReadInt32();
@@ -121,7 +119,7 @@ namespace canjewelry.src.jewelry
             {
                 CraftingRecipeIngredient ingredient = new CraftingRecipeIngredient();
                 ingredient.FromBytes(reader, resolver);
-                ingredient.Resolve(resolver, "Voxel recipes FromBytes", this);
+                ingredient.Resolve(resolver, "Voxel recipes FromBytes");
                 this.Ingredients[i] = ingredient;
             }
             int len = reader.ReadInt32();
@@ -132,8 +130,8 @@ namespace canjewelry.src.jewelry
             }
             base.Name = new AssetLocation(reader.ReadString());
             this.Output = new JsonItemStack();
-            this.RecipeOutput.FromBytes(reader, resolver);
-            this.RecipeOutput.Resolve(resolver, "[Voxel recipe FromBytes] " + this.Ingredient.Code);
+            this.Output.FromBytes(reader, resolver.ClassRegistry);
+            this.Output.Resolve(resolver, "[Voxel recipe FromBytes] " + this.Ingredient.Code);
             if (reader.ReadBoolean())
             {
                 
@@ -183,7 +181,7 @@ namespace canjewelry.src.jewelry
         {
             var c = base.Resolve(world, sourceForErrorLogging);
             return c;
-            if(this.Ingredient.ResolvedItemStack == null)
+            if(this.Ingredient.ResolvedItemstack == null)
             {
                 this.Ingredient.Resolve(world, sourceForErrorLogging);
             }

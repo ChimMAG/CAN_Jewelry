@@ -226,9 +226,9 @@ namespace canjewelry.src.items.resource
                 }
             }
         }
-        public string GetMeshCacheKey(ItemSlot slot)
+        public string GetMeshCacheKey(ItemStack itemstack)
         {
-            string cuttingType = slot.Itemstack.Attributes.GetString(CANJWConstants.CUTTING_TYPE, "-");
+            string cuttingType = itemstack.Attributes.GetString(CANJWConstants.CUTTING_TYPE, "-");
 
             return string.Concat(new string[]
             {
