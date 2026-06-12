@@ -23,11 +23,16 @@ namespace canjewelry.src.blocks
             // canjewelry.config.panningDrops is the canonical admin-editable source.
             var fromAttr = this.Attributes["panningDrops"]
                 .AsObject<Dictionary<string, CANPanningDrop[]>>(null);
-            if (canjewelry.config.panningDrops == null)
+            if (canjewelry.config.panningDrops == null || canjewelry.config.panningDrops.Count == 0)
             {
-                canjewelry.config.panningDrops = fromAttr != null
-                    ? new Dictionary<string, CANPanningDrop[]>(fromAttr)
-                    : new Dictionary<string, CANPanningDrop[]>();
+                if (fromAttr != null)
+                {
+                    canjewelry.config.panningDrops = new Dictionary<string, CANPanningDrop[]>(fromAttr);
+                }
+                else
+                {
+                    canjewelry.config.FillDefaultValues();
+                }
                 if (api.Side == EnumAppSide.Server)
                 {
                     api.StoreModConfig(canjewelry.config, "canjewelry.json");
@@ -484,9 +489,10 @@ namespace canjewelry.src.blocks
                 ItemSlot oreSlot = playerHotbar[hotbarSlotNumber + 1];
 
                 //var c2 = base.FirstCodePart(0);
-                if (oreSlot.Itemstack != null && oreSlot.Itemstack.Item != null)
+                if (oreSlot.Itemstack != null && oreSlot.Itemstack.Collectible != null)
                 {
-                    if (oreSlot.Itemstack.Item.Code.Path.Contains("stone-"))
+                    var collectible = oreSlot.Itemstack.Collectible;
+                    if (collectible.Code.Path.Contains("stone-"))
                     {
                         if (oreSlot.Itemstack.StackSize < canjewelry.config.pan_take_per_use * 4)
                         {
@@ -500,22 +506,20 @@ namespace canjewelry.src.blocks
                             return;
                         }
                     }
-                    string firstCodePart = oreSlot.Itemstack.Item.FirstCodePart(0);
+                    string firstCodePart = collectible.FirstCodePart(0);
                     string itemCode;
                     if (firstCodePart.Equals("crystalizedore"))
                     {
-
-                        itemCode = "ore-" + CodePartsAfterFirst(oreSlot.Itemstack.Item.Code.ToShortString());
+                        itemCode = "ore-" + CodePartsAfterFirst(collectible.Code.ToShortString());
                     }
-                    else if(oreSlot.Itemstack.Item.Code.Path.Contains("stone-"))
+                    else if (collectible.Code.Path.Contains("stone-"))
                     {
-                        itemCode = "game:rock-" + CodePartsAfterFirst(oreSlot.Itemstack.Item.Code.SecondCodePart());
+                        itemCode = "game:rock-" + CodePartsAfterFirst(collectible.Code.SecondCodePart());
                     }
                     else
                     {
-                        itemCode = oreSlot.Itemstack.Item.Code.ToShortString();
+                        itemCode = collectible.Code.ToShortString();
                     }
-                    //var c = this.api.World.GetBlock(new AssetLocation("game:pan-wooden"));
                     bool dropFound = false;
                     foreach (string val in this.dropsBySourceMat.Keys)
                     {
@@ -525,7 +529,7 @@ namespace canjewelry.src.blocks
                             break;
                         }
                     }
-                    if(!dropFound)
+                    if (!dropFound)
                     {
                         return;
                     }
@@ -536,10 +540,10 @@ namespace canjewelry.src.blocks
                     {
                         return;
                     }
-                    
+
                     this.SetMaterial(slot, itemCode);
 
-                    int amount = oreSlot.Itemstack.Item.Code.Path.Contains("stone-")
+                    int amount = collectible.Code.Path.Contains("stone-")
                         ? canjewelry.config.pan_take_per_use * 4
                         : canjewelry.config.pan_take_per_use;
 

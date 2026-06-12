@@ -1515,7 +1515,7 @@ namespace canjewelry.src
                 { "canjewelry:cansocket-steel",        3 },
             };
 
-            if (panningDrops == null)
+            if (panningDrops == null || panningDrops.Count == 0)
             {
                 utils.CANPanningDrop D(string code, float chance) => new utils.CANPanningDrop
                 {
