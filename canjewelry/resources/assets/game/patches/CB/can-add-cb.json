@@ -25,56 +25,64 @@
   },
   {
     "op": "add",
-    "path": "/behaviors",
-    "value": [ { "name": "Encrustable" } ],
-    "file": "game:itemtypes/wearable/armor.json"
+    "path": "/behaviors/-",
+    "value": { "name": "Encrustable" },
+    "file": "game:itemtypes/wearable/seraph/armor.json"
   },
   {
     "op": "add",
     "path": "/behaviors",
     "value": [ { "name": "Encrustable" } ],
-    "file": "xmelee:itemtypes/weapon/halberd.json"
+    "file": "xmelee:itemtypes/weapon/halberd.json",
+    "dependsOn": [ { "modid": "xmelee" } ]
   },
   {
     "op": "add",
     "path": "/behaviors",
     "value": [ { "name": "Encrustable" } ],
-    "file": "xmelee:itemtypes/weapon/longsword.json"
+    "file": "xmelee:itemtypes/weapon/longsword.json",
+    "dependsOn": [ { "modid": "xmelee" } ]
   },
   {
     "op": "add",
     "path": "/behaviors",
     "value": [ { "name": "Encrustable" } ],
-    "file": "xmelee:itemtypes/weapon/mace.json"
+    "file": "xmelee:itemtypes/weapon/mace.json",
+    "dependsOn": [ { "modid": "xmelee" } ]
   },
   {
     "op": "add",
     "path": "/behaviors",
     "value": [ { "name": "Encrustable" } ],
-    "file": "xmelee:itemtypes/weapon/messer.json"
+    "file": "xmelee:itemtypes/weapon/messer.json",
+    "dependsOn": [ { "modid": "xmelee" } ]
   },
   {
     "op": "add",
     "path": "/behaviors",
     "value": [ { "name": "Encrustable" } ],
-    "file": "xmelee:itemtypes/weapon/pike.json"
+    "file": "xmelee:itemtypes/weapon/pike.json",
+    "dependsOn": [ { "modid": "xmelee" } ]
   },
   {
     "op": "add",
     "path": "/behaviors",
     "value": [ { "name": "Encrustable" } ],
-    "file": "xmelee:itemtypes/weapon/rapier.json"
+    "file": "xmelee:itemtypes/weapon/rapier.json",
+    "dependsOn": [ { "modid": "xmelee" } ]
   },
   {
     "op": "add",
     "path": "/behaviors",
     "value": [ { "name": "Encrustable" } ],
-    "file": "xmelee:itemtypes/weapon/spear.json"
+    "file": "xmelee:itemtypes/weapon/spear.json",
+    "dependsOn": [ { "modid": "xmelee" } ]
   },
   {
     "op": "add",
     "path": "/behaviors",
     "value": [ { "name": "Encrustable" } ],
-    "file": "xmelee:itemtypes/weapon/zweihander.json"
+    "file": "xmelee:itemtypes/weapon/zweihander.json",
+    "dependsOn": [ { "modid": "xmelee" } ]
   }
 ]

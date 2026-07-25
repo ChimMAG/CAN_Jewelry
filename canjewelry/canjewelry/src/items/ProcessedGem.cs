@@ -174,7 +174,7 @@ namespace canjewelry.src.jewelry
                     gemBase = "olivine";
                 }
 
-                if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
+                if (string.IsNullOrEmpty(gemBase) || !canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
                 {
                     canjewelry.gems_textures.TryGetValue(CANJWConstants.FALLBACK_GEM_TYPE, out assetPath);
                 }
@@ -202,7 +202,7 @@ namespace canjewelry.src.jewelry
                     gemBase = "olivine";
                 }
 
-                if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
+                if (string.IsNullOrEmpty(gemBase) || !canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
                 {
                     canjewelry.gems_textures.TryGetValue(CANJWConstants.FALLBACK_GEM_TYPE, out assetPath);
                 }
@@ -239,7 +239,7 @@ namespace canjewelry.src.jewelry
                     gemBase = "olivine";
                 }
 
-                if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
+                if (string.IsNullOrEmpty(gemBase) || !canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
                 {
                     canjewelry.gems_textures.TryGetValue(CANJWConstants.FALLBACK_GEM_TYPE, out assetPath);
                 }
@@ -267,7 +267,7 @@ namespace canjewelry.src.jewelry
                     gemBase = "olivine";
                 }
 
-                if (!canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
+                if (string.IsNullOrEmpty(gemBase) || !canjewelry.gems_textures.TryGetValue(gemBase, out string assetPath))
                 {
                     canjewelry.gems_textures.TryGetValue(CANJWConstants.FALLBACK_GEM_TYPE, out assetPath);
                 }

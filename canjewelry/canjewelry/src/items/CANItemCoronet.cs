@@ -20,7 +20,7 @@ namespace canjewelry.src.items
         {
             int maxSocketNumber = EncrustableCB.GetMaxAmountSockets(itemStack);
             FillGemPositions4(dict, itemStack, maxSocketNumber);
-            dict["metal"] = itemStack.Item.Textures["metal"].Base;
+            dict["metal_coronet"] = itemStack.Item.Textures["metal"].Base;
             dict["gems"] = new AssetLocation("canjewelry:item/gem/notvis.png");
         }
 
@@ -46,7 +46,8 @@ namespace canjewelry.src.items
                 if (tree == null || !tree.HasAttribute("slot" + slotIndex)) return notvis;
                 ITreeAttribute treeSocket = tree.GetTreeAttribute("slot" + slotIndex);
                 string gemType = treeSocket.GetString("gemtype");
-                canjewelry.gems_textures.TryGetValue(gemType, out string assetPath);
+                string assetPath = null;
+                if (!string.IsNullOrEmpty(gemType)) canjewelry.gems_textures.TryGetValue(gemType, out assetPath);
                 return assetPath != null ? canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location ?? notvis : notvis;
             }
 

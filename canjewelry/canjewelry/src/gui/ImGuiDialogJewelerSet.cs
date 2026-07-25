@@ -33,8 +33,13 @@ namespace canjewelry.src.gui
         // needs cutting type for naming — buffs are irrelevant to the name/icon.
         private readonly Dictionary<string, ItemStack> _gemDisplayCache = new();
 
+        // >= 0 while the inline extract confirmation is showing (index of the socket to extract).
+        // The confirmation replaces the normal content in-place, so no separate ImGui window /
+        // modal popup is created — this sidesteps the VSImGui DisplaySize/scale bug on Linux.
         private int _pendingExtractSlot = -1;
-        private bool _openExtractPopup;
+
+        // >= 0 while the inline socket-removal confirmation is showing (index of the socket).
+        private int _pendingExtractSocketSlot = -1;
 
         public bool IsOpen => Opened;
 
@@ -159,7 +164,14 @@ namespace canjewelry.src.gui
 
         protected override bool OnDraw()
         {
-            if (ImGui.IsKeyPressed(ImGuiKey.Escape, false)) return false;
+            if (ImGui.IsKeyPressed(ImGuiKey.Escape, false))
+            {
+                // While confirming an extraction, Escape cancels the confirmation rather than
+                // closing the whole dialog.
+                if (_pendingExtractSlot >= 0) _pendingExtractSlot = -1;
+                else if (_pendingExtractSocketSlot >= 0) _pendingExtractSocketSlot = -1;
+                else return false;
+            }
 
             bool open = true;
             ImGui.SetNextWindowSize(new Vector2(760, 520), ImGuiCond.FirstUseEver);
@@ -177,8 +189,12 @@ namespace canjewelry.src.gui
                 return open;
             }
 
-            DrawContent();
-            DrawExtractConfirmPopup();
+            if (_pendingExtractSlot >= 0)
+                DrawExtractConfirmInline();
+            else if (_pendingExtractSocketSlot >= 0)
+                DrawExtractSocketConfirmInline();
+            else
+                DrawContent();
 
             ImGui.End();
             ImGui.PopStyleVar(2);
@@ -514,8 +530,10 @@ namespace canjewelry.src.gui
 
             if (hasSocket)
             {
-                int socketTier = encTree.GetTreeAttribute("slot" + i).GetInt(CANJWConstants.ADDED_SOCKET_TYPE);
-                string socketCode = FindSocketCodeByTier(socketTier);
+                ITreeAttribute slotAttr = encTree.GetTreeAttribute("slot" + i);
+                int socketTier = slotAttr.GetInt(CANJWConstants.ADDED_SOCKET_TYPE);
+                string savedCode = slotAttr.GetString(CANJWConstants.SOCKET_ITEM_CODE, "");
+                string socketCode = savedCode.Length > 0 ? savedCode : FindSocketCodeByTier(socketTier);
                 ItemStack socketStack = socketCode != null
                     ? new ItemStack(_capi.World.GetItem(new AssetLocation(socketCode)))
                     : null;
@@ -585,10 +603,7 @@ namespace canjewelry.src.gui
                     float extractW = ImGui.CalcTextSize(extractLabel).X + padding;
                     PushButton(BtnExtract, BtnExtractHv);
                     if (ImGui.Button($"{extractLabel}##gem-ex{i}", new Vector2(extractW, 0)))
-                    {
                         _pendingExtractSlot = i;
-                        _openExtractPopup = true;
-                    }
                     PopButton();
                     if (ImGui.IsItemHovered())
                     {
@@ -613,6 +628,25 @@ namespace canjewelry.src.gui
                 if (ImGui.Button($"+##gem{i}", new Vector2(addGemW, 0)))
                     SendAddGem(i, 1 + i);
                 PopButton();
+
+                // Remove-socket: only offered on an empty socket (and when enabled in config).
+                // A socket holding a gem shows the gem/swap/extract controls above instead, so
+                // the player extracts the gem first.
+                if (canjewelry.config.canExtractSocket)
+                {
+                    ImGui.SameLine();
+                    string rmLabel = Lang.Get("canjewelry:jewelerset-remove-socket");
+                    float rmW = ImGui.CalcTextSize(rmLabel).X + ImGui.GetStyle().FramePadding.X * 2 + 16;
+                    PushButton(BtnExtract, BtnExtractHv);
+                    if (ImGui.Button($"{rmLabel}##sock-rm{i}", new Vector2(rmW, 0)))
+                        _pendingExtractSocketSlot = i;
+                    PopButton();
+                    if (ImGui.IsItemHovered())
+                    {
+                        int socketPct = (int)(canjewelry.config.socketExtractionReturnChance * 100f);
+                        ImGui.SetTooltip(Lang.Get("canjewelry:jewelerset-remove-socket-tooltip", socketPct));
+                    }
+                }
             }
         }
 
@@ -655,10 +689,7 @@ namespace canjewelry.src.gui
                     ImGui.SameLine(0, 4);
                     PushButton(BtnExtract, BtnExtractHv);
                     if (ImGui.Button($"^##gem-ex{i}", new Vector2(sz * 0.5f - 2, 22)))
-                    {
                         _pendingExtractSlot = i;
-                        _openExtractPopup = true;
-                    }
                     PopButton();
                     if (ImGui.IsItemHovered())
                     {
@@ -856,38 +887,28 @@ namespace canjewelry.src.gui
             _capi.Network.SendBlockEntityPacket(_pos, 1005, ms.ToArray());
         }
 
-        private void DrawExtractConfirmPopup()
+        // Inline extraction confirmation. Drawn in place of the normal content (see OnDraw)
+        // inside the already-open main window, so it never spawns a separate ImGui window and
+        // never touches io.DisplaySize — which is what broke the old modal popup on Linux
+        // (VSImGui reports DisplaySize in a scale that mismatched the render, so the modal came
+        // out mis-positioned and zoomed). _pendingExtractSlot >= 0 is the only gate.
+        private void DrawExtractConfirmInline()
         {
-            string popupLabel = Lang.Get("canjewelry:jewelerset-extract-confirm-title") + "##extract-confirm";
-
-            if (_openExtractPopup)
-            {
-                ImGui.OpenPopup(popupLabel);
-                _openExtractPopup = false;
-            }
-
-            var io = ImGui.GetIO();
-            ImGui.SetNextWindowSize(new Vector2(440, 0), ImGuiCond.Always);
-            ImGui.SetNextWindowPos(io.DisplaySize * 0.5f, ImGuiCond.Always, new Vector2(0.5f, 0.5f));
-
-            bool show = true;
-            if (!ImGui.BeginPopupModal(popupLabel, ref show, ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove))
-            {
-                if (!show) _pendingExtractSlot = -1;
-                return;
-            }
-
-            if (!show || _pendingExtractSlot < 0)
-            {
-                _pendingExtractSlot = -1;
-                ImGui.CloseCurrentPopup();
-                ImGui.EndPopup();
-                return;
-            }
-
             int gemPct   = (int)(canjewelry.config.gemExtractionReturnChance * 100f);
             int breakPct = (int)(canjewelry.config.jewelryBreakOnExtractionChance * 100f);
             string name  = _inv[0].Itemstack?.GetName() ?? "";
+
+            ImGui.PushStyleColor(ImGuiCol.ChildBg, PanelBg);
+            ImGui.PushStyleColor(ImGuiCol.Border,  Col_Gold);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding,   new Vector2(16, 14));
+            ImGui.PushStyleVar(ImGuiStyleVar.ChildBorderSize, 1f);
+            ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding,   5f);
+
+            ImGui.BeginChild("##canjs_extract_confirm", new Vector2(0, 0), true);
+
+            ImGui.TextColored(Col_Header, Lang.Get("canjewelry:jewelerset-extract-confirm-title"));
+            ImGui.Separator();
+            ImGui.Spacing();
 
             ImGui.TextWrapped(Lang.Get("canjewelry:jewelerset-extract-confirm-body", name, gemPct, breakPct));
             ImGui.Spacing();
@@ -899,18 +920,57 @@ namespace canjewelry.src.gui
             {
                 int slot = _pendingExtractSlot;
                 _pendingExtractSlot = -1;
-                ImGui.CloseCurrentPopup();
                 SendExtract(slot, 1 + slot);
             }
             PopButton();
             ImGui.SameLine();
             if (ImGui.Button(Lang.Get("canjewelry:jewelerset-extract-confirm-no") + "##ex-no"))
-            {
                 _pendingExtractSlot = -1;
-                ImGui.CloseCurrentPopup();
-            }
 
-            ImGui.EndPopup();
+            ImGui.EndChild();
+            ImGui.PopStyleVar(3);
+            ImGui.PopStyleColor(2);
+        }
+
+        // Inline confirmation for pulling a socket back out, mirroring DrawExtractConfirmInline.
+        // Shows the config-driven chance to recover the socket item.
+        private void DrawExtractSocketConfirmInline()
+        {
+            int socketPct = (int)(canjewelry.config.socketExtractionReturnChance * 100f);
+            string name   = _inv[0].Itemstack?.GetName() ?? "";
+
+            ImGui.PushStyleColor(ImGuiCol.ChildBg, PanelBg);
+            ImGui.PushStyleColor(ImGuiCol.Border,  Col_Gold);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding,   new Vector2(16, 14));
+            ImGui.PushStyleVar(ImGuiStyleVar.ChildBorderSize, 1f);
+            ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding,   5f);
+
+            ImGui.BeginChild("##canjs_extract_socket_confirm", new Vector2(0, 0), true);
+
+            ImGui.TextColored(Col_Header, Lang.Get("canjewelry:jewelerset-remove-socket-confirm-title"));
+            ImGui.Separator();
+            ImGui.Spacing();
+
+            ImGui.TextWrapped(Lang.Get("canjewelry:jewelerset-remove-socket-confirm-body", name, socketPct));
+            ImGui.Spacing();
+            ImGui.Separator();
+            ImGui.Spacing();
+
+            PushButton(BtnExtract, BtnExtractHv);
+            if (ImGui.Button(Lang.Get("canjewelry:jewelerset-remove-socket") + "##sock-rm-yes"))
+            {
+                int slot = _pendingExtractSocketSlot;
+                _pendingExtractSocketSlot = -1;
+                SendExtractSocket(slot, 5 + slot);
+            }
+            PopButton();
+            ImGui.SameLine();
+            if (ImGui.Button(Lang.Get("canjewelry:jewelerset-extract-confirm-no") + "##sock-rm-no"))
+                _pendingExtractSocketSlot = -1;
+
+            ImGui.EndChild();
+            ImGui.PopStyleVar(3);
+            ImGui.PopStyleColor(2);
         }
 
         private void SendExtract(int socketSlot, int invSlot)
@@ -924,6 +984,19 @@ namespace canjewelry.src.gui
                 tree.ToBytes(bw);
             }
             _capi.Network.SendBlockEntityPacket(_pos, 1006, ms.ToArray());
+        }
+
+        private void SendExtractSocket(int socketSlot, int invSlot)
+        {
+            using var ms = new MemoryStream();
+            using (var bw = new BinaryWriter(ms))
+            {
+                var tree = new TreeAttribute();
+                tree.SetInt("selectedSocketSlot", socketSlot);
+                tree.SetInt("selectedSlotNum", invSlot);
+                tree.ToBytes(bw);
+            }
+            _capi.Network.SendBlockEntityPacket(_pos, 1008, ms.ToArray());
         }
 
         private void SendInvPacket(object packet) =>

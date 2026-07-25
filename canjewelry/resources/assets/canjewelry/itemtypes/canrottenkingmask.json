@@ -89,22 +89,22 @@
         "scale": 0.72
     },
     "guiTransform": {
-        "translation": {
-            "x": -5,
-            "y": -8.8,
-            "z": 1
-        },
-        "rotation": {
-            "x": 113,
-            "y": -86,
-            "z": -46
-        },
-        "origin": {
-            "x": 0.45,
-            "y": 1.7298,
-            "z": 0.54
-        },
-        "scale": 2.94
+      "translation": {
+        "x": -5,
+        "y": -8.8,
+        "z": 1
+      },
+      "rotation": {
+        "x": 113,
+        "y": -87,
+        "z": -52
+      },
+      "origin": {
+        "x": 0.45,
+        "y": 0.1298,
+        "z": 0.24
+      },
+      "scale": 2.75
     },
     "groundTransformByType": {
         "*-copper-torc": {

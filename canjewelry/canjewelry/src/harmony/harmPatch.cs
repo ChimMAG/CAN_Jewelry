@@ -170,7 +170,7 @@ namespace canjewelry.src.harmony
             {
                 
                 ITreeAttribute socketSlot = encrustTree.GetTreeAttribute("slot" + i.ToString());
-                if (socketSlot == null || socketSlot.GetString("gemtype").Equals(""))
+                if (socketSlot == null || string.IsNullOrEmpty(socketSlot.GetString("gemtype")))
                 {
                     continue;
                 }

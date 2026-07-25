@@ -24,6 +24,7 @@ namespace canjewelry.src
         public const string ENCRUSTABLE_BUFFS_VALUES = "encrustablebuffsvalues";
         public const string GEM_FULL_PROCESSED = "gemfullprocessed";
         public const string WAS_GROUND_BEFORE = "wasGroundBefore";
+        public const string SOCKET_ITEM_CODE = "socketitemcode";
 
         public const string TEMPORALGRASP = "temporalgrasp";
         public const string CUTTING_ROUND = "round";

@@ -30,7 +30,7 @@ namespace canjewelry.src.items
         protected override void FillTextureDict(Dictionary<string, AssetLocation> dict, ItemStack stack)
         {
             string carcassus = stack.Attributes.GetString("carcassus", "steel");
-            dict["carcassus"] = new AssetLocation("block/metal/sheet/" + carcassus + "1.png");
+            dict["carcassus_tiara"] = new AssetLocation("block/metal/sheet/" + carcassus + "1.png");
 
             int maxSocketNumber = EncrustableCB.GetMaxAmountSockets(stack);
             AssetLocation Resolve(string gemAttr)

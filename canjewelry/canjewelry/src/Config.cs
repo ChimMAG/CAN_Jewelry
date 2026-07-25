@@ -46,6 +46,11 @@ namespace canjewelry.src
         public Dictionary<string, utils.CANPanningDrop[]> panningDrops = null;
         public float gemExtractionReturnChance = 0.5f;
         public float jewelryBreakOnExtractionChance = 0.1f;
+        // Whether the socket itself can be pulled back out of a jewelry/armor piece, and the
+        // chance to recover the socket item when doing so. Default 100% keeps the historically
+        // non-destructive behavior; lower it to make socket removal risky.
+        public bool canExtractSocket = true;
+        public float socketExtractionReturnChance = 0.25f;
         public Dictionary<string, int> LevelOfSocketByType = new Dictionary<string, int>();
 
         private static readonly HashSet<string> JewelrySets = new HashSet<string>
@@ -126,6 +131,8 @@ namespace canjewelry.src
 
             if (!onlyEmptyStructs || PossibleGemBuffs.Count == 0) FillPossibleGemBuffs();
             if (!onlyEmptyStructs || BuffAttributesDict.Count == 0) FillBuffAttributes();
+
+            AddVanillaArmoryCompat();
         }
 
         private void FillBuffItemSets()
@@ -830,6 +837,77 @@ namespace canjewelry.src
             {  "game:shears-steel", new int[2] {3, 3} },*/
 
         };
+        }
+
+        // =====================================================================
+        // Vanilla Armory soft-compat. Makes that mod's weapons, shields and
+        // armor gem-socketable, and lets the matching gems be encrusted into
+        // them. Everything is added with TryAdd / HashSet.Add, so it is
+        // idempotent and never overwrites a player's edits in canjewelry.json.
+        // When Vanilla Armory is not installed SearchItems simply finds nothing,
+        // so these entries are harmless. Invoked from FillDefaultValues, i.e. on
+        // a fresh config and once per mod-version bump.
+        // =====================================================================
+        private void AddVanillaArmoryCompat()
+        {
+            // --- Sockets -----------------------------------------------------
+            // Melee families all use the {code}-{type}-{metal} layout, so one
+            // wildcard per metal covers every type in a family at once. Socket
+            // count scales with the metal, mirroring the vanilla knife curve.
+            string[] meleeFamilies = { "blade", "axe", "club", "knife", "spear" };
+            foreach (string fam in meleeFamilies)
+            {
+                items_codes_with_socket_count_and_tiers.TryAdd($"vanillaarmory:{fam}-*-*bronze",      new int[] { 2 });
+                items_codes_with_socket_count_and_tiers.TryAdd($"vanillaarmory:{fam}-*-gold",         new int[] { 3 });
+                items_codes_with_socket_count_and_tiers.TryAdd($"vanillaarmory:{fam}-*-silver",       new int[] { 3 });
+                items_codes_with_socket_count_and_tiers.TryAdd($"vanillaarmory:{fam}-*-iron",         new int[] { 3 });
+                items_codes_with_socket_count_and_tiers.TryAdd($"vanillaarmory:{fam}-*-meteoriciron", new int[] { 3, 3 });
+                items_codes_with_socket_count_and_tiers.TryAdd($"vanillaarmory:{fam}-*-steel",        new int[] { 3, 3, 3 });
+            }
+            // Ornate spears carry the ornategold / ornatesilver metals.
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:spear-*-ornate*", new int[] { 3 });
+            // Relic weapons (every family, metals relic0..relic5) — end-game, 2 sockets.
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:*-relic*", new int[] { 3, 3 });
+            // Compound bow (ranged).
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:bow-*", new int[] { 3, 3 });
+            // Shields.
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:buckler-*",      new int[] { 3 });
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:forlorn-shield", new int[] { 3, 3 });
+            // Standalone armor: head/legs = 1 socket, body = 2. Improvised bone /
+            // wood armor is weak, so it only gets tier-1 sockets (small gems).
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:sturdyleatherarmor-head", new int[] { 3 });
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:sturdyleatherarmor-legs", new int[] { 3 });
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:sturdyleatherarmor-body", new int[] { 3, 3 });
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:bonearmor-head", new int[] { 1 });
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:bonearmor-legs", new int[] { 1 });
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:bonearmor-body", new int[] { 1, 1 });
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:woodarmor-head", new int[] { 1 });
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:woodarmor-legs", new int[] { 1 });
+            items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:woodarmor-body", new int[] { 1, 1 });
+
+            // --- Gem eligibility ---------------------------------------------
+            // canItemContainThisGem matches gem->item by code substring. For each
+            // gem that already accepts a given vanilla category, add the VA codes
+            // for that same category so VA gear inherits the exact same gem pool.
+            // blade/spear/knife-dagger/club-warhammer are already covered by the
+            // existing melee substrings; only the gaps are listed here.
+            string[] vaMelee =
+            {
+                "axe-bardiche", "axe-battle", "axe-bearded", "axe-double",
+                "club-flanged", "club-morningstar", "club-spiked",
+                "knife-baselard", "knife-khanjar", "knife-stiletto",
+            };
+            string[] vaArmor  = { "sturdyleatherarmor", "bonearmor", "woodarmor" };
+            string[] vaShield = { "buckler", "forlorn-shield" };
+            string[] vaRanged = { "bow-ranger", "bow-yager" };
+
+            foreach (var set in buffNameToPossibleItem.Values)
+            {
+                if (set.Overlaps(MeleeWeaponSets)) foreach (var s in vaMelee)  set.Add(s);
+                if (set.Overlaps(ArmorSets))       foreach (var s in vaArmor)  set.Add(s);
+                if (set.Contains("shield"))        foreach (var s in vaShield) set.Add(s);
+                if (set.Overlaps(RangedSets))      foreach (var s in vaRanged) set.Add(s);
+            }
         }
 
         private void FillGemTypeToBuff()

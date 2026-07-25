@@ -161,7 +161,7 @@ namespace canjewelry.src.items
                     value = value2.Baked.BakedName;
 
                 if (value == null)
-                    nowTesselatingShape?.Textures.TryGetValue(textureCode, out value);
+                    nowTesselatingShape?.Textures?.TryGetValue(textureCode, out value);
 
                 if (value == null)
                 {

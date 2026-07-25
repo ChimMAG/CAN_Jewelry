@@ -336,6 +336,24 @@ namespace canjewelry.src.jewelry
                     }
                     EncrustableCB.TryExtractGem(this.inventory, inventory[0], inventory[selectedSlotNum], socketNumber, player);
                 }
+                else if (packetid == 1008)
+                {
+                    // Remove socket: pulls an (empty) socket back out and returns the socket item.
+                    // Rejected server-side if a gem is still encrusted in that socket.
+                    TreeAttribute tree = new TreeAttribute();
+                    int socketNumber;
+                    int selectedSlotNum;
+                    using (MemoryStream ms = new MemoryStream(data))
+                    {
+                        using (BinaryReader reader = new BinaryReader(ms))
+                        {
+                            tree.FromBytes(reader);
+                            socketNumber = tree.GetInt("selectedSocketSlot");
+                            selectedSlotNum = tree.GetInt("selectedSlotNum");
+                        }
+                    }
+                    EncrustableCB.TryExtractSocket(this.inventory, inventory[0], inventory[selectedSlotNum], socketNumber, player);
+                }
 
             }
         }

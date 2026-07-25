@@ -127,6 +127,7 @@ namespace canjewelry.src.CB
                         socketSlotTree.SetInt(CANJWConstants.ENCRUSTED_GEM_SIZE, 0);
                         socketSlotTree.SetString(CANJWConstants.GEM_TYPE_IN_SOCKET, "");
                         socketSlotTree.SetInt(CANJWConstants.ADDED_SOCKET_TYPE, socketSlot.Itemstack.Collectible.Attributes[CANJWConstants.LEVEL_OF_SOSCKET_STRING].AsInt());
+                        socketSlotTree.SetString(CANJWConstants.SOCKET_ITEM_CODE, socketSlot.Itemstack.Collectible.Code.ToString());
                         socketSlot.TakeOut(1);
                         socketSlot.MarkDirty();
                         encrustable.MarkDirty();
@@ -178,6 +179,7 @@ namespace canjewelry.src.CB
                     socketSlotTree.SetInt(CANJWConstants.ENCRUSTED_GEM_SIZE, 0);
                     socketSlotTree.SetString(CANJWConstants.GEM_TYPE_IN_SOCKET, "");
                     socketSlotTree.SetInt(CANJWConstants.ADDED_SOCKET_TYPE, socketSlot.Itemstack.Collectible.Attributes[CANJWConstants.LEVEL_OF_SOSCKET_STRING].AsInt());
+                    socketSlotTree.SetString(CANJWConstants.SOCKET_ITEM_CODE, socketSlot.Itemstack.Collectible.Code.ToString());
 
                     ITreeAttribute socketEncrusted = new TreeAttribute();
                     socketEncrusted.SetInt(CANJWConstants.SOCKET_ADDED_NUMBER, 1);
@@ -581,6 +583,101 @@ namespace canjewelry.src.CB
             }
         }
 
+        // Removes the socket at {socket_number} and returns the socket item to the player.
+        // Refuses if a gem is still encrusted — the gem must be extracted first, otherwise it
+        // would be orphaned. The exact socket item is restored from SOCKET_ITEM_CODE saved at
+        // insert time (EncrustableCB.cs TryAddSocket); legacy sockets without it fall back to a
+        // config tier lookup. Surviving socket goes to socketOutSlot if empty, else the player's
+        // inventory, else dropped at their feet. Gated by config.canExtractSocket, and the socket
+        // is only recovered on a successful config.socketExtractionReturnChance roll (else lost).
+        public static bool TryExtractSocket(InventoryBase inventory, ItemSlot encrustable, ItemSlot socketOutSlot, int socket_number, IPlayer player = null)
+        {
+            inventory.TakeLocked = true;
+            try
+            {
+                // Socket removal can be disabled entirely via config.
+                if (!canjewelry.config.canExtractSocket)
+                    return false;
+
+                if (encrustable.Itemstack == null || !encrustable.Itemstack.Attributes.HasAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING))
+                    return false;
+
+                ITreeAttribute tree = encrustable.Itemstack.Attributes.GetTreeAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING);
+                ITreeAttribute treeSocket = tree.GetTreeAttribute("slot" + socket_number);
+                if (treeSocket == null) return false;
+
+                // A gem still in the socket must be extracted first.
+                if (!string.IsNullOrEmpty(treeSocket.GetString(CANJWConstants.GEM_TYPE_IN_SOCKET, "")))
+                {
+                    (player as IServerPlayer)?.SendMessage(0, Lang.Get("canjewelry:extract-socket-has-gem"), EnumChatType.Notification);
+                    return false;
+                }
+
+                IWorldAccessor world = inventory?.Api?.World ?? player?.Entity?.World;
+                if (world == null) return false;
+
+                // Restore the exact socket item saved at insert; fall back to a tier lookup for legacy data.
+                string socketCode = treeSocket.GetString(CANJWConstants.SOCKET_ITEM_CODE, "");
+                if (string.IsNullOrEmpty(socketCode))
+                {
+                    int socketTier = treeSocket.GetInt(CANJWConstants.ADDED_SOCKET_TYPE);
+                    foreach (var kv in canjewelry.config.LevelOfSocketByType)
+                    {
+                        if (kv.Value == socketTier) { socketCode = kv.Key; break; }
+                    }
+                }
+                Item socketItem = string.IsNullOrEmpty(socketCode) ? null : world.GetItem(new AssetLocation(socketCode));
+
+                // Roll for whether the socket item survives removal. A null item (unresolvable
+                // legacy socket) counts as destroyed so we never silently keep a socket the
+                // player can't get back.
+                bool returned = socketItem != null && world.Rand.NextDouble() < canjewelry.config.socketExtractionReturnChance;
+
+                // Remove the socket from the encrusted tree; drop the whole tree once the last one goes.
+                tree.RemoveAttribute("slot" + socket_number);
+                int remaining = tree.GetInt(CANJWConstants.SOCKET_ADDED_NUMBER) - 1;
+                if (remaining <= 0)
+                    encrustable.Itemstack.Attributes.RemoveAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING);
+                else
+                    tree.SetInt(CANJWConstants.SOCKET_ADDED_NUMBER, remaining);
+                encrustable.MarkDirty();
+
+                // Hand the socket item back, or report it was destroyed by the failed roll.
+                if (returned)
+                {
+                    ItemStack socketStack = new ItemStack(socketItem);
+                    if (socketOutSlot != null && socketOutSlot.Empty)
+                    {
+                        socketOutSlot.Itemstack = socketStack;
+                        socketOutSlot.MarkDirty();
+                    }
+                    else if (player != null && player.InventoryManager.TryGiveItemstack(socketStack, true))
+                    {
+                        // accepted into inventory
+                    }
+                    else
+                    {
+                        Vec3d pos = player?.Entity?.Pos.XYZ ?? new Vec3d();
+                        world.SpawnItemEntity(socketStack, pos);
+                    }
+                }
+                else
+                {
+                    (player as IServerPlayer)?.SendMessage(0, Lang.Get("canjewelry:extract-socket-destroyed"), EnumChatType.Notification);
+                }
+
+                // Xp = 0 — companion mods own the XP economy and read their own reward for this action.
+                canjewelry.Instance?.FireXp(new src.integration.CANXpEvent {
+                    Player = player, Action = "extractSocket", Xp = 0f
+                });
+                return true;
+            }
+            finally
+            {
+                inventory.TakeLocked = false;
+            }
+        }
+
         // Builds a smaller-cut-size variant of the given gem. Buff values are RE-ROLLED at the
         // smaller tier from BuffAttributesDict (same buff names + same cut style, fresh values),
         // and GEM_FULL_PROCESSED is cleared so the player can grind it again from scratch.
@@ -726,7 +823,7 @@ namespace canjewelry.src.CB
                 string cuttingType = isTree.GetString(CANJWConstants.CUTTING_TYPE);
                 ITreeAttribute tree = new TreeAttribute();
                 tree.SetString(CANJWConstants.CUTTING_TYPE, cuttingType);
-                if (!canjewelry.config.PossibleGemBuffs.TryGetValue(gemType, out var possibleBuffs))
+                if (gemType == null || !canjewelry.config.PossibleGemBuffs.TryGetValue(gemType, out var possibleBuffs))
                 {
                     tree[CANJWConstants.ENCRUSTABLE_BUFFS_NAMES] = new StringArrayAttribute(new string[] { });
                     tree[CANJWConstants.ENCRUSTABLE_BUFFS_VALUES] = new FloatArrayAttribute(new float[] { });
