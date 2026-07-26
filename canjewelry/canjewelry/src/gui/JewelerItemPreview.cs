@@ -83,9 +83,12 @@ namespace canjewelry.src.gui
                 _game.OrthoMode(FboSize, FboSize, true);
 
                 _dummySlot.Itemstack = stack;
+                // The item is drawn from its centre, so the size is what its longest side gets.
+                // Bulky pieces (armor, coronets) reach past that box once rotated, which clipped
+                // their edges against the framebuffer - hence the margin rather than 0.75.
                 _itemRenderer.RenderItemstackToGui(_dummySlot,
                     FboSize / 2.0, FboSize / 2.0, 100,
-                    FboSize * 0.75f, -1,
+                    FboSize * 0.55f, -1,
                     showStackSize: false);
 
                 _game.PerspectiveMode();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using canjewelry.src.be;
+using canjewelry.src.jewelry;
 using Newtonsoft.Json.Linq;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
@@ -160,7 +161,7 @@ namespace canjewelry.src.blocks
                             BlockEntityGemCuttingTable bea = api.World.BlockAccessor.GetBlockEntity(bs.Position) as BlockEntityGemCuttingTable;
                             // Null when the work item is not gem-cuttable, which is a "no hint"
                             // rather than a crash - the cast used to be to IAnvilWorkable.
-                            ItemStack baseMaterial = (bea?.WorkItemStack?.Collectible as canjewelry.src.jewelry.IGemCuttingWorkable)
+                            ItemStack baseMaterial = (bea?.WorkItemStack?.Collectible as IGemCuttingWorkable)
                                 ?.GetBaseMaterial(bea.WorkItemStack);
                             return baseMaterial == null ? null : new ItemStack[] { baseMaterial };
                         }

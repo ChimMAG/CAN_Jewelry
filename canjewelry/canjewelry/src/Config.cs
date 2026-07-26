@@ -54,6 +54,10 @@ namespace canjewelry.src
         // Off by default: a missing entry may just as well be one that was deliberately removed.
         // Either way the log says how many entries are missing on startup.
         public bool add_missing_defaults_on_update = false;
+        // Jeweler set dialog: the ImGui one (needs the vsimgui mod) or the game's own gui. Both
+        // speak the same packets to the server, so this only changes what the client draws.
+        // Temporary - it exists to compare the two while the native dialog is brought up to par.
+        public bool use_imgui_dialogs = true;
         public float minGrinderProcessingSpeed = 0.3f;
         // doGrind tick counts per stage (lower = faster). Values get reduced by Lapidary's
         // Workshop Speedup perk when the companion mod is installed; without it these are the

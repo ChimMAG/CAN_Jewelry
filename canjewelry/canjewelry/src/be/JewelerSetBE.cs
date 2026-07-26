@@ -169,7 +169,9 @@ namespace canjewelry.src.jewelry
             this.inventory.SlotModified += (int num) => {
                 if (this.inventory.Api.Side == EnumAppSide.Client)
                 {
-                    //this.renameGui.SetupDialog();
+                    // The native dialog is not immediate mode: its composer has to be rebuilt for
+                    // the change to show. The ImGui one redraws itself and needs nothing here.
+                    renameGui?.SetupDialog();
                 }
             };
 
@@ -197,6 +199,7 @@ namespace canjewelry.src.jewelry
             IClientWorldAccessor clientWorldAccessor = (IClientWorldAccessor)Api.World;
             if (packetid == 5000)
             {
+                // The packet acts as a toggle: arriving while a dialog is up closes it.
                 if (imguiGui != null)
                 {
                     if (imguiGui.IsOpen) imguiGui.Close();
@@ -204,21 +207,40 @@ namespace canjewelry.src.jewelry
                     imguiGui = null;
                     return;
                 }
+                if (renameGui != null)
+                {
+                    renameGui.TryClose();
+                    renameGui.Dispose();
+                    renameGui = null;
+                    return;
+                }
 
                 TreeAttribute treeAttribute = new TreeAttribute();
+                string dialogTitle;
                 using (MemoryStream input = new MemoryStream(data))
                 {
                     BinaryReader binaryReader = new BinaryReader(input);
                     binaryReader.ReadString();
-                    binaryReader.ReadString(); // dialogTitle (unused)
+                    dialogTitle = binaryReader.ReadString();
                     binaryReader.ReadByte();   // cols (unused)
                     treeAttribute.FromBytes(binaryReader);
                 }
 
                 Inventory.FromTreeAttributes(treeAttribute);
                 Inventory.ResolveBlocksOrItems();
-                imguiGui = new ImGuiDialogJewelerSet(capi, inventory, Pos);
-                imguiGui.Open();
+
+                // Both dialogs send the same packets back, so the choice is purely what gets drawn.
+                if (canjewelry.config.use_imgui_dialogs)
+                {
+                    imguiGui = new ImGuiDialogJewelerSet(capi, inventory, Pos);
+                    imguiGui.Open();
+                }
+                else
+                {
+                    renameGui = new GuiDialogJewelerSet(dialogTitle, inventory, Pos, capi);
+                    renameGui.SetupDialog();
+                    renameGui.TryOpen();
+                }
             }
 
             if (packetid == 1001)
@@ -230,6 +252,10 @@ namespace canjewelry.src.jewelry
                 }
                 imguiGui?.Dispose();
                 imguiGui = null;
+
+                renameGui?.TryClose();
+                renameGui?.Dispose();
+                renameGui = null;
             }
         }
         public override void OnReceivedClientPacket(IPlayer player, int packetid, byte[] data)
