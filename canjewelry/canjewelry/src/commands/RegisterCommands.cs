@@ -45,38 +45,31 @@ namespace canjewelry.src.commands
         }
 
 
+        /// <summary>Resolves an online player by name, null when nobody matches.</summary>
+        private static IServerPlayer FindOnlinePlayer(IServerPlayer caller, string playerName)
+        {
+            foreach (var pl in caller.Entity.Api.World.AllOnlinePlayers)
+            {
+                if (pl.PlayerName.Equals(playerName))
+                {
+                    return pl as IServerPlayer;
+                }
+            }
+            return null;
+        }
+
         public static TextCommandResult clearCancrustedBuffFromPlayer(TextCommandCallingArgs args)
         {
             IServerPlayer player = args.Caller.Player as IServerPlayer;
             TextCommandResult tcr = new TextCommandResult();
             tcr.Status = EnumCommandStatus.Success;
 
-            string targetPlayerName = (string)args.LastArg;
-            IServerPlayer targetPlayer = null;
-            foreach (var pl in player.Entity.Api.World.AllOnlinePlayers)
-            {
-                if (pl.PlayerName.Equals(targetPlayerName))
-                {
-                    targetPlayer = pl as IServerPlayer;
-                }
-            }
+            IServerPlayer targetPlayer = FindOnlinePlayer(player, (string)args.LastArg);
             if (targetPlayer == null)
             {
                 return tcr;
             }
-            foreach (KeyValuePair<string, EntityFloatStats> stat in targetPlayer.Entity.Stats)
-            {
-                foreach (KeyValuePair<string, EntityStat<float>> keyValuePair in stat.Value.ValuesByKey)
-                {
-                    if (keyValuePair.Key == "canencrusted")
-                    {
-                        stat.Value.Set(keyValuePair.Key, 0);
-                        //stat.Value.Remove(keyValuePair.Key);
-                        break;
-                    }
-                }
-                targetPlayer.Entity.WatchedAttributes.MarkPathDirty("stats");
-            }
+            CANGemBuffAffected.ClearBuffs(targetPlayer.Entity);
             canjewelry.sapi.SendMessage(player, 0, String.Format("Buffs were cleared for {0}", targetPlayer.PlayerName), EnumChatType.Notification);
             return tcr;
         }
@@ -84,67 +77,22 @@ namespace canjewelry.src.commands
         public static TextCommandResult reapplyCancrustedBuffFromPlayer(TextCommandCallingArgs args)
         {
             var pl = args.Caller.Player as IServerPlayer;
-            var beh = pl.Entity.GetBehavior<CANGemBuffAffected>();
             TextCommandResult tcr = new TextCommandResult();
             tcr.Status = EnumCommandStatus.Success;
+
+            IServerPlayer targetPlayer = FindOnlinePlayer(pl, (string)args.LastArg);
+            if (targetPlayer == null)
+            {
+                return tcr;
+            }
+            var beh = targetPlayer.Entity.GetBehavior<CANGemBuffAffected>();
             if (beh == null)
             {
                 return tcr;
             }
-            beh.savedBuffs.Clear();
-            foreach (KeyValuePair<string, EntityFloatStats> stat in pl.Entity.Stats)
-            {
-                foreach (KeyValuePair<string, EntityStat<float>> keyValuePair in stat.Value.ValuesByKey.ToArray())
-                {
-                    if (keyValuePair.Key == "canencrusted")
-                    {
-                        stat.Value.Set(keyValuePair.Key, 0);
-                        continue;
-                    }
-                    if (keyValuePair.Key == "canencrustedneg")
-                    {
-                        stat.Value.Remove(keyValuePair.Key);
-                    }
-                }
-                pl.Entity.WatchedAttributes.MarkPathDirty("stats");
-            }
-            //go through hotbar active slot, character slots and apply all buffs
-            IInventory playerBackpacks = (pl.Entity as EntityPlayer).Player.InventoryManager.GetHotbarInventory();
-            if (playerBackpacks != null)
-            {
-                ItemSlot activeSlot = (pl.Entity as EntityPlayer).Player.InventoryManager.ActiveHotbarSlot;
-                var itemStack = activeSlot.Itemstack;
-                if (itemStack != null && itemStack.Item is not ItemWearable && itemStack.Item is not CANItemWearable)
-                {
-                    var newBuffs = beh.GetItemStackBuffs(itemStack);
-                    CANGemBuffAffected.ApplyBuffFromItemStack(newBuffs, pl.Entity as EntityPlayer, true);
-                    beh.savedBuffs[1 + (int)EnumCharacterDressType.ArmorLegs] = newBuffs;
-                }
-            }
+            beh.RecomputeBuffs(true);
 
-            IInventory charakterInv = (pl.Entity as EntityPlayer).Player.InventoryManager.GetOwnInventory("character");
-
-            //playerBackpacks.Player
-            if (charakterInv != null)
-            {
-                for (int i = 0; i < charakterInv.Count; ++i)
-                {
-                    if (charakterInv[i] != null)
-                    {
-                        ItemSlot itemSlot = charakterInv[i];
-                        ItemStack itemStack = itemSlot.Itemstack;
-                        if (itemStack != null)
-                        {
-                            var newBuffs = beh.GetItemStackBuffs(itemStack);
-                            CANGemBuffAffected.ApplyBuffFromItemStack(newBuffs, pl.Entity as EntityPlayer, true);
-                            beh.savedBuffs[itemSlot.Inventory.GetSlotId(itemSlot)] = newBuffs;
-                        }
-                    }
-                }
-
-            }
-
-            canjewelry.sapi.SendMessage(pl, 0, String.Format("Buffs were reapplied for {0}", pl.PlayerName), EnumChatType.Notification);
+            canjewelry.sapi.SendMessage(pl, 0, String.Format("Buffs were reapplied for {0}", targetPlayer.PlayerName), EnumChatType.Notification);
             return tcr;
         }
         public static TextCommandResult SetGemParams(TextCommandCallingArgs args)

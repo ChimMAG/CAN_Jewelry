@@ -3,18 +3,22 @@ using canjewelry.src.CB;
 using canjewelry.src.items;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 using Vintagestory.API.Common;
 using Vintagestory.API.Common.Entities;
 using Vintagestory.API.Datastructures;
 using Vintagestory.API.Server;
-using Vintagestory.API.Util;
 using Vintagestory.GameContent;
 
 namespace canjewelry.src.eb
 {
     /***
      * Behavior tracks player's armor/cloth slots + active hotbar slot and apply buff for the player.
+     *
+     * The applied stat value is fully derived state: it is never accumulated by deltas, it is
+     * recomputed from scratch out of the currently equipped items on every relevant change and
+     * on login. Because of that nothing about it has to survive a restart - the stat is written
+     * as non persistent and rebuilt on the next recompute.
      */
     public class CANGemBuffAffected : EntityBehavior
     {
@@ -22,35 +26,29 @@ namespace canjewelry.src.eb
         private const string HOTBAR_INV = "hotbar";
         private const string ADDITIONAL_INV = "additionaljewelrycharacter";
 
-        // savedBuffs key layout:
-        //   0..15      character inv slots (match EnumCharacterDressType)
-        //   100..199   additional jewelry inv slots (offset to avoid collision)
-        //   HOTBAR_BUFF_KEY  active hotbar slot (single shared key)
-        private const int ADDITIONAL_INV_KEY_OFFSET = 100;
-        private static readonly int HOTBAR_BUFF_KEY = 1 + (int)EnumCharacterDressType.ArmorLegs;
+        // Stat key holding the summed up buff of all encrusted gems.
+        private const string BUFF_STAT_KEY = "canencrusted";
+        // Legacy key of the old delta implementation, kept only to be able to clean it up.
+        private const string LEGACY_NEG_STAT_KEY = "canencrustedneg";
+        // Legacy moddata key of the old "what was equipped" snapshot.
+        private const string LEGACY_SAVED_BUFFS_KEY = "canjewelrysavedbuffs";
 
         public override string PropertyName() => "cangembuffaffected";
 
-        public Dictionary<int, Dictionary<string, float>> savedBuffs;
         int triesToInit = 0;
         long callbackId = 0;
+        long recomputeCallbackId = 0;
         public bool initialized = false;
 
+        // What was actually written to the stats last time, after clamping. Pure optimization:
+        // losing it only costs one redundant write, it can never make the value wrong.
+        private readonly Dictionary<string, float> appliedTotals = new Dictionary<string, float>();
+        // Set whenever the stats may hold buff values nobody here wrote: legacy keys restored
+        // from an old save, an admin clearbuffs, a revive. Then the diff is not enough and the
+        // whole stat set has to be swept once.
+        private bool fullSweepPending = true;
+
         public CANGemBuffAffected(Entity entity) : base(entity) { }
-
-        public override void OnEntitySpawn()
-        {
-            base.OnEntitySpawn();
-            savedBuffs = new Dictionary<int, Dictionary<string, float>>();
-            this.DeserializeBuffs();
-        }
-
-        public override void OnEntityLoaded()
-        {
-            base.OnEntityLoaded();
-            savedBuffs = new Dictionary<int, Dictionary<string, float>>();
-            this.DeserializeBuffs();
-        }
 
         private IServerPlayer ServerPlayer => (entity as EntityPlayer)?.Player as IServerPlayer;
 
@@ -86,6 +84,9 @@ namespace canjewelry.src.eb
             canjewelry.sapi.Logger.VerboseDebug(string.Format("[canjewelry] Try #{0} loaded behavior for {1}", this.triesToInit, player.PlayerName));
             this.callbackId = 0;
             initialized = true;
+
+            // Buffs are not persisted, this rebuilds them for the session.
+            RecomputeBuffs();
             return true;
         }
 
@@ -102,105 +103,222 @@ namespace canjewelry.src.eb
 
                 IInventory additionalInv = player.InventoryManager.GetOwnInventory(ADDITIONAL_INV);
                 if (additionalInv != null) additionalInv.SlotModified -= OnSlotModifiedAdditionalInv;
+
+                // Drop the orphaned snapshot of the old delta implementation.
+                player.WorldData.RemoveModdata(LEGACY_SAVED_BUFFS_KEY);
             }
             if (this.callbackId != 0)
             {
                 canjewelry.sapi.Event.UnregisterCallback(this.callbackId);
                 this.callbackId = 0;
             }
-            this.SerializeBuffs();
+            // A pending recompute would otherwise fire for a player that is already gone.
+            if (this.recomputeCallbackId != 0)
+            {
+                canjewelry.sapi.Event.UnregisterCallback(this.recomputeCallbackId);
+                this.recomputeCallbackId = 0;
+            }
+            appliedTotals.Clear();
+            fullSweepPending = true;
             initialized = false;
             base.OnEntityDespawn(despawn);
         }
 
-        private void SerializeBuffs()
+        // Slot changes arrive in bursts (source slot, target slot, sometimes the cursor), so the
+        // recompute is deferred to the next tick and runs once for the whole burst.
+        private void ScheduleRecompute()
         {
-            (this.entity as EntityPlayer).Player.WorldData.SetModdata("canjewelrysavedbuffs", SerializerUtil.Serialize(this.savedBuffs));
+            if (this.recomputeCallbackId != 0) return;
+            this.recomputeCallbackId = canjewelry.sapi.Event.RegisterCallback(dt =>
+            {
+                this.recomputeCallbackId = 0;
+                RecomputeBuffs();
+            }, 0);
         }
 
-        private void DeserializeBuffs()
+        /// <summary>
+        /// Sums up the gem buffs of everything the player currently wears/holds and writes the
+        /// result to the player stats, replacing whatever was there before. Only stats whose
+        /// value actually changed are touched; pass force to rebuild everything regardless,
+        /// which is what the admin commands and a revive need.
+        /// </summary>
+        public void RecomputeBuffs(bool force = false)
         {
-            var loadedBuffs = (this.entity as EntityPlayer).Player.WorldData.GetModdata("canjewelrysavedbuffs");
-            if (loadedBuffs != null)
+            IServerPlayer player = ServerPlayer;
+            if (player == null) return;
+            if (force) fullSweepPending = true;
+
+            Dictionary<string, float> totals = new Dictionary<string, float>();
+            // Only built when it is going to be read - the log line is the only consumer.
+            StringBuilder debug = canjewelry.config.debugMode ? new StringBuilder() : null;
+
+            AccumulateInventory(player.InventoryManager.GetOwnInventory(CHARACTER_INV), CHARACTER_INV, totals, debug);
+            AccumulateInventory(player.InventoryManager.GetOwnInventory(ADDITIONAL_INV), ADDITIONAL_INV, totals, debug);
+
+            // Wearables in the active hotbar slot are skipped here: their buffs are already
+            // accounted for via the character/additional inventories (otherwise double-counted).
+            ItemStack activeStack = player.InventoryManager.ActiveHotbarSlot?.Itemstack;
+            if (activeStack?.Item != null && activeStack.Item is not ItemWearable && activeStack.Item is not CANItemWearable)
             {
-                this.savedBuffs = SerializerUtil.Deserialize<Dictionary<int, Dictionary<string, float>>>(loadedBuffs);
+                Accumulate(activeStack, HOTBAR_INV + "/active", totals, debug);
+            }
+
+            ApplyTotals(totals, debug);
+
+            if (debug != null)
+            {
+                canjewelry.sapi.Logger.Debug("[canjewelry] recompute buffs for {0}:{1}", player.PlayerName,
+                    debug.Length == 0 ? " nothing found" : debug.ToString());
             }
         }
 
-        internal void UpdateBuffsForSlot(int key, ItemStack newItemStack)
+        private void AccumulateInventory(IInventory inv, string invName, Dictionary<string, float> totals, StringBuilder debug)
+        {
+            if (inv == null)
+            {
+                debug?.Append(" | ").Append(invName).Append(": inventory is null");
+                return;
+            }
+            for (int i = 0; i < inv.Count; i++)
+            {
+                Accumulate(inv[i]?.Itemstack, invName + "[" + i + "]", totals, debug);
+            }
+        }
+
+        private void Accumulate(ItemStack itemStack, string source, Dictionary<string, float> totals, StringBuilder debug)
+        {
+            Dictionary<string, float> buffs = GetItemStackBuffs(itemStack);
+            if (debug != null)
+            {
+                if (buffs.Count > 0)
+                {
+                    debug.Append(" | ").Append(source).Append(' ').Append(itemStack.Collectible?.Code).Append(':');
+                    foreach (var buff in buffs) debug.Append(' ').Append(buff.Key).Append('=').Append(buff.Value);
+                }
+                else if (itemStack != null && itemStack.Attributes.HasAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING))
+                {
+                    // Encrusted, yet nothing was collected - either non stat gems or a parsing miss.
+                    debug.Append(" | ").Append(source).Append(' ').Append(itemStack.Collectible?.Code)
+                         .Append(": encrusted but no stat buffs, sockets=")
+                         .Append(EncrustableCB.GetMaxAmountSockets(itemStack));
+                }
+            }
+
+            foreach (var buff in buffs)
+            {
+                totals.TryGetValue(buff.Key, out float current);
+                totals[buff.Key] = current + buff.Value;
+            }
+        }
+
+        private void ApplyTotals(Dictionary<string, float> totals, StringBuilder debug)
         {
             EntityPlayer ep = entity as EntityPlayer;
-            Dictionary<string, float> newBuffDict = GetItemStackBuffs(newItemStack);
-            if (savedBuffs.TryGetValue(key, out var currentBuffDict))
-            {
-                if (currentBuffDict == null)
-                {
-                    canjewelry.sapi.Logger.VerboseDebug(string.Format("[canjewelry] {0} itemslot buff dict was null", key));
-                    savedBuffs.Remove(key);
-                    return;
-                }
-                // Skip only when dictionaries are identical: same count AND no differing entries.
-                // Count check catches the case where new has additional buffs (gem socketed into
-                // item that already has other gems) — Except alone would miss those additions.
-                if (currentBuffDict.Count == newBuffDict.Count
-                    && !currentBuffDict.Except(newBuffDict).Any()) return;
+            if (ep == null) return;
 
-                ApplyBuffFromItemStack(currentBuffDict, ep, false);
-                if (newBuffDict.Count > 0)
-                {
-                    ApplyBuffFromItemStack(newBuffDict, ep, true);
-                    savedBuffs[key] = newBuffDict;
-                }
-                else
-                {
-                    savedBuffs.Remove(key);
-                }
-            }
-            else if (newBuffDict.Count > 0)
+            Dictionary<string, float> newApplied = new Dictionary<string, float>();
+            foreach (var buff in totals) newApplied[buff.Key] = ClampToThreshold(buff.Key, buff.Value);
+
+            if (fullSweepPending)
             {
-                ApplyBuffFromItemStack(newBuffDict, ep, true);
-                savedBuffs[key] = newBuffDict;
+                // The stats are not trusted here, so the cache is dropped too - every value gets
+                // written again below instead of being diffed against a stale snapshot.
+                appliedTotals.Clear();
+                SweepForeignBuffStats(ep, newApplied, debug);
+                fullSweepPending = false;
             }
+
+            // Gone since the last run. Remove, not Set(0): a zero entry stays in ValuesByKey and
+            // keeps taking part in the blend.
+            foreach (var previous in appliedTotals)
+            {
+                if (newApplied.ContainsKey(previous.Key)) continue;
+                ep.Stats.Remove(previous.Key, BUFF_STAT_KEY);
+                debug?.Append(" || removed ").Append(previous.Key);
+            }
+
+            // Stats.Set creates the category when it does not exist yet, so an unknown stat name
+            // coming from the config is harmless here. Never read via ep.Stats[name] instead -
+            // that indexer throws on a missing category.
+            foreach (var buff in newApplied)
+            {
+                // Every Set rebuilds the whole stat tree and marks it dirty, so unchanged values
+                // are skipped - most slot events do not move any buff at all.
+                if (appliedTotals.TryGetValue(buff.Key, out float alreadyApplied) && alreadyApplied == buff.Value) continue;
+
+                ep.Stats.Set(buff.Key, BUFF_STAT_KEY, buff.Value, false);
+                debug?.Append(" || ").Append(buff.Key).Append(" raw=").Append(totals[buff.Key])
+                     .Append(" applied=").Append(buff.Value)
+                     .Append(" blended=").Append(ep.Stats.GetBlended(buff.Key));
+            }
+
+            appliedTotals.Clear();
+            foreach (var buff in newApplied) appliedTotals[buff.Key] = buff.Value;
+        }
+
+        /// <summary>
+        /// Drops buff values this behavior did not write itself: the legacy negative key, and
+        /// canencrusted entries restored from a save made back when the stat was persistent.
+        /// Categories that are about to be written again are left alone.
+        /// </summary>
+        private static void SweepForeignBuffStats(EntityPlayer ep, Dictionary<string, float> keep, StringBuilder debug)
+        {
+            // Collect first, mutate after: Stats.Set/Remove rebuilds the category dictionary and
+            // must not run while its enumerator is live.
+            List<string> touchedCategories = new List<string>();
+            foreach (KeyValuePair<string, EntityFloatStats> stat in ep.Stats)
+            {
+                if (stat.Value.ValuesByKey.ContainsKey(BUFF_STAT_KEY) || stat.Value.ValuesByKey.ContainsKey(LEGACY_NEG_STAT_KEY))
+                {
+                    touchedCategories.Add(stat.Key);
+                }
+            }
+
+            foreach (string category in touchedCategories)
+            {
+                ep.Stats.Remove(category, LEGACY_NEG_STAT_KEY);
+                if (!keep.ContainsKey(category))
+                {
+                    ep.Stats.Remove(category, BUFF_STAT_KEY);
+                    debug?.Append(" || cleared ").Append(category);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Caps our own summed up contribution at the configured limit. Only what this mod adds is
+        /// counted - whatever vanilla or another mod puts on the same stat is none of our business.
+        /// Sign of the threshold sets the direction: a positive one caps from above, a negative one
+        /// from below.
+        /// </summary>
+        private static float ClampToThreshold(string buffName, float value)
+        {
+            if (!canjewelry.config.max_buff_values.TryGetValue(buffName, out float threshold)) return value;
+            return threshold > 0 ? Math.Min(value, threshold) : Math.Max(value, threshold);
         }
 
         private void OnSlotModifiedAdditionalInv(int i)
         {
             if (!initialized) return;
-            var inv = ServerPlayer?.InventoryManager.GetOwnInventory(ADDITIONAL_INV);
-            if (inv == null) return;
-            UpdateBuffsForSlot(i + ADDITIONAL_INV_KEY_OFFSET, inv[i].Itemstack);
+            ScheduleRecompute();
         }
 
         private void OnSlotModifiedCharacterInv(int i)
         {
             if (!initialized) return;
-            var inv = ServerPlayer?.InventoryManager.GetOwnInventory(CHARACTER_INV);
-            if (inv == null) return;
-            UpdateBuffsForSlot(i, inv[i].Itemstack);
+            ScheduleRecompute();
         }
 
         public void OnSlotModifiedHotbarInv(int i)
         {
-            if (!initialized || i > 10) return;
+            if (!initialized) return;
             IServerPlayer player = ServerPlayer;
-            if (player == null || i != player.InventoryManager.ActiveHotbarSlotNumber) return;
+            if (player == null) return;
 
-            ItemStack itemStack = player.InventoryManager.GetOwnInventory(HOTBAR_INV)[i].Itemstack;
+            // Only the active slot is a buff source, so everything else is irrelevant here.
+            if (i != player.InventoryManager.ActiveHotbarSlotNumber) return;
 
-            // Wearables in the active hotbar slot are skipped here: their buffs are already
-            // accounted for via CharacterInv/AdditionalInv handlers (otherwise double-counted).
-            // Strip any previously applied hotbar buffs.
-            if (itemStack == null || itemStack.Item == null || itemStack.Item is ItemWearable || itemStack.Item is CANItemWearable)
-            {
-                if (savedBuffs.TryGetValue(HOTBAR_BUFF_KEY, out var currentBuffDictD))
-                {
-                    ApplyBuffFromItemStack(currentBuffDictD, entity as EntityPlayer, false);
-                    savedBuffs.Remove(HOTBAR_BUFF_KEY);
-                }
-                return;
-            }
-
-            UpdateBuffsForSlot(HOTBAR_BUFF_KEY, itemStack);
+            ScheduleRecompute();
         }
 
         public void OnActiveSlotSwapped(IServerPlayer player, int from, int to)
@@ -254,103 +372,43 @@ namespace canjewelry.src.eb
             return result;
         }
 
-        public static void ApplyBuffFromItemStack(Dictionary<string, float> buffsDict, EntityPlayer ep, bool add)
+        /// <summary>
+        /// Removes every gem buff from the player, including the legacy keys left over by
+        /// older versions of the mod.
+        /// </summary>
+        public static void ClearBuffs(EntityPlayer ep)
         {
-            if (buffsDict == null) return;
+            if (ep == null) return;
 
-            foreach (var buff in buffsDict)
+            List<string> touchedCategories = new List<string>();
+            foreach (KeyValuePair<string, EntityFloatStats> stat in ep.Stats)
             {
-                string attributeBuffName = buff.Key;
-                float additionalValue = buff.Value;
+                if (stat.Value.ValuesByKey.ContainsKey(BUFF_STAT_KEY) || stat.Value.ValuesByKey.ContainsKey(LEGACY_NEG_STAT_KEY))
+                {
+                    touchedCategories.Add(stat.Key);
+                }
+            }
 
-                if (!ep.Stats[attributeBuffName].ValuesByKey.ContainsKey("canencrusted"))
-                    ep.Stats.Set(attributeBuffName, "canencrusted", 0, true);
+            foreach (string category in touchedCategories)
+            {
+                ep.Stats.Remove(category, BUFF_STAT_KEY);
+                ep.Stats.Remove(category, LEGACY_NEG_STAT_KEY);
+            }
 
-                if (!ep.Stats[attributeBuffName].ValuesByKey.ContainsKey("canencrustedneg"))
-                    ep.Stats.Set(attributeBuffName, "canencrustedneg", 0, true);
-
-                float delta = add ? additionalValue : -additionalValue;
-                float newValue = ep.Stats[attributeBuffName].ValuesByKey["canencrusted"].Value + delta;
-                ep.Stats.Set(attributeBuffName, "canencrusted", newValue, true);
-
-                if (!canjewelry.config.max_buff_values.TryGetValue(attributeBuffName, out float buffThreshold))
-                    continue;
-
-                // canencrustedneg is a negative compensation that caps total at buffThreshold.
-                // Sign of threshold sets direction: positive caps from above, negative from below.
-                bool overflowed = buffThreshold > 0 ? newValue - buffThreshold >= 0 : newValue - buffThreshold <= 0;
-                ep.Stats.Set(attributeBuffName, "canencrustedneg", overflowed ? -(newValue - buffThreshold) : 0, true);
+            // The diff cache no longer describes the stats, so the next recompute has to write
+            // everything again instead of concluding that nothing changed.
+            var beh = ep.GetBehavior<CANGemBuffAffected>();
+            if (beh != null)
+            {
+                beh.appliedTotals.Clear();
+                beh.fullSweepPending = true;
             }
         }
 
         public override void OnEntityRevive()
         {
             base.OnEntityRevive();
-            savedBuffs.Clear();
-            foreach (KeyValuePair<string, EntityFloatStats> stat in entity.Stats)
-            {
-                foreach (KeyValuePair<string, EntityStat<float>> keyValuePair in stat.Value.ValuesByKey.ToArray())
-                {
-                    if (keyValuePair.Key == "canencrusted")
-                    {
-                        stat.Value.Set(keyValuePair.Key, 0);
-                        continue;
-                    }
-                    if (keyValuePair.Key == "canencrustedneg")
-                    {
-                        stat.Value.Remove(keyValuePair.Key);
-                    }
-                }
-                entity.WatchedAttributes.MarkPathDirty("stats");
-            }
-
-            IInventory playerHotbar = (entity as EntityPlayer).Player.InventoryManager.GetHotbarInventory();
-            if (playerHotbar != null)
-            {
-                ItemSlot activeSlot = (entity as EntityPlayer).Player.InventoryManager.ActiveHotbarSlot;
-                var itemStack = activeSlot.Itemstack;
-                if (itemStack != null && itemStack.Item is not ItemWearable && itemStack.Item is not CANItemWearable)
-                {
-                    var newBuffs = GetItemStackBuffs(itemStack);
-                    ApplyBuffFromItemStack(newBuffs, entity as EntityPlayer, true);
-                    savedBuffs[HOTBAR_BUFF_KEY] = newBuffs;
-                }
-            }
-
-            IInventory characterInv = (entity as EntityPlayer).Player.InventoryManager.GetOwnInventory(CHARACTER_INV);
-            if (characterInv != null)
-            {
-                for (int i = 0; i < characterInv.Count; ++i)
-                {
-                    if (characterInv[i] != null)
-                    {
-                        ItemSlot itemSlot = characterInv[i];
-                        ItemStack itemStack = itemSlot.Itemstack;
-                        if (itemStack != null)
-                        {
-                            var newBuffs = GetItemStackBuffs(itemStack);
-                            ApplyBuffFromItemStack(newBuffs, entity as EntityPlayer, true);
-                            savedBuffs[itemSlot.Inventory.GetSlotId(itemSlot)] = newBuffs;
-                        }
-                    }
-                }
-            }
-
-            IInventory additionalInv = (entity as EntityPlayer).Player.InventoryManager.GetOwnInventory(ADDITIONAL_INV);
-            if (additionalInv != null)
-            {
-                for (int i = 0; i < additionalInv.Count; ++i)
-                {
-                    ItemSlot itemSlot = additionalInv[i];
-                    ItemStack itemStack = itemSlot?.Itemstack;
-                    if (itemStack != null)
-                    {
-                        var newBuffs = GetItemStackBuffs(itemStack);
-                        ApplyBuffFromItemStack(newBuffs, entity as EntityPlayer, true);
-                        savedBuffs[i + ADDITIONAL_INV_KEY_OFFSET] = newBuffs;
-                    }
-                }
-            }
+            RecomputeBuffs(true);
         }
     }
 }

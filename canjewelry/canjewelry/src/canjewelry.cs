@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Cairo;
 using canjewelry.src.bb;
@@ -269,8 +270,30 @@ namespace canjewelry.src
             clientChannel.RegisterMessageType(typeof(SyncCANJewelryPacket));
             clientChannel.SetMessageHandler<SyncCANJewelryPacket>((packet) =>
             {
-                config = JsonConvert.DeserializeObject<Config>(packet.CompressedConfig);
-                AddBehaviorAndSocketNumber(capi);
+                // The network handler swallows exceptions, so a config the client cannot parse
+                // used to leave it silently unconfigured - no socket counts in tooltips, no gem
+                // fitting anything - with nothing in the log to explain it. Parse into a local
+                // first and keep the previous config if anything goes wrong.
+                try
+                {
+                    Config received = JsonConvert.DeserializeObject<Config>(packet.CompressedConfig);
+                    if (received == null)
+                    {
+                        capi.Logger.Error("[canjewelry] server sent an empty config, keeping the local one");
+                        return;
+                    }
+
+                    // The server sends the config in its stored form, so the "$armor" references
+                    // arrive unresolved and have to be expanded here too - otherwise the client
+                    // would think a gem fits nothing but the literally listed codes.
+                    received.ExpandItemGroups();
+                    config = received;
+                    AddBehaviorAndSocketNumber(capi);
+                }
+                catch (Exception e)
+                {
+                    capi.Logger.Error("[canjewelry] could not apply the config sent by the server, keeping the local one. {0}", e);
+                }
             });
 
             //Set colors of processed gems on jewel grinder
@@ -545,6 +568,13 @@ namespace canjewelry.src
         /// </param>
         public void AddBehaviorAndSocketNumber(ICoreAPI api)
         {
+            // Socket counts only reach the tooltip through the attributes written below, and on
+            // the client this runs solely from the config network handler. One line here tells
+            // apart "the config never arrived" from "the config arrived but is empty".
+            api.Logger.Notification("[canjewelry] applying config on {0}: {1} socket rules, {2} custom variants, {3} pan drops",
+                api.Side, config.items_codes_with_socket_count_and_tiers.Count,
+                config.custom_variants_sockets_tiers.Count, config.panningDrops?.Count ?? 0);
+
             ApplySimpleJewelry(api);
             ApplyGemBehaviors(api);
             ApplyCustomVariants(api);
@@ -678,6 +708,35 @@ namespace canjewelry.src
             }
         }
 
+        // The config is always written back after loading, and its stored shape changes between
+        // versions (0.6.20 moved most sections to a compact form that older builds cannot read).
+        // Copying the file aside before the first rewrite of a new version keeps a downgrade or a
+        // botched migration recoverable. Never fatal: a failed backup only costs a warning.
+        private void BackupConfigFile(ICoreAPI api, string fromVersion, string toVersion)
+        {
+            try
+            {
+                string fileName = this.Mod.Info.ModID + ".json";
+                string path = Path.Combine(Vintagestory.API.Config.GamePaths.ModConfig, fileName);
+                if (!File.Exists(path)) return;
+
+                string backupName = string.Format("{0}_{1}.json.bak", this.Mod.Info.ModID,
+                    string.IsNullOrEmpty(fromVersion) ? "pre-versioning" : fromVersion);
+                string backupPath = Path.Combine(Vintagestory.API.Config.GamePaths.ModConfig, backupName);
+                // Keep the first backup made for that version: it is the one written by the
+                // version being left, later runs would only overwrite it with migrated content.
+                if (File.Exists(backupPath)) return;
+
+                File.Copy(path, backupPath);
+                api.Logger.Notification("[canjewelry] config of version {0} backed up to {1} before migrating to {2}",
+                    fromVersion, backupName, toVersion);
+            }
+            catch (Exception e)
+            {
+                api.Logger.Warning("[canjewelry] could not back up the config before migrating: {0}", e.Message);
+            }
+        }
+
         private void loadConfig(ICoreAPI api)
         {
             //Try to read old config
@@ -698,6 +757,9 @@ namespace canjewelry.src
                 config.buffNameToPossibleItem = oldConfig.buffNameToPossibleItem.Val;
                 config.gems_buffs = oldConfig.gems_buffs.Val;
                 config.items_codes_with_socket_count = oldConfig.items_codes_with_socket_count.Val;
+                // Seeds item_groups so the freshly written config has them, and folds the
+                // copied item lists back into "$armor" style references on save.
+                config.ExpandItemGroups();
                 //make copy of the old config and new to old file
                 try
                 {
@@ -742,6 +804,8 @@ namespace canjewelry.src
                     config = new Config();
                     config.FillDefaultValues();
                     config.config_version = api.ModLoader.Mods.FirstOrDefault(mod => mod.Info.ModID == "canjewelry")?.Info.Version ?? "0.0.0";
+                    // Points the serializer at this config's own groups before the first save.
+                    config.ExpandItemGroups();
                     api.StoreModConfig<Config>(config, this.Mod.Info.ModID + ".json");
                     if (config.debugMode)
                     {
@@ -754,11 +818,16 @@ namespace canjewelry.src
                 {
                     if (currVersion != config.config_version)
                     {
+                        BackupConfigFile(api, config.config_version, currVersion);
                         config.FillDefaultValues(true);
                         config.config_version = currVersion;
                     }
                 }
 
+                // Turns the "$armor" references into the actual item codes. Has to run before
+                // anything reads buffNameToPossibleItem, and after the whole file is loaded so
+                // that admin edited item_groups are already in place.
+                config.ExpandItemGroups();
 
                 api.StoreModConfig<Config>(config, this.Mod.Info.ModID + ".json");
                 if (config.debugMode)

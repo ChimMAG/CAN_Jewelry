@@ -300,10 +300,13 @@ namespace canjewelry.src.items
         {
             if (this.api.Side is EnumAppSide.Server) return;
 
-            tmpTextures.Clear();
-            FillTextureDict(tmpTextures, stack);
+            // Local dict on purpose: the item is a singleton shared by every stack, and nothing
+            // reads the tmpTextures field after this call - it is only a texSource backing store
+            // for genMesh. Filling it here would just leave one stack's textures lying around.
+            var textures = new Dictionary<string, AssetLocation>();
+            FillTextureDict(textures, stack);
 
-            foreach (var texture in tmpTextures)
+            foreach (var texture in textures)
             {
                 CompositeTexture ctex = new CompositeTexture { Base = texture.Value };
                 AssetLocation armorTexLoc = texture.Value;

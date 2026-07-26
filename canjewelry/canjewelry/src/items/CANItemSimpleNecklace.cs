@@ -53,14 +53,17 @@ namespace canjewelry.src.items
             string socket = stack.Attributes.GetString("socket", "gold");
             string gem = stack.Attributes.GetString("gem", null);
 
-            tmpTextures.Clear();
-            tmpTextures["loop"] = new AssetLocation("block/metal/sheet/" + loop + "1.png");
-            tmpTextures["socket"] = new AssetLocation("block/metal/plate/" + socket + ".png");
-            tmpTextures["gem"] = gem != null && canjewelry.gems_textures.TryGetValue(gem, out string assetPath)
+            // Local dict on purpose: the item is a singleton shared by every stack, and nothing
+            // reads the tmpTextures field after this call - it is only a texSource backing store
+            // for genMesh. Filling it here would just leave one stack's textures lying around.
+            var textures = new Dictionary<string, AssetLocation>();
+            textures["loop"] = new AssetLocation("block/metal/sheet/" + loop + "1.png");
+            textures["socket"] = new AssetLocation("block/metal/plate/" + socket + ".png");
+            textures["gem"] = gem != null && canjewelry.gems_textures.TryGetValue(gem, out string assetPath)
                 ? canjewelry.capi.Assets.TryGet(assetPath + ".png")?.Location ?? new AssetLocation("canjewelry:item/gem/notvis.png")
                 : new AssetLocation("canjewelry:item/gem/notvis.png");
 
-            foreach (var texture in tmpTextures)
+            foreach (var texture in textures)
             {
                 CompositeTexture ctex = new CompositeTexture { Base = texture.Value };
                 AssetLocation armorTexLoc = texture.Value;

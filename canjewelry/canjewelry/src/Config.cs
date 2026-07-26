@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vintagestory.API.Common;
@@ -9,9 +10,16 @@ namespace canjewelry.src
     public class Config
     {
         public float grindTimeOneTick = 3;
+        // Named item families referenced as "$armor" from buffNameToPossibleItem, so a gem that
+        // accepts all armor is one entry instead of ninety. Whatever stands here wins: groups
+        // that already exist are never topped up on a mod update, so items that later versions
+        // add to their defaults have to be added here by hand.
+        public Dictionary<string, HashSet<string>> item_groups = new Dictionary<string, HashSet<string>>();
+        [JsonProperty(ItemConverterType = typeof(utils.ItemGroupSetConverter))]
         public Dictionary<string, HashSet<string>> buffNameToPossibleItem = new Dictionary<string, HashSet<string>>();
         public Dictionary<string, Dictionary<string, float>> gems_buffs = new Dictionary<string, Dictionary<string, float>>();
         public Dictionary<string, int> items_codes_with_socket_count = new Dictionary<string, int>();
+        [JsonProperty(ItemConverterType = typeof(utils.CompactIntArrayConverter))]
         public Dictionary<string, int[]> items_codes_with_socket_count_and_tiers = new Dictionary<string, int[]>();
         public HashSet<CustomVariantSocketsTiers> custom_variants_sockets_tiers = new HashSet<CustomVariantSocketsTiers>();
         public int pan_take_per_use;
@@ -92,8 +100,26 @@ namespace canjewelry.src
             "pickaxe", "shovel", "tunneler"
         };
 
+        // Seed contents for the "$armor" style groups. Declared after the sets above because
+        // static fields initialize in declaration order. Only ever used to fill a config that
+        // has no item_groups yet - see item_groups for why they are not merged afterwards.
+        private static readonly Dictionary<string, HashSet<string>> DefaultItemGroups = new Dictionary<string, HashSet<string>>
+        {
+            { "armor",   ArmorSets },
+            { "jewelry", JewelrySets },
+            { "melee",   MeleeWeaponSets },
+            { "mining",  MiningToolSets },
+            { "ranged",  RangedSets },
+        };
+
+        // The groups the serializer folds item lists against. Points at the loaded config's
+        // item_groups once ExpandItemGroups has run; until then the defaults stand in, which is
+        // what a config being created from scratch needs.
+        internal static Dictionary<string, HashSet<string>> ActiveItemGroups = DefaultItemGroups;
+
         public void FillDefaultValues(bool onlyEmptyStructs = false)
         {
+            if (item_groups.Count == 0) FillItemGroups();
             if (buffNameToPossibleItem.Count == 0) FillBuffItemSets();
             if (gems_buffs.Count == 0) FillGemBuffValues();
             if (items_codes_with_socket_count_and_tiers.Count == 0) FillSocketCounts();
@@ -133,6 +159,58 @@ namespace canjewelry.src
             if (!onlyEmptyStructs || BuffAttributesDict.Count == 0) FillBuffAttributes();
 
             AddVanillaArmoryCompat();
+        }
+
+        private void FillItemGroups()
+        {
+            item_groups = new Dictionary<string, HashSet<string>>();
+            // Copies, so editing a group in the config never mutates the shared static sets.
+            foreach (var group in DefaultItemGroups) item_groups[group.Key] = new HashSet<string>(group.Value);
+        }
+
+        /// <summary>
+        /// Replaces every "$group" reference in buffNameToPossibleItem with the group's contents.
+        /// Deliberately not done inside the json converter: the converter would have to read the
+        /// groups while the very same file is still being deserialized, which would make the
+        /// result depend on field order. Here the whole config is already in memory.
+        /// Call once after loading, before anything reads buffNameToPossibleItem.
+        /// </summary>
+        public void ExpandItemGroups()
+        {
+            // A config written before groups existed has none, so seed them once - otherwise the
+            // section would be written back empty and stay empty forever.
+            if (item_groups == null || item_groups.Count == 0) FillItemGroups();
+            ActiveItemGroups = item_groups;
+            if (buffNameToPossibleItem == null) return;
+
+            foreach (string buffName in buffNameToPossibleItem.Keys.ToList())
+            {
+                HashSet<string> raw = buffNameToPossibleItem[buffName];
+                if (raw == null) continue;
+
+                HashSet<string> expanded = new HashSet<string>();
+                foreach (string entry in raw)
+                {
+                    if (string.IsNullOrWhiteSpace(entry)) continue;
+
+                    string text = entry.Trim();
+                    if (text[0] != '$')
+                    {
+                        expanded.Add(text);
+                        continue;
+                    }
+
+                    string groupName = text.Substring(1);
+                    if (!ActiveItemGroups.TryGetValue(groupName, out var group))
+                    {
+                        throw new InvalidOperationException(string.Format(
+                            "[canjewelry] buffNameToPossibleItem.{0} references unknown item group \"{1}\". Known groups: {2}",
+                            buffName, text, string.Join(", ", ActiveItemGroups.Keys.Select(k => "$" + k))));
+                    }
+                    expanded.UnionWith(group);
+                }
+                buffNameToPossibleItem[buffName] = expanded;
+            }
         }
 
         private void FillBuffItemSets()
@@ -1679,6 +1757,7 @@ namespace canjewelry.src
                 };
             }
         }
+        [JsonConverter(typeof(utils.DropInfoConverter))]
         public class DropInfo
         {
             public EnumItemClass TypeCollectable;
@@ -1704,7 +1783,15 @@ namespace canjewelry.src
         {
             public string ItemCode;
             public string AttributeKey;
+            [JsonProperty(ItemConverterType = typeof(utils.CompactIntArrayConverter))]
             public Dictionary<string, int[]> SocketTiers;
+
+            // Newtonsoft binds a parameterized constructor by parameter name and then ignores the
+            // field attributes, so the compact "1,2,1" form would fail to read. With a default
+            // constructor present it fills the fields directly and the converters apply.
+            [JsonConstructor]
+            public CustomVariantSocketsTiers() { }
+
             public CustomVariantSocketsTiers(string itemCode, string attributeKey, Dictionary<string, int[]> socketTiers)
             {
                 this.ItemCode = itemCode;
@@ -1714,9 +1801,16 @@ namespace canjewelry.src
         }
         public class BuffAttributes
         {
+            [JsonProperty(ItemConverterType = typeof(utils.CompactFloatArrayConverter))]
             public Dictionary<int, float[]> MainStatValueRange;
+            [JsonProperty(ItemConverterType = typeof(utils.CompactFloatArrayConverter))]
             public Dictionary<int, float[]> SecondaryStatValueRange;
             public HashSet<string> PossibleSecondaryStats;
+
+            // See CustomVariantSocketsTiers: without a default constructor the field converters
+            // are skipped on read and the compact "0.01,0.03" ranges fail to parse.
+            [JsonConstructor]
+            public BuffAttributes() { }
 
             public BuffAttributes(Dictionary<int, float[]> mainStatValueRange, Dictionary<int, float[]> secondaryStatValueRange, HashSet<string> possibleSecondaryStats)
             {
@@ -1757,7 +1851,13 @@ namespace canjewelry.src
         }
         public class CuttingAttributes
         {
+            [JsonConverter(typeof(utils.CompactFloatArrayConverter))]
             public float[] GrindingBuffIncreaseMultipliers;
+
+            // See CustomVariantSocketsTiers: needed so the field converter applies on read.
+            [JsonConstructor]
+            public CuttingAttributes() { }
+
             public CuttingAttributes(float[] grindingBuffIncreaseMultipliers)
             {
                 GrindingBuffIncreaseMultipliers = grindingBuffIncreaseMultipliers;

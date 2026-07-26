@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Vintagestory.API.Common;
@@ -14,9 +15,18 @@ namespace canjewelry.src.utils
     // raw JToken so round-tripping via JsonConvert is safe.
     public class CANPanningDropConverter : JsonConverter<CANPanningDrop>
     {
+        // A drop that only says "this item with this chance" is written as the single string
+        // "code chance" instead of a nine-line object - the default table is ~136 such entries
+        // and the long form made up a third of the whole config file. Anything that sets a
+        // stack size, attributes, a stat modifier, a perk gate or a non trivial chance
+        // distribution still round-trips through the full object form.
+        private const char COMPACT_SEPARATOR = ' ';
+
         public override void WriteJson(JsonWriter writer, CANPanningDrop value, JsonSerializer serializer)
         {
             if (value == null) { writer.WriteNull(); return; }
+
+            if (TryWriteCompact(writer, value)) return;
 
             var o = new JObject
             {
@@ -31,9 +41,33 @@ namespace canjewelry.src.utils
             o.WriteTo(writer);
         }
 
+        // True when nothing but code and a flat chance is set, i.e. the entry survives the
+        // round trip through the "code chance" string form without losing anything.
+        private static bool TryWriteCompact(JsonWriter writer, CANPanningDrop value)
+        {
+            if (value.Code == null) return false;
+            if (value.Type != EnumItemClass.Item) return false;
+            if (value.StackSize != 1) return false;
+            if (value.Attributes != null) return false;
+            if (!string.IsNullOrEmpty(value.DropModbyStat)) return false;
+            if (!string.IsNullOrEmpty(value.requiresPerk)) return false;
+
+            NatFloat chance = value.Chance;
+            if (chance == null || chance.var != 0f || chance.offset != 0f || chance.dist != EnumDistribution.UNIFORM) return false;
+
+            // A code with whitespace in it could not be split back apart.
+            string code = value.Code.ToString();
+            if (code.IndexOf(COMPACT_SEPARATOR) >= 0) return false;
+
+            writer.WriteValue(code + COMPACT_SEPARATOR + chance.avg.ToString(CultureInfo.InvariantCulture));
+            return true;
+        }
+
         public override CANPanningDrop ReadJson(JsonReader reader, Type objectType, CANPanningDrop existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null) return null;
+            if (reader.TokenType == JsonToken.String) return ReadCompact((string)reader.Value);
+
             var o = JObject.Load(reader);
 
             var drop = new CANPanningDrop();
@@ -63,6 +97,36 @@ namespace canjewelry.src.utils
             drop.requiresPerk = (string)CI(o, "requiresPerk");
 
             return drop;
+        }
+
+        /// <summary>Parses the "code chance" short form, e.g. "canjewelry:gem-rough-normal-diamond 0.2".</summary>
+        private static CANPanningDrop ReadCompact(string raw)
+        {
+            string text = raw?.Trim();
+            if (string.IsNullOrEmpty(text)) throw new JsonException("[canjewelry] empty panning drop entry");
+
+            int split = text.LastIndexOf(COMPACT_SEPARATOR);
+            if (split <= 0 || split == text.Length - 1)
+            {
+                throw new JsonException(string.Format(
+                    "[canjewelry] panning drop \"{0}\" is not in the \"code chance\" form, e.g. \"canjewelry:gem-rough-normal-diamond 0.2\"", raw));
+            }
+
+            string code = text.Substring(0, split).TrimEnd();
+            string chanceText = text.Substring(split + 1).TrimStart();
+            if (!float.TryParse(chanceText, NumberStyles.Float, CultureInfo.InvariantCulture, out float chance))
+            {
+                throw new JsonException(string.Format(
+                    "[canjewelry] panning drop \"{0}\" has an unparseable chance \"{1}\"", raw, chanceText));
+            }
+
+            return new CANPanningDrop
+            {
+                Code = new AssetLocation(code),
+                Type = EnumItemClass.Item,
+                StackSize = 1,
+                Chance = new NatFloat(chance, 0f, EnumDistribution.UNIFORM)
+            };
         }
 
         private static JToken CI(JObject o, string key) =>
