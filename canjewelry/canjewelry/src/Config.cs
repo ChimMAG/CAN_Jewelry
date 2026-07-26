@@ -17,6 +17,7 @@ namespace canjewelry.src
         public Dictionary<string, HashSet<string>> item_groups = new Dictionary<string, HashSet<string>>();
         [JsonProperty(ItemConverterType = typeof(utils.ItemGroupSetConverter))]
         public Dictionary<string, HashSet<string>> buffNameToPossibleItem = new Dictionary<string, HashSet<string>>();
+        [JsonProperty(ItemConverterType = typeof(utils.TierValuesConverter))]
         public Dictionary<string, Dictionary<string, float>> gems_buffs = new Dictionary<string, Dictionary<string, float>>();
         public Dictionary<string, int> items_codes_with_socket_count = new Dictionary<string, int>();
         [JsonProperty(ItemConverterType = typeof(utils.CompactIntArrayConverter))]
@@ -28,20 +29,31 @@ namespace canjewelry.src
         public Dictionary<string, DropInfo[]> gems_drops_table = new Dictionary<string, DropInfo[]>();
         public bool debugMode;
         public float chance_gem_drop_on_item_broken;
+        [JsonConverter(typeof(utils.CompactStringSetConverter))]
         public HashSet<string> buffs_to_show_gui = new HashSet<string>();
         public string config_version;
+        [JsonProperty(ItemConverterType = typeof(utils.CompactStringSetConverter))]
         public Dictionary<string, HashSet<string>> PossibleGemBuffs = new Dictionary<string, HashSet<string>>();
         public Dictionary<string, BuffAttributes> BuffAttributesDict = new Dictionary<string, BuffAttributes>();
         public Dictionary<string, CuttingAttributes> CuttingAttributesDict = new Dictionary<string, CuttingAttributes>();
         public static Random rand = new Random();
         public int wirehank_per_strap = 4;
+        [JsonConverter(typeof(utils.CompactStringArrayConverter))]
         public string[] socketTiersColorsWords = new string[0];
+        [JsonConverter(typeof(utils.CompactStringArrayConverter))]
         public string[] socketTiersColors = new string[0];
+        [JsonConverter(typeof(utils.CompactStringSetConverter))]
         public HashSet<string> TemporalGraspBlockList = new HashSet<string>();
         public bool TemporalGraspEnabled = true;
         public float minFineForMistake = 0.01f;
         public float maxFineForMistake = 0.08f;
         public bool TurnOffBuffs = false;
+        // When a mod update adds support for new items or metals, an existing config does not know
+        // about them and that gear silently ends up without sockets. Turning this on lets the mod
+        // append the missing entries on a version change, without touching anything already there.
+        // Off by default: a missing entry may just as well be one that was deliberately removed.
+        // Either way the log says how many entries are missing on startup.
+        public bool add_missing_defaults_on_update = false;
         public float minGrinderProcessingSpeed = 0.3f;
         // doGrind tick counts per stage (lower = faster). Values get reduced by Lapidary's
         // Workshop Speedup perk when the companion mod is installed; without it these are the
@@ -67,6 +79,10 @@ namespace canjewelry.src
             "canmonocle", "canarmband", "cannadiyannecklace", "canring", "canrottenkingmask"
         };
 
+        // The vanillaarmory entries used to be appended per gem by AddVanillaArmoryCompat, which
+        // meant every gem carried them as literals and no group could be folded around them.
+        // They belong to these families anyway, so they live here now. When that mod is absent
+        // the codes simply match nothing.
         private static readonly HashSet<string> ArmorSets = new HashSet<string>
         {
             "brigandine", "plate", "chain", "scale", "-antique", "-tracker",
@@ -77,7 +93,8 @@ namespace canjewelry.src
             "hussar-head", "hussar-body", "hussar-legs",
             "gothic-head", "gothic-body", "gothic-legs",
             "dynasties-head", "dynasties-body", "dynasties-legs",
-            "forlornzealot", "forlornacolyte"
+            "forlornzealot", "forlornacolyte",
+            "sturdyleatherarmor", "bonearmor", "woodarmor"
         };
 
         private static readonly HashSet<string> MeleeWeaponSets = new HashSet<string>
@@ -87,12 +104,21 @@ namespace canjewelry.src
             "axe-long", "sword-long", "sword-great", "sword-short",
             "javelin-plain", "pike-plain", "club-plain", "mace-plain", "poleaxe-plain",
             "halberd-plain", "quarterstaff-plain", "claymore", "warhammer", "dagger",
-            "cutlass", "hasta", "canopener", "walkingstick", "hidden-blade"
+            "cutlass", "hasta", "canopener", "walkingstick", "hidden-blade",
+            "axe-bardiche", "axe-battle", "axe-bearded", "axe-double",
+            "club-flanged", "club-morningstar", "club-spiked",
+            "knife-baselard", "knife-khanjar", "knife-stiletto"
         };
 
         private static readonly HashSet<string> RangedSets = new HashSet<string>
         {
-            "bow", "tbow-compound", "firearm-", "walkingstick-sling", "hidden-gun"
+            "bow", "tbow-compound", "firearm-", "walkingstick-sling", "hidden-gun",
+            "bow-ranger", "bow-yager"
+        };
+
+        private static readonly HashSet<string> ShieldSets = new HashSet<string>
+        {
+            "shield", "buckler", "forlorn-shield"
         };
 
         private static readonly HashSet<string> MiningToolSets = new HashSet<string>
@@ -110,6 +136,7 @@ namespace canjewelry.src
             { "melee",   MeleeWeaponSets },
             { "mining",  MiningToolSets },
             { "ranged",  RangedSets },
+            { "shield",  ShieldSets },
         };
 
         // The groups the serializer folds item lists against. Points at the loaded config's
@@ -215,7 +242,7 @@ namespace canjewelry.src
 
         private void FillBuffItemSets()
         {
-            var armorAndShield = ArmorSets.Union(new[] { "shield" });
+            var armorAndShield = ArmorSets.Union(ShieldSets);
             buffNameToPossibleItem = new Dictionary<string, HashSet<string>>
             {
                 {"diamond",             armorAndShield.Union(JewelrySets).Union(new[]{"firearm-", "exoskeleton-", "walkingstick"}).ToHashSet()},
@@ -248,8 +275,8 @@ namespace canjewelry.src
                 {"tourmalineschorl",   MeleeWeaponSets.Union(JewelrySets).Union(new[]{"exoskeleton-"}).ToHashSet()},
                 {"tourmalineverdelite",armorAndShield.Union(JewelrySets).Union(new[]{"exoskeleton-"}).ToHashSet()},
                 {"tourmalinewatermelon",JewelrySets.Union(new[]{"bow", "tbow-compound", "walkingstick-sling", "hidden-gun", "exoskeleton-"}).ToHashSet()},
-                {"amethyst",           MeleeWeaponSets.Union(ArmorSets).Union(JewelrySets)
-                                           .Union(new[]{"shield", "bow", "knife", "axe-felling-", "prospectingpick-", "hammer-",
+                {"amethyst",           MeleeWeaponSets.Union(ArmorSets).Union(JewelrySets).Union(ShieldSets)
+                                           .Union(new[]{"bow", "knife", "axe-felling-", "prospectingpick-", "hammer-",
                                                        "shovel-", "hoe-", "saw-", "chisel-", "scythe-", "pickaxe-",
                                                        "tunneler", "firearm-", "exoskeleton-", "walkingstick-sling", "hidden-gun"}).ToHashSet()},
                 {"topaz",              new HashSet<string>{"pickaxe", "shovel"}},
@@ -398,8 +425,12 @@ namespace canjewelry.src
         private void FillSocketCounts()
         {
             items_codes_with_socket_count = new Dictionary<string, int>();
+            items_codes_with_socket_count_and_tiers = BuildDefaultSocketCounts();
+        }
 
-            items_codes_with_socket_count_and_tiers = new Dictionary<string, int[]>()
+        private static Dictionary<string, int[]> BuildDefaultSocketCounts()
+        {
+            return new Dictionary<string, int[]>()
         {
             #region CAN Jewelry
             { "canjewelry:canring-*", new int[1] {1} },
@@ -963,29 +994,10 @@ namespace canjewelry.src
             items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:woodarmor-legs", new int[] { 1 });
             items_codes_with_socket_count_and_tiers.TryAdd("vanillaarmory:woodarmor-body", new int[] { 1, 1 });
 
-            // --- Gem eligibility ---------------------------------------------
-            // canItemContainThisGem matches gem->item by code substring. For each
-            // gem that already accepts a given vanilla category, add the VA codes
-            // for that same category so VA gear inherits the exact same gem pool.
-            // blade/spear/knife-dagger/club-warhammer are already covered by the
-            // existing melee substrings; only the gaps are listed here.
-            string[] vaMelee =
-            {
-                "axe-bardiche", "axe-battle", "axe-bearded", "axe-double",
-                "club-flanged", "club-morningstar", "club-spiked",
-                "knife-baselard", "knife-khanjar", "knife-stiletto",
-            };
-            string[] vaArmor  = { "sturdyleatherarmor", "bonearmor", "woodarmor" };
-            string[] vaShield = { "buckler", "forlorn-shield" };
-            string[] vaRanged = { "bow-ranger", "bow-yager" };
-
-            foreach (var set in buffNameToPossibleItem.Values)
-            {
-                if (set.Overlaps(MeleeWeaponSets)) foreach (var s in vaMelee)  set.Add(s);
-                if (set.Overlaps(ArmorSets))       foreach (var s in vaArmor)  set.Add(s);
-                if (set.Contains("shield"))        foreach (var s in vaShield) set.Add(s);
-                if (set.Overlaps(RangedSets))      foreach (var s in vaRanged) set.Add(s);
-            }
+            // Gem eligibility for vanillaarmory gear is no longer patched in here: its codes are
+            // part of ArmorSets / MeleeWeaponSets / RangedSets / ShieldSets, so FillBuffItemSets
+            // hands them to exactly the same gems this block used to. Keeping both would only
+            // re-add the codes as literals and stop the "$armor" folding from working.
         }
 
         private void FillGemTypeToBuff()
@@ -1215,6 +1227,14 @@ namespace canjewelry.src
         {
             if (custom_variants_sockets_tiers.Count == 0)
             {
+                custom_variants_sockets_tiers = BuildDefaultCustomVariantSockets();
+            }
+        }
+
+        private static HashSet<CustomVariantSocketsTiers> BuildDefaultCustomVariantSockets()
+        {
+            var custom_variants_sockets_tiers = new HashSet<CustomVariantSocketsTiers>();
+            {
                 custom_variants_sockets_tiers.Add(
                     new CustomVariantSocketsTiers("canjewelry:cantiara-normal-tiara", "carcassus", new Dictionary<string, int[]> {
                         { "tinbronze",      new int[] { 1 } },
@@ -1301,6 +1321,52 @@ namespace canjewelry.src
                     })
                  );
             }
+            return custom_variants_sockets_tiers;
+        }
+
+        /// <summary>
+        /// Counts socket entries that later mod versions introduced and this config does not have,
+        /// optionally adding them. Only missing keys are ever added: values that were edited, and
+        /// whole entries an admin rewrote, are left alone. Off by default - a missing entry can
+        /// just as well be one the admin deliberately deleted.
+        /// </summary>
+        public int AddMissingDefaults(bool apply)
+        {
+            int missing = 0;
+
+            foreach (var defaultEntry in BuildDefaultSocketCounts())
+            {
+                if (items_codes_with_socket_count_and_tiers.ContainsKey(defaultEntry.Key)) continue;
+                missing++;
+                if (apply) items_codes_with_socket_count_and_tiers[defaultEntry.Key] = defaultEntry.Value;
+            }
+
+            foreach (var defaultVariant in BuildDefaultCustomVariantSockets())
+            {
+                var existing = custom_variants_sockets_tiers.FirstOrDefault(v => v.ItemCode == defaultVariant.ItemCode);
+                if (existing == null)
+                {
+                    missing++;
+                    if (apply) custom_variants_sockets_tiers.Add(defaultVariant);
+                    continue;
+                }
+
+                if (existing.SocketTiers == null)
+                {
+                    missing++;
+                    if (apply) existing.SocketTiers = defaultVariant.SocketTiers;
+                    continue;
+                }
+
+                foreach (var tier in defaultVariant.SocketTiers)
+                {
+                    if (existing.SocketTiers.ContainsKey(tier.Key)) continue;
+                    missing++;
+                    if (apply) existing.SocketTiers[tier.Key] = tier.Value;
+                }
+            }
+
+            return missing;
         }
 
         private void FillPossibleGemBuffs()
@@ -1805,6 +1871,7 @@ namespace canjewelry.src
             public Dictionary<int, float[]> MainStatValueRange;
             [JsonProperty(ItemConverterType = typeof(utils.CompactFloatArrayConverter))]
             public Dictionary<int, float[]> SecondaryStatValueRange;
+            [JsonConverter(typeof(utils.CompactStringSetConverter))]
             public HashSet<string> PossibleSecondaryStats;
 
             // See CustomVariantSocketsTiers: without a default constructor the field converters

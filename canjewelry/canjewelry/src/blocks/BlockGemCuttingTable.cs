@@ -104,7 +104,7 @@ namespace canjewelry.src.blocks
                         HotKeyCode = null,
                         MouseButton = EnumMouseButton.Right,
                         ShouldApply = (wi, bs, es) => {
-                            BlockEntityAnvil bea = api.World.BlockAccessor.GetBlockEntity(bs.Position) as BlockEntityAnvil;
+                            BlockEntityGemCuttingTable bea = api.World.BlockAccessor.GetBlockEntity(bs.Position) as BlockEntityGemCuttingTable;
                             return bea?.WorkItemStack != null;
                         }
                     },
@@ -115,7 +115,7 @@ namespace canjewelry.src.blocks
                         MouseButton = EnumMouseButton.Right,
                         Itemstacks = workableStacklist.ToArray(),
                         GetMatchingStacks = (wi, bs, es) => {
-                            BlockEntityAnvil bea = api.World.BlockAccessor.GetBlockEntity(bs.Position) as BlockEntityAnvil;
+                            BlockEntityGemCuttingTable bea = api.World.BlockAccessor.GetBlockEntity(bs.Position) as BlockEntityGemCuttingTable;
                             return bea?.WorkItemStack == null ? wi.Itemstacks : null;
                         }
                     },
@@ -125,7 +125,7 @@ namespace canjewelry.src.blocks
                         MouseButton = EnumMouseButton.Left,
                         Itemstacks = hammerStacklist.ToArray(),
                         GetMatchingStacks = (wi, bs, es) => {
-                            BlockEntityAnvil bea = api.World.BlockAccessor.GetBlockEntity(bs.Position) as BlockEntityAnvil;
+                            BlockEntityGemCuttingTable bea = api.World.BlockAccessor.GetBlockEntity(bs.Position) as BlockEntityGemCuttingTable;
                             return bea?.WorkItemStack == null ? null : wi.Itemstacks;
                         }
                     },
@@ -135,7 +135,7 @@ namespace canjewelry.src.blocks
                         MouseButton = EnumMouseButton.Right,
                         Itemstacks = hammerStacklist.ToArray(),
                         GetMatchingStacks = (wi, bs, es) => {
-                            BlockEntityAnvil bea = api.World.BlockAccessor.GetBlockEntity(bs.Position) as BlockEntityAnvil;
+                            BlockEntityGemCuttingTable bea = api.World.BlockAccessor.GetBlockEntity(bs.Position) as BlockEntityGemCuttingTable;
                             return bea?.WorkItemStack == null ? null : wi.Itemstacks;
                         }
                     },
@@ -146,7 +146,7 @@ namespace canjewelry.src.blocks
                         MouseButton = EnumMouseButton.None,
                         Itemstacks = hammerStacklist.ToArray(),
                         GetMatchingStacks = (wi, bs, es) => {
-                            BlockEntityAnvil bea = api.World.BlockAccessor.GetBlockEntity(bs.Position) as BlockEntityAnvil;
+                            BlockEntityGemCuttingTable bea = api.World.BlockAccessor.GetBlockEntity(bs.Position) as BlockEntityGemCuttingTable;
                             return bea?.WorkItemStack == null ? null : wi.Itemstacks;
                         }
                     },
@@ -157,8 +157,12 @@ namespace canjewelry.src.blocks
                         MouseButton = EnumMouseButton.Right,
                         Itemstacks = workableStacklist.ToArray(),
                         GetMatchingStacks = (wi, bs, es) => {
-                            BlockEntityAnvil bea = api.World.BlockAccessor.GetBlockEntity(bs.Position) as BlockEntityAnvil;
-                            return bea?.WorkItemStack == null ? null : new ItemStack[] { (bea.WorkItemStack.Collectible as IAnvilWorkable).GetBaseMaterial(bea.WorkItemStack) };
+                            BlockEntityGemCuttingTable bea = api.World.BlockAccessor.GetBlockEntity(bs.Position) as BlockEntityGemCuttingTable;
+                            // Null when the work item is not gem-cuttable, which is a "no hint"
+                            // rather than a crash - the cast used to be to IAnvilWorkable.
+                            ItemStack baseMaterial = (bea?.WorkItemStack?.Collectible as canjewelry.src.jewelry.IGemCuttingWorkable)
+                                ?.GetBaseMaterial(bea.WorkItemStack);
+                            return baseMaterial == null ? null : new ItemStack[] { baseMaterial };
                         }
                     }
                 };

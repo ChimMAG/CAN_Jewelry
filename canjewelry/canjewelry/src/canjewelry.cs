@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Cairo;
 using canjewelry.src.bb;
@@ -716,18 +715,19 @@ namespace canjewelry.src
         {
             try
             {
+                // Fully qualified: Cairo.Path is in scope here and collides with System.IO.Path.
                 string fileName = this.Mod.Info.ModID + ".json";
-                string path = Path.Combine(Vintagestory.API.Config.GamePaths.ModConfig, fileName);
-                if (!File.Exists(path)) return;
+                string path = System.IO.Path.Combine(Vintagestory.API.Config.GamePaths.ModConfig, fileName);
+                if (!System.IO.File.Exists(path)) return;
 
                 string backupName = string.Format("{0}_{1}.json.bak", this.Mod.Info.ModID,
                     string.IsNullOrEmpty(fromVersion) ? "pre-versioning" : fromVersion);
-                string backupPath = Path.Combine(Vintagestory.API.Config.GamePaths.ModConfig, backupName);
+                string backupPath = System.IO.Path.Combine(Vintagestory.API.Config.GamePaths.ModConfig, backupName);
                 // Keep the first backup made for that version: it is the one written by the
                 // version being left, later runs would only overwrite it with migrated content.
-                if (File.Exists(backupPath)) return;
+                if (System.IO.File.Exists(backupPath)) return;
 
-                File.Copy(path, backupPath);
+                System.IO.File.Copy(path, backupPath);
                 api.Logger.Notification("[canjewelry] config of version {0} backed up to {1} before migrating to {2}",
                     fromVersion, backupName, toVersion);
             }
@@ -821,6 +821,26 @@ namespace canjewelry.src
                         BackupConfigFile(api, config.config_version, currVersion);
                         config.FillDefaultValues(true);
                         config.config_version = currVersion;
+                    }
+                }
+
+                // Entries this mod version knows about and the config does not - typically items
+                // or metals added since the config was written. Adding them is opt-in, but the
+                // count is always reported so the gap does not stay invisible.
+                int missingDefaults = config.AddMissingDefaults(config.add_missing_defaults_on_update);
+                if (missingDefaults > 0)
+                {
+                    if (config.add_missing_defaults_on_update)
+                    {
+                        api.Logger.Notification("[canjewelry] added {0} socket entries missing from the config", missingDefaults);
+                    }
+                    else
+                    {
+                        // Missing entries are a state, not an event, so this would otherwise
+                        // repeat on every single start for a config that is missing them on
+                        // purpose. Kept at verbose level: whoever looks for the gap finds it.
+                        api.Logger.VerboseDebug("[canjewelry] the config is missing {0} socket entries this version knows about - set add_missing_defaults_on_update to true to append them",
+                            missingDefaults);
                     }
                 }
 
