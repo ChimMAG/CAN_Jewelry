@@ -26,10 +26,9 @@ namespace canjewelry.src.harmony
 
             harmonyInstance.Patch(typeof(ItemChisel).GetMethod("OnHeldAttackStart"), postfix: new HarmonyMethod(typeof(harmPatch).GetMethod("Postfix_ItemChisel_OnHeldAttackStart")));
 
-            // Block default "drop on world" while ImGui inventory grid is active.
-            harmonyInstance.Patch(
-                typeof(Vintagestory.Common.PlayerInventoryManager).GetMethod("DropMouseSlotItems"),
-                prefix: new HarmonyMethod(typeof(harmPatch).GetMethod("Prefix_DropMouseSlotItems")));
+            // The DropMouseSlotItems prefix that used to sit here existed only to stop the ImGui
+            // inventory grid from throwing the held stack into the world. The native slot grid
+            // handles the mouse itself, so the patch is gone with it.
         }
     }
 }

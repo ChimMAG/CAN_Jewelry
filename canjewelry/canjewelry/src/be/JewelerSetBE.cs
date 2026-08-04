@@ -25,7 +25,6 @@ namespace canjewelry.src.jewelry
         protected CollectibleObject nowTesselatingObj;
         protected Shape nowTesselatingShape;
         GuiDialogJewelerSet renameGui;
-        ImGuiDialogJewelerSet imguiGui;
         BlockFacing facing;
         public virtual string AttributeTransformCode => "groundTransform";
         public virtual string ClassCode
@@ -169,8 +168,8 @@ namespace canjewelry.src.jewelry
             this.inventory.SlotModified += (int num) => {
                 if (this.inventory.Api.Side == EnumAppSide.Client)
                 {
-                    // The native dialog is not immediate mode: its composer has to be rebuilt for
-                    // the change to show. The ImGui one redraws itself and needs nothing here.
+                    // The dialog is not immediate mode: its composer has to be rebuilt for the
+                    // change to show up.
                     renameGui?.SetupDialog();
                 }
             };
@@ -200,13 +199,6 @@ namespace canjewelry.src.jewelry
             if (packetid == 5000)
             {
                 // The packet acts as a toggle: arriving while a dialog is up closes it.
-                if (imguiGui != null)
-                {
-                    if (imguiGui.IsOpen) imguiGui.Close();
-                    imguiGui.Dispose();
-                    imguiGui = null;
-                    return;
-                }
                 if (renameGui != null)
                 {
                     renameGui.TryClose();
@@ -229,30 +221,14 @@ namespace canjewelry.src.jewelry
                 Inventory.FromTreeAttributes(treeAttribute);
                 Inventory.ResolveBlocksOrItems();
 
-                // Both dialogs send the same packets back, so the choice is purely what gets drawn.
-                if (canjewelry.config.use_imgui_dialogs)
-                {
-                    imguiGui = new ImGuiDialogJewelerSet(capi, inventory, Pos);
-                    imguiGui.Open();
-                }
-                else
-                {
-                    renameGui = new GuiDialogJewelerSet(dialogTitle, inventory, Pos, capi);
-                    renameGui.SetupDialog();
-                    renameGui.TryOpen();
-                }
+                renameGui = new GuiDialogJewelerSet(dialogTitle, inventory, Pos, capi);
+                renameGui.SetupDialog();
+                renameGui.TryOpen();
             }
 
             if (packetid == 1001)
             {
                 clientWorldAccessor.Player.InventoryManager.CloseInventory(Inventory);
-                if (imguiGui?.IsOpen ?? false)
-                {
-                    imguiGui.Close();
-                }
-                imguiGui?.Dispose();
-                imguiGui = null;
-
                 renameGui?.TryClose();
                 renameGui?.Dispose();
                 renameGui = null;
@@ -419,7 +395,7 @@ namespace canjewelry.src.jewelry
         public override bool OnTesselation(ITerrainMeshPool mesher, ITesselatorAPI tessThreadTesselator)
         {
             // Item-on-top mesh removed — the placed jewelry is now shown in the
-            // ImGui dialog's 3D preview instead.
+            // dialog's 3D preview instead.
             /*var shape = new Shape
             {
                 // Создание шейпа куба
@@ -828,8 +804,6 @@ namespace canjewelry.src.jewelry
         {
             this.renameGui?.Dispose();
             this.renameGui = null;
-            this.imguiGui?.Dispose();
-            this.imguiGui = null;
         }
         protected virtual void OnInvOpened(IPlayer player) => this.inventory.PutLocked = false;    
         public TextureAtlasPosition this[string textureCode]

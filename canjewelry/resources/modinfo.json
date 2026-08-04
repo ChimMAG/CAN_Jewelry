@@ -5,9 +5,8 @@
   "authors": [ "KenigVovan" ],
   "description": "Gems and jewelry with buffs.",
   "contributors": [ "justOmi", "DarkPaapi", "Wailwolf", "FourLanguages", "sadCarb0ne", "ripls", "Jikoo" ],
-  "version": "0.6.21",
+  "version": "0.6.22",
   "dependencies": {
-    "game": "",
-    "vsimgui": ""
+    "game": ""
   }
   }

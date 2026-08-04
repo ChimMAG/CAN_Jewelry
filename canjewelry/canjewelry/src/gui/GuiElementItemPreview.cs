@@ -4,9 +4,9 @@ using Vintagestory.API.Common;
 
 namespace canjewelry.src.gui
 {
-    // Draws the rotatable 3D item preview inside a native dialog. The rendering itself is the
-    // same JewelerItemPreview the ImGui dialog uses - it renders the stack into its own
-    // framebuffer and hands out a texture id, which is all this element paints.
+    // Draws the rotatable 3D item preview inside a dialog. The rendering itself is done by
+    // JewelerItemPreview, which renders the stack into its own framebuffer and hands out a
+    // texture id - painting that texture is all this element does.
     //
     // The render pass is deliberately NOT started here: switching framebuffers in the middle of
     // the gui pass would disturb it. The owning dialog calls JewelerItemPreview.Render before
@@ -46,7 +46,7 @@ namespace canjewelry.src.gui
             base.OnMouseMove(api, args);
             if (!dragging || preview == null) return;
 
-            // Same feel as the ImGui dialog: horizontal drag spins, vertical tilts.
+            // Horizontal drag spins the piece, vertical tilts it.
             preview.RotationY -= (args.X - lastMouseX) * 0.5f;
             preview.RotationX -= (args.Y - lastMouseY) * 0.5f;
             lastMouseX = args.X;

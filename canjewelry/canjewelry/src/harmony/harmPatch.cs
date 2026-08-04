@@ -26,12 +26,6 @@ namespace canjewelry.src.harmony
     [HarmonyPatch]
     public class harmPatch
     {
-        /// <summary>Prevents game from dropping mouse cursor items while ImGui inventory grid is active.</summary>
-        public static bool Prefix_DropMouseSlotItems()
-        {
-            return !ImGuiInventoryGrid.SuppressMouseDrop;
-        }
-
         /***
           
          Comment were mostly written after some time after code was added, so at some points I had to guess what I meant before or rewrite some too hideous parts.

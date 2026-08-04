@@ -21,8 +21,16 @@ namespace canjewelry.src.blocks
 
             // Bootstrap admin's config from the canpan.json seed when missing. After bootstrap
             // canjewelry.config.panningDrops is the canonical admin-editable source.
-            var fromAttr = this.Attributes["panningDrops"]
-                .AsObject<Dictionary<string, CANPanningDrop[]>>(null);
+            var fromAttr = this.Attributes?["panningDrops"]
+                ?.AsObject<Dictionary<string, CANPanningDrop[]>>(null);
+
+            // Blocks are loaded before StartClientSide runs, so a config that was not picked up in
+            // StartPre must not be dereferenced blindly - that used to be a hard crash on world join.
+            if (canjewelry.config == null)
+            {
+                api.Logger.Warning("[canjewelry] config was not loaded before block loading, falling back to defaults for the pan drop table.");
+                canjewelry.config = new Config();
+            }
             if (canjewelry.config.panningDrops == null || canjewelry.config.panningDrops.Count == 0)
             {
                 if (fromAttr != null)

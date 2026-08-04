@@ -156,7 +156,7 @@ namespace canjewelry.src
         /// </summary>
         public static List<GemCuttingRecipe> gemCuttingRecipes = new();
 
-        private CANJewelryGuideDialog guideDialog;
+        private GuiDialogJewelryGuide guideDialog;
         /// <summary>
         /// Loaded wearable restrictions by name.
         /// </summary>
@@ -172,6 +172,14 @@ namespace canjewelry.src
         /// </summary>
         public override void StartPre(ICoreAPI api)
         {
+            // Config has to exist before any asset is loaded: Block.OnLoaded (CANBlockPan) reads
+            // config.panningDrops, and on the client that runs before StartClientSide, so loading
+            // it there only would leave the block with a null config and crash world join.
+            if (config == null)
+            {
+                loadConfig(api);
+            }
+
             // Guard against appending twice within a single VS process (e.g. leave and rejoin a
             // world with the mod active), which would otherwise leave a duplicate entry behind.
             if (!PlayerInventoryManager.defaultInventories.Contains("additionaljewelrycharacter"))
@@ -252,16 +260,20 @@ namespace canjewelry.src
         {
             base.StartClientSide(api);
             capi = api;
-            loadConfig(capi);
+            // Normally already loaded in StartPre; kept as a fallback for the case StartPre was skipped.
+            if (config == null)
+            {
+                loadConfig(capi);
+            }
             AddCustomIcons();
             ClientPatcher.ApplyPatches(capi, harmonyID, ref harmonyInstance);
 
-            guideDialog = new CANJewelryGuideDialog(api);
+            guideDialog = new GuiDialogJewelryGuide(api);
             api.Input.RegisterHotKey("canjewelryguide", "CAN Jewelry Guide", Vintagestory.API.Client.GlKeys.J, Vintagestory.API.Client.HotkeyType.GUIOrOtherControls);
             api.Input.SetHotKeyHandler("canjewelryguide", comb =>
             {
-                if (guideDialog.IsOpen) guideDialog.Close();
-                else guideDialog.Open();
+                if (guideDialog.IsOpened()) guideDialog.TryClose();
+                else guideDialog.TryOpen();
                 return true;
             });
 
@@ -460,7 +472,11 @@ namespace canjewelry.src
         {
             base.StartServerSide(api);
             sapi = api;
-            loadConfig(sapi);
+            // Normally already loaded in StartPre; kept as a fallback for the case StartPre was skipped.
+            if (config == null)
+            {
+                loadConfig(sapi);
+            }
             ServerPatcher.ApplyPatches(api, harmonyID, ref harmonyInstance);
            
             

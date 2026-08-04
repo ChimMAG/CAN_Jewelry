@@ -28,9 +28,8 @@ namespace canjewelry.src.jewelry
         // confirmation, -1 meaning nothing is pending.
         int pendingExtractGem = -1;
         int pendingExtractSocket = -1;
-        // Shared with the ImGui dialog: renders the piece into its own framebuffer, which
-        // GuiElementItemPreview then paints. Created lazily so a dialog that never shows a piece
-        // does not allocate a framebuffer.
+        // Renders the piece into its own framebuffer, which GuiElementItemPreview then paints.
+        // Created lazily so a dialog that never shows a piece does not allocate a framebuffer.
         gui.JewelerItemPreview itemPreview;
         // Two columns: the preview sits alone on the left, everything else lives to the right of
         // WorkColumnX. Slot rows are then centred within their own column rather than the dialog.
@@ -38,6 +37,10 @@ namespace canjewelry.src.jewelry
         // 300px framebuffer, so beyond that it would start to soften.
         const int PreviewSize = 260;
         const int WorkColumnX = 290;
+        // Horizontal step between slots - wide enough for the action buttons underneath, which
+        // carry words rather than "+" and "-".
+        const int SlotStride = 84;
+        const int ActionButtonWidth = 76;
         public GuiDialogJewelerSet(string dialogTitle, InventoryBase inventory, BlockPos blockEntityPos, ICoreClientAPI capi) : base(dialogTitle, inventory, blockEntityPos, capi)
         {            
             if (IsDuplicate)
@@ -73,7 +76,6 @@ namespace canjewelry.src.jewelry
             int chosenGroupTab = groupOfInterests == null ? 0 : groupOfInterests.ActiveElement;
 
             var scaledSlotSize = (48);
-            var scaledOffset = (48 / 12);
 
             ElementBounds encrustetItemBounds = backgroundBounds.FlatCopy().WithFixedSize(this.Width - WorkColumnX, 60).WithFixedPosition(WorkColumnX, 30);
             ElementBounds slotB = ElementBounds.FixedSize(48, 48).WithAlignment(EnumDialogArea.CenterMiddle);
@@ -91,20 +93,34 @@ namespace canjewelry.src.jewelry
             //jewelerComposer.AddInset(encrustetItemBounds);
 
             ElementBounds slotsEl = encrustetItemBounds.BelowCopy().WithFixedSize(encrustetItemBounds.fixedWidth, encrustetItemBounds.fixedHeight - 20);
-            // Room for the slot plus two button rows ("+" and, for a filled socket, "-").
+            // Room for the slot plus two button rows (set/swap and, for a filled socket, extract).
             slotsEl.fixedHeight += 68;
             //jewelerComposer.AddInset(slotsEl);
            // slotsEl.BothSizing = ElementSizing.FitToChildren;
             ItemStack encrustable = this.Inventory[0].Itemstack;
             int maxSocketNumber = EncrustableCB.GetMaxAmountSockets(encrustable);
+
+            // Without this the work column is simply blank and it is not obvious whether the
+            // dialog is broken, the item is wrong, or something has to be placed first.
+            if (encrustable == null || maxSocketNumber <= 0)
+            {
+                ElementBounds emptyEl = ElementBounds.FixedSize(this.Width - WorkColumnX - 20, 60);
+                emptyEl.fixedX = WorkColumnX;
+                emptyEl.fixedY = slotsEl.fixedY;
+                jewelerComposer.AddStaticText(Lang.Get(encrustable == null
+                        ? "canjewelry:jewelerset-place-item-hint"
+                        : "canjewelry:jewelerset-no-sockets"),
+                    CairoFont.WhiteSmallText(), emptyEl, "emptyhint");
+            }
+
             if (encrustable != null && maxSocketNumber > 0)
-            {               
+            {
                 int possibleSockets = maxSocketNumber;
                 ElementBounds tmpEl = slotsEl.FlatCopy().WithFixedSize(scaledSlotSize, scaledSlotSize);
-                double center = slotsEl.fixedX + slotsEl.fixedWidth / 2;
-                double centerSlot = center - (possibleSockets % 2 == 1 ? scaledSlotSize / 2: 0);
-                double startSlot = centerSlot - (((int)(possibleSockets / 2)) * scaledSlotSize);
-                tmpEl.fixedX = startSlot;
+                // Centre the whole row: the old formula stepped by slot size while the row steps
+                // by SlotStride, which left even counts off centre.
+                double rowWidth = possibleSockets * scaledSlotSize + (possibleSockets - 1) * (SlotStride - scaledSlotSize);
+                tmpEl.fixedX = slotsEl.fixedX + (slotsEl.fixedWidth - rowWidth) / 2;
 
                 var tree = encrustable.Attributes.GetTreeAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING);
 
@@ -127,10 +143,11 @@ namespace canjewelry.src.jewelry
                                 gemSize = "flawless";
                             }
 
+                            // One slot height above its own slot. The +20 offsets the shift a
+                            // richtext itemstack draws with (see the socket icon below).
                             var elGem = tmpEl.FlatCopy();
-                            elGem.fixedY -= 48;
                             elGem.fixedX += 20;
-                            elGem.fixedY += 20;
+                            elGem.fixedY += 20 - 48;
                             var bucketSatck = new ItemStack(capi.World.GetItem(new AssetLocation("canjewelry:gem-cut-" + gemSize + "-" + gemType)), 1);
 
                             if (imaginaryGemTree.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_NAMES) && imaginaryGemTree.HasAttribute(CANJWConstants.ENCRUSTABLE_BUFFS_VALUES))
@@ -145,24 +162,18 @@ namespace canjewelry.src.jewelry
                              }
                             var sli = new SlideshowItemstackTextComponent(capi, new ItemStack[] { bucketSatck }, 48, EnumFloat.Inline);
                             var rc = new RichTextComponentBase[] { sli };
-                            tmpEl.fixedX += 20;
-                            tmpEl.fixedY += 20;
                             if (bucketSatck != null)
                             {
                                 SingleComposer.AddRichtext(rc, elGem, "gem_slot" + i);
                             }
-                            //jewelerComposer.AddInset(tmpEl);
-                            tmpEl = tmpEl.FlatCopy();
-                            tmpEl.fixedX -= 20;
-                            tmpEl.fixedY -= 20;
 
                             // Pull the gem back out. Asks first - it can break the piece. Sits on
                             // its own line under the "+" so both stay full slot width.
-                            ElementBounds removeGemEl = ElementBounds.FixedSize(48, 24);
-                            removeGemEl.fixedX = tmpEl.fixedX;
+                            ElementBounds removeGemEl = ElementBounds.FixedSize(ActionButtonWidth, 24);
+                            removeGemEl.fixedX = tmpEl.fixedX + (scaledSlotSize - ActionButtonWidth) / 2.0;
                             removeGemEl.fixedY = tmpEl.fixedY + tmpEl.fixedHeight + 32;
                             int gemToRemove = i;
-                            jewelerComposer.AddSmallButton(Lang.Get("-"),
+                            jewelerComposer.AddSmallButton(Lang.Get("canjewelry:jewelerset-extract"),
                                new ActionConsumable(() =>
                                {
                                    pendingExtractGem = gemToRemove;
@@ -171,6 +182,13 @@ namespace canjewelry.src.jewelry
                                    return true;
                                }),
                                removeGemEl, EnumButtonStyle.Normal, "removegem" + i);
+
+                            // Odds of recovering the gem and of destroying the piece, from config.
+                            jewelerComposer.AddHoverText(
+                                Lang.Get("canjewelry:jewelerset-extract-tooltip",
+                                    (int)(canjewelry.config.gemExtractionReturnChance * 100f),
+                                    (int)(canjewelry.config.jewelryBreakOnExtractionChance * 100f)),
+                                CairoFont.WhiteSmallText(), 280, removeGemEl.FlatCopy());
                         }
                         //jewelerComposer.AddInset(tmpEl);
                         int[] intArr = new int[1];
@@ -182,13 +200,16 @@ namespace canjewelry.src.jewelry
                                 ? "#2FE147" : (this.Inventory[i + 1].Itemstack == null ? null : "#F03330");
                         jewelerComposer.AddItemSlotGrid(this.Inventory, new Action<object>(this.SendInvPacket), intArr.Length, intArr, tmpEl, "gemslot" + i);
 
-                        ElementBounds buttonEl = ElementBounds.FixedSize(48, 24);
-                        buttonEl.fixedX = tmpEl.fixedX;
+                        ElementBounds buttonEl = ElementBounds.FixedSize(ActionButtonWidth, 24);
+                        buttonEl.fixedX = tmpEl.fixedX + (scaledSlotSize - ActionButtonWidth) / 2.0;
                         buttonEl.fixedY = tmpEl.fixedY + tmpEl.fixedHeight + 4;
-                        var elll = ElementBounds.FixedSize(40, 40);
-
                         int tmpI = i;
-                        jewelerComposer.AddSmallButton(Lang.Get("+"),
+                        // Wording depends on what is already in the socket: filling an empty one
+                        // reads differently from replacing the gem sitting in it.
+                        bool socketHasGem = !string.IsNullOrEmpty(tree?.GetTreeAttribute("slot" + i)?.GetString(CANJWConstants.GEM_TYPE_IN_SOCKET));
+                        jewelerComposer.AddSmallButton(Lang.Get(socketHasGem
+                                ? "canjewelry:jewelerset-swap"
+                                : "canjewelry:jewelerset-set-gem"),
                            new ActionConsumable(() =>
                            {
                                OnClickButtonAddGem(tmpI, tmpI + 1);
@@ -201,7 +222,7 @@ namespace canjewelry.src.jewelry
 
 
                     tmpEl = tmpEl.FlatCopy();
-                    tmpEl.fixedX += scaledSlotSize + scaledOffset * 2;
+                    tmpEl.fixedX += SlotStride;
                 }
                 
                 
@@ -216,10 +237,8 @@ namespace canjewelry.src.jewelry
             {
                 int possibleSockets = maxSocketNumber;
                 ElementBounds tmpEl = socketsEl.FlatCopy().WithFixedSize(scaledSlotSize, scaledSlotSize);
-                double center = slotsEl.fixedX + slotsEl.fixedWidth / 2;
-                double centerSlot = center - (possibleSockets % 2 == 1 ? scaledSlotSize / 2 : 0);
-                double startSlot = centerSlot - (((int)(possibleSockets / 2)) * scaledSlotSize);
-                tmpEl.fixedX = startSlot;
+                double rowWidth = possibleSockets * scaledSlotSize + (possibleSockets - 1) * (SlotStride - scaledSlotSize);
+                tmpEl.fixedX = slotsEl.fixedX + (slotsEl.fixedWidth - rowWidth) / 2;
 
                 var tree = encrustable.Attributes.GetTreeAttribute(CANJWConstants.ITEM_ENCRUSTED_STRING);
 
@@ -247,25 +266,25 @@ namespace canjewelry.src.jewelry
                         var bucketSatck = new ItemStack(capi.World.GetItem(new AssetLocation(socket_type_str)), 1);
                         var sli = new SlideshowItemstackTextComponent(capi, new ItemStack[] { bucketSatck }, 48, EnumFloat.Inline);
                         var rc = new RichTextComponentBase[] { sli };
-                        tmpEl.fixedX += 20;
-                        tmpEl.fixedY += 20;
                         if (bucketSatck != null)
                         {
-                            SingleComposer.AddRichtext(rc, tmpEl, "socket_slot" + i);
+                            // A richtext itemstack draws roughly 20px up and to the left of the
+                            // bounds it is given, so the bounds are pushed by the same amount to
+                            // land the icon on the slot position.
+                            ElementBounds iconEl = tmpEl.FlatCopy();
+                            iconEl.fixedX += 20;
+                            iconEl.fixedY += 20;
+                            SingleComposer.AddRichtext(rc, iconEl, "socket_slot" + i);
                         }
-                        //jewelerComposer.AddInset(tmpEl);
-                        tmpEl = tmpEl.FlatCopy();
-                        tmpEl.fixedX -= 20;
-                        tmpEl.fixedY -= 20;
 
                         // Taking the socket out is optional and can be disabled server side.
                         if (canjewelry.config.canExtractSocket)
                         {
-                            ElementBounds removeSocketEl = ElementBounds.FixedSize(48, 24);
-                            removeSocketEl.fixedX = tmpEl.fixedX;
+                            ElementBounds removeSocketEl = ElementBounds.FixedSize(ActionButtonWidth, 24);
+                            removeSocketEl.fixedX = tmpEl.fixedX + (scaledSlotSize - ActionButtonWidth) / 2.0;
                             removeSocketEl.fixedY = tmpEl.fixedY + tmpEl.fixedHeight + 4;
                             int socketToRemove = i;
-                            jewelerComposer.AddSmallButton(Lang.Get("-"),
+                            jewelerComposer.AddSmallButton(Lang.Get("canjewelry:jewelerset-extract"),
                                new ActionConsumable(() =>
                                {
                                    pendingExtractSocket = socketToRemove;
@@ -276,7 +295,7 @@ namespace canjewelry.src.jewelry
                                removeSocketEl, EnumButtonStyle.Normal, "removesocket" + i);
                         }
 
-                        tmpEl.fixedX += scaledSlotSize + scaledOffset * 2;
+                        tmpEl.fixedX += SlotStride;
                         continue;
                     }
                     else
@@ -287,32 +306,21 @@ namespace canjewelry.src.jewelry
                         this.Composers["jewelersetgui" + this.BlockEntityPosition?.ToString()]
                         .AddItemSlotGrid((IInventory)this.Inventory, new Action<object>(((GuiDialogJewelerSet)this).SendInvPacket), intArr.Length, intArr, tmpEl, "socketsslot" + i);
 
-                        ElementBounds buttonEl = ElementBounds.FixedSize(48, 24);
-                        buttonEl.fixedX = tmpEl.fixedX;
+                        ElementBounds buttonEl = ElementBounds.FixedSize(ActionButtonWidth, 24);
+                        buttonEl.fixedX = tmpEl.fixedX + (scaledSlotSize - ActionButtonWidth) / 2.0;
                         buttonEl.fixedY = tmpEl.fixedY + tmpEl.fixedHeight + 4;
-                        var elll = ElementBounds.FixedSize(40, 40);
-                        if (tiersList != null)
-                        {
-                            int curTier = tiersList[i];
-                            if (curTier == 1)
-                            {
-                                this.Inventory[i + 5].HexBackgroundColor = green;
-                            }
-                            else if (curTier == 2)
-                            {
-                                this.Inventory[i + 5].HexBackgroundColor = blue;
-                            }
-                            else if (curTier == 3)
-                            {
-                                this.Inventory[i + 5].HexBackgroundColor = purple;
-                            }
-                        }
-                        else
-                        {
-                            this.Inventory[i + 5].HexBackgroundColor = green;
-                        }
+                        int slotTier = tiersList != null && i < tiersList.Length ? tiersList[i] : 1;
+                        this.Inventory[i + 5].HexBackgroundColor = slotTier == 3 ? purple : (slotTier == 2 ? blue : green);
+
+                        // The backdrop colour alone says nothing, and the bare tier description
+                        // ("steel, large gem") reads as a riddle without saying what it is about.
+                        jewelerComposer.AddHoverText(
+                            Lang.Get("canjewelry:jewelerset-socket-slot-hint", slotTier,
+                                Lang.Get("canjewelry:jewelerset-tier" + slotTier + "-desc")),
+                            CairoFont.WhiteSmallText(), 260, tmpEl.FlatCopy());
+
                         int tmpI = i;
-                        this.Composers["jewelersetgui" + this.BlockEntityPosition?.ToString()].AddSmallButton(Lang.Get("+"),
+                        this.Composers["jewelersetgui" + this.BlockEntityPosition?.ToString()].AddSmallButton(Lang.Get("canjewelry:jewelerset-add-socket"),
                            new ActionConsumable(() =>
                            {
                                OnClickButtonAddSocket(tmpI, tmpI + 5);
@@ -322,13 +330,14 @@ namespace canjewelry.src.jewelry
                     }
 
                     tmpEl = tmpEl.FlatCopy();
-                    tmpEl.fixedX += scaledSlotSize + scaledOffset * 2;
+                    tmpEl.fixedX += SlotStride;
                 }
 
 
             }
 
-            AddInscriptionSection(jewelerComposer, encrustable);
+            double inscriptionBottom = AddInscriptionSection(jewelerComposer, encrustable);
+            AddCompatibleGems(jewelerComposer, encrustable, inscriptionBottom + 10);
             // The confirmation lives in the work column and no longer follows the inscription,
             // which moved under the preview on the left.
             AddExtractConfirm(jewelerComposer, InscriptionTop(socketsEl), encrustable);
@@ -350,7 +359,17 @@ namespace canjewelry.src.jewelry
             ElementBounds previewEl = ElementBounds.FixedSize(PreviewSize, PreviewSize);
             previewEl.fixedX = (WorkColumnX - PreviewSize) / 2;
             previewEl.fixedY = anchor.fixedY;
+            double previewBottom = previewEl.fixedY + PreviewSize;
+            // Sunken frame so the render reads as a viewport rather than a floating sprite.
+            composer.AddInset(previewEl.ForkBoundingParent(4, 4, 4, 4), 3);
             composer.AddInteractiveElement(new gui.GuiElementItemPreview(this.capi, previewEl, itemPreview), "itempreview");
+
+            // The preview responds to dragging, which is not discoverable on its own.
+            ElementBounds rotateHintEl = ElementBounds.FixedSize(WorkColumnX - 20, 18);
+            rotateHintEl.fixedX = 10;
+            rotateHintEl.fixedY = previewBottom + 8;
+            composer.AddStaticText(Lang.Get("canjewelry:jewelerset-drag-to-rotate"),
+                CairoFont.WhiteDetailText().WithColor(GuiStyle.ColorParchment), rotateHintEl, "rotatehint");
         }
 
         // The preview owns a framebuffer, so it is rendered before the gui pass rather than from
@@ -405,15 +424,18 @@ namespace canjewelry.src.jewelry
         /// replaced by the text itself. A companion mod can veto engraving through CanInscribe,
         /// which is why the event is asked rather than assumed.
         /// </summary>
-        private void AddInscriptionSection(GuiComposer composer, ItemStack encrustable)
+        /// <returns>The y coordinate right below this section.</returns>
+        private double AddInscriptionSection(GuiComposer composer, ItemStack encrustable)
         {
-            if (encrustable == null) return;
+            double top = 30 + PreviewSize + 40;
+            if (encrustable == null) return top;
 
             // Left column, right under the preview: the work column is busy with slots, and the
             // engraving belongs to the piece being shown rather than to any single socket.
+            // Below the preview and its "drag to rotate" line.
             ElementBounds labelEl = ElementBounds.FixedSize(WorkColumnX - 20, 20);
             labelEl.fixedX = 10;
-            labelEl.fixedY = 30 + PreviewSize + 16;
+            labelEl.fixedY = top;
 
             string existing = encrustable.Attributes?.GetString(CANJWConstants.INSCRIPTION);
             if (!string.IsNullOrEmpty(existing))
@@ -424,7 +446,7 @@ namespace canjewelry.src.jewelry
                 ElementBounds existingEl = labelEl.FlatCopy();
                 existingEl.fixedY = labelEl.fixedY + labelEl.fixedHeight + 4;
                 composer.AddStaticText("\"" + existing + "\"", CairoFont.WhiteDetailText(), existingEl, "inscriptiontext");
-                return;
+                return existingEl.fixedY + existingEl.fixedHeight;
             }
 
             var canInscribeEvent = new src.integration.CanInscribeEvent { Jewelry = encrustable };
@@ -432,7 +454,7 @@ namespace canjewelry.src.jewelry
             if (!canInscribeEvent.Allowed)
             {
                 composer.AddStaticText(Lang.Get("canjewelry:jewelerset-inscribe-locked"), CairoFont.WhiteSmallText(), labelEl, "inscriptionlocked");
-                return;
+                return labelEl.fixedY + labelEl.fixedHeight;
             }
 
             composer.AddStaticText(Lang.Get("canjewelry:jewelerset-inscription"), CairoFont.WhiteSmallText(), labelEl, "inscriptionlabel");
@@ -460,6 +482,69 @@ namespace canjewelry.src.jewelry
                     SendInscribe(text);
                     return true;
                 }), inscribeEl, EnumButtonStyle.Normal, "inscribebtn");
+
+            // Engraving cannot be undone, so the rules are spelled out rather than hidden.
+            ElementBounds hintEl = ElementBounds.FixedSize(WorkColumnX - 24, 40);
+            hintEl.fixedX = 10;
+            hintEl.fixedY = inscribeEl.fixedY + inscribeEl.fixedHeight + 6;
+            composer.AddStaticText(Lang.Get("canjewelry:jewelerset-inscription-hint"),
+                CairoFont.WhiteDetailText().WithColor(GuiStyle.ColorParchment), hintEl, "inscriptionhint");
+
+            return hintEl.fixedY + hintEl.fixedHeight;
+        }
+
+        /// <summary>
+        /// Gems this piece accepts, as icons rather than a list of names: fifteen rows of
+        /// "tourmalinerubellite" needed a panel of their own hanging off the side of the dialog,
+        /// while the icons fit under the inscription and say more at a glance. Hovering one gives
+        /// the usual item tooltip, so the names are still one mouse-over away.
+        /// </summary>
+        private void AddCompatibleGems(GuiComposer composer, ItemStack encrustable, double top)
+        {
+            if (encrustable == null) return;
+            string[] gemTypes = GetAvailableGemTypes(encrustable);
+            if (gemTypes == null || gemTypes.Length == 0) return;
+
+            ElementBounds labelEl = ElementBounds.FixedSize(WorkColumnX - 20, 20);
+            labelEl.fixedX = 10;
+            labelEl.fixedY = top;
+            composer.AddStaticText(Lang.Get("canjewelry:jewelerset-compatible-gems"), CairoFont.WhiteSmallText(), labelEl, "compatiblegemslabel");
+
+            // Smaller than the slot icons: a coronet accepts a dozen gem types, and at slot size
+            // three rows of them ran off the bottom of the dialog.
+            const int iconSize = 32;
+            const int perRow = 6;
+            const int stride = 42;
+            // Richtext draws an itemstack up and to the left of its bounds, by about half its size.
+            const int richtextOffset = iconSize / 2 - 4;
+
+            // Resolved up front: a gem type the world does not have (its item comes from another
+            // mod) is dropped entirely, and the grid must be sized to what is left before the
+            // frame around it can be drawn.
+            List<Item> gems = new List<Item>();
+            foreach (string gemType in gemTypes)
+            {
+                // Prefer the cut gem; a type that only exists as a rough stone still gets shown.
+                Item gemItem = capi.World.GetItem(new AssetLocation("canjewelry:gem-cut-normal-" + gemType))
+                               ?? capi.World.GetItem(new AssetLocation("canjewelry:gem-rough-normal-" + gemType));
+                if (gemItem != null) gems.Add(gemItem);
+            }
+            if (gems.Count == 0) return;
+
+            int rows = (gems.Count + perRow - 1) / perRow;
+            ElementBounds gridEl = ElementBounds.FixedSize(perRow * stride + 8, rows * stride + 8);
+            gridEl.fixedX = 10;
+            gridEl.fixedY = labelEl.fixedY + labelEl.fixedHeight + 4;
+
+            for (int i = 0; i < gems.Count; i++)
+            {
+                var component = new SlideshowItemstackTextComponent(capi, new ItemStack[] { new ItemStack(gems[i]) }, iconSize, EnumFloat.Inline);
+
+                ElementBounds iconEl = ElementBounds.FixedSize(iconSize, iconSize);
+                iconEl.fixedX = gridEl.fixedX + 2 + (i % perRow) * stride + richtextOffset;
+                iconEl.fixedY = gridEl.fixedY + 2 + (i / perRow) * stride + richtextOffset;
+                composer.AddRichtext(new RichTextComponentBase[] { component }, iconEl, "compatiblegem" + i);
+            }
         }
 
         /// <summary>
@@ -569,49 +654,9 @@ namespace canjewelry.src.jewelry
                 return (int)skFont.MeasureText(name);
             }
         }
-        public void ComposeAvailableGemTypesGui()
-        {
-            int maxSocketNumber = EncrustableCB.GetMaxAmountSockets(this.Inventory[0].Itemstack);
-            if(this.Inventory[0].Itemstack == null || maxSocketNumber < 1)
-            {
-                this.Composers.Remove("jewelersetgui-types");
-                return;
-            }
-            string[] availableGemTypes = GetAvailableGemTypes(this.Inventory[0].Itemstack);
-            if(availableGemTypes.Length < 1)
-            {
-                return;
-            }
-            ElementBounds leftDlgBounds = this.Composers["jewelersetgui" + this.BlockEntityPosition?.ToString()].Bounds;
-            double b = leftDlgBounds.InnerHeight / (double)RuntimeEnv.GUIScale + 10.0;
+        // The separate panel that used to hang off the right edge listing compatible gem type
+        // names is gone - the list lives inside the dialog now, as icons. See AddCompatibleGems.
 
-            ElementBounds bgBounds = ElementBounds.Fixed(0.0, 0.0,
-                235, leftDlgBounds.InnerHeight / (double)RuntimeEnv.GUIScale - GuiStyle.ElementToDialogPadding - 20.0 + b).WithFixedPadding(GuiStyle.ElementToDialogPadding);
-            ElementBounds dialogBounds = bgBounds.ForkBoundingParent(0.0, 0.0, 0.0, 0.0)
-                .WithAlignment(EnumDialogArea.LeftMiddle)
-                .WithFixedAlignmentOffset((leftDlgBounds.renderX + leftDlgBounds.OuterWidth + 10.0) / (double)RuntimeEnv.GUIScale,  0);
-            bgBounds.BothSizing = ElementSizing.FitToChildren;
-
-            dialogBounds.BothSizing = ElementSizing.FitToChildren;
-            dialogBounds.WithChild(bgBounds);
-            ElementBounds textBounds = ElementBounds.FixedPos(EnumDialogArea.LeftTop,
-                                                               0,
-                                                                0);
-            bgBounds.WithChildren(textBounds);
-
-            this.Composers["jewelersetgui-types"] = this.capi.Gui.CreateCompo("jewelersetgui-types", dialogBounds).AddShadedDialogBG(bgBounds, false, 5.0, 0.75f);
-            int maxWidth = availableGemTypes.OrderByDescending(s => s.Length).FirstOrDefault()?.Length ?? 20;
-            for(int i = 0; i < availableGemTypes.Length; i++)
-            {
-                ElementBounds el = textBounds.CopyOffsetedSibling().WithFixedHeight(20)
-                    .WithFixedWidth(maxWidth * 8)
-                    .WithFixedPosition(0, i * 20);
-                bgBounds.WithChildren(el);
-
-                this.Composers["jewelersetgui-types"].AddStaticText(availableGemTypes[i], CairoFont.WhiteDetailText(), el);
-            }
-            this.Composers["jewelersetgui-types"].Compose();
-        }
         private void OnTitleBarClose() => this.TryClose();
         public override void OnGuiClosed()
         {
@@ -658,7 +703,6 @@ namespace canjewelry.src.jewelry
             if (slotid == 0)
             {
                 this.capi.Event.EnqueueMainThreadTask(new Action(this.SetupDialog), "setupjewelersetdlg");
-                this.capi.Event.EnqueueMainThreadTask(new Action(this.ComposeAvailableGemTypesGui), "setupavailabletypesdlg");
                 
             }
         }
@@ -740,7 +784,7 @@ namespace canjewelry.src.jewelry
             SendSocketAction(1008, socketNum, 5 + socketNum);
         }
 
-        // Same payload shape the ImGui dialog uses, so the server side needs no changes.
+        // Payload shape the block entity expects for both extract packets.
         private void SendSocketAction(int packetId, int socketNum, int slotNum)
         {
             byte[] array;
