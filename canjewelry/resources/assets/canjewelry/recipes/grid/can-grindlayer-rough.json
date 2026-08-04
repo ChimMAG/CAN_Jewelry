@@ -29,5 +29,105 @@
       "code": "canjewelry:grindlayeritem-rough",
       "quantity": 1
     }
+  },
+  {
+    "__comment": "Early-age alternative: diamond grit instead of crushed ilmenite/chromite",
+    "ingredientPattern": "_C_,CPC,DDD",
+    "ingredients": {
+      "P": {
+        "type": "item",
+        "code": "game:resin",
+        "quantity": 2
+      },
+      "C": {
+        "type": "item",
+        "code": "canjewelry:crushed-diamond",
+        "quantity": 1
+      },
+      "D": {
+        "type": "item",
+        "code": "game:leather-normal-*",
+        "allowedVariants": [ "plain", "orange", "black", "red", "blue", "purple", "pink", "white", "yellow", "gray", "green" ],
+        "quantity": 2
+      }
+    },
+    "name": "cangrindlayer-rough-diamond",
+    "width": 3,
+    "height": 3,
+    "output": {
+      "type": "item",
+      "code": "canjewelry:grindlayeritem-rough",
+      "quantity": 1
+    }
+  },
+  {
+    "__comment": "Hand crushing of diamonds - lower yield than the pulverizer, but available without one",
+    "ingredientPattern": "H,G",
+    "ingredients": {
+      "H": {
+        "type": "item",
+        "code": "game:hammer-*",
+        "isTool": true,
+        "toolDurabilityCost": 5
+      },
+      "G": {
+        "type": "item",
+        "code": "canjewelry:gem-rough-chipped-diamond"
+      }
+    },
+    "name": "cancrushed-diamond-chipped",
+    "width": 1,
+    "height": 2,
+    "output": {
+      "type": "item",
+      "code": "canjewelry:crushed-diamond",
+      "quantity": 1
+    }
+  },
+  {
+    "ingredientPattern": "H,G",
+    "ingredients": {
+      "H": {
+        "type": "item",
+        "code": "game:hammer-*",
+        "isTool": true,
+        "toolDurabilityCost": 5
+      },
+      "G": {
+        "type": "item",
+        "code": "canjewelry:gem-rough-flawed-diamond"
+      }
+    },
+    "name": "cancrushed-diamond-flawed",
+    "width": 1,
+    "height": 2,
+    "output": {
+      "type": "item",
+      "code": "canjewelry:crushed-diamond",
+      "quantity": 1
+    }
+  },
+  {
+    "ingredientPattern": "H,G",
+    "ingredients": {
+      "H": {
+        "type": "item",
+        "code": "game:hammer-*",
+        "isTool": true,
+        "toolDurabilityCost": 5
+      },
+      "G": {
+        "type": "item",
+        "code": "canjewelry:gem-rough-normal-diamond"
+      }
+    },
+    "name": "cancrushed-diamond-normal",
+    "width": 1,
+    "height": 2,
+    "output": {
+      "type": "item",
+      "code": "canjewelry:crushed-diamond",
+      "quantity": 2
+    }
   }
 ]
